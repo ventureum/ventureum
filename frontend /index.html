@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="mdi.css">
+  <link href="https://fonts.googleapis.com/css?family=Allerta" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.min.js"</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"</script>
+  <script src="js/scrolling-nav.js"></script>
+</head>
+
+<body>
+
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#"></a>
+    </div>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a class="nav-link js-scroll-trigger" href="#intro">Start</a></li>
+      <li><a class="nav-link js-scroll-trigger" href="#">Features</a></li>
+      <li><a class="nav-link js-scroll-trigger" href="#platform">Platform</a></li>
+      <li><a class="nav-link js-scroll-trigger" href="#">Tokens</a></li>
+      <li><a class="nav-link js-scroll-trigger" href="#">Community</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section id="intro" class="intro"> 
+  <div class="container-fluid container-table">
+    <div class = "row vertical-center-row">
+    <div class ="col-md-12 text-center">
+        <h1 id = "intro-lg"> Ventureum </h1>
+        <h4 id = "intro-sm"> A Community-governed Milestone-driven Crowdfunding Platform for Blockchain Projects </h4>
+        <button type="button" class="btn btn-primary btn-outline btn-intro">Whitepaper</button>
+
+        <div class = "row btn-group-pad-top">
+          <div class = "col-md-2 col-md-offset-3" >
+            <button type="button" class="btn btn-primary btn-md btn-outline-thin-round">
+               <i class="mdi mdi-slack mdi-light mdi-36px" aria-hidden="true" style="font-size:36px; vertical-align: middle; padding-left:5px;"></i>
+               <span style="font-size:15px; vertical-align: middle; padding-right:5px;"> Join the community!</span>
+               </button>
+          </div>
+          <div class = "col-md-1 col-md-offset-1" >
+            <button type="button" class ="btn-transparent"> <i class="mdi mdi-telegram mdi-light mdi-36px" aria-hidden="true"></i></button>
+          </div>
+          <div class = "col-md-1" >
+            <button type="button" class ="btn-transparent"> <i class="mdi mdi-twitter mdi-light mdi-36px" aria-hidden="true"></i></button>
+          </div>
+          <div class = "col-md-1" >
+            <button type="button" class ="btn-transparent"> <i class="mdi mdi-reddit mdi-light mdi-36px" aria-hidden="true"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section id="platform" class="vertical-center" style = "background:#eeeeee;"> 
+  <div class="container">
+    <h1 style="color:#9c27b0; margin-bottom:50px";>HOW VENTUREUM WORKS</h1>
+      <div class="platform-card">
+      <div class="row is-flex">
+        <div class="col-md-4">
+          <h3 id="platform-slide-title" style="color:#9c27b0; margin-top:30px; margin-left:20px">First Page Description</h3>
+          <p id="platform-slide-text" style="margin-top:30px; margin-left:20px"> 
+          </p>
+        </div>
+        <div class="col-md-8">
+          <div class="platform-slider-pic">
+            <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="false">
+              <!-- Indicators -->
+              <ol class="carousel-indicators">
+                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                <li data-target="#myCarousel" data-slide-to="1"></li>
+                <li data-target="#myCarousel" data-slide-to="2"></li>
+              </ol>
+
+              <!-- Wrapper for slides -->
+              <div class="carousel-inner" style="height: 380px">
+                <div class="item active">
+                  <img src="img/project_list.png">
+                </div>
+
+                <div class="item">
+                  <img src="img/token_sale.png">
+                </div>
+
+                <div class="item">
+                  <img src="img/vth_staking.png">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <!-- row -->
+      <div class="row" style="margin-bottom: 20px; margin-right:40px">
+        <div class="col-sm-2 pull-right">
+          <button type="button" class="btn btn-primary btn-outline-purple btn-block" href="#myCarousel" data-slide="next" onclick="platform_slide_text_next()">Next</button>
+        </div>
+        <div class="col-sm-2 pull-right">
+          <button type="button" class="btn btn-primary btn-outline-purple btn-block" href="#myCarousel" data-slide="prev" onclick="platform_slide_text_pre()">Previous</button>
+        </div>
+      </div>
+  </div>
+  </div>
+</section>
+
+<section id="tokens" class="vertical-center" style = "background:#eeeeee;"> 
+  <div class="container">
+    <h1 style="color:#9c27b0; margin-bottom:10px";>VTH Tokens</h1>
+    <p style="color:#9c27b0; margin-bottom:50px; max-width: 40%";>Ventureum Network Token (VTH) gives its owners full access to the Ventureum platform's services, features and functionalities, including coverage for refund in the Milestone-driven Funds Management module.</p>
+    <div class="platform-card">
+      <div class="row is-flex">
+        <div class="col-md-4">
+          <h3 id="platform-slide-title" style="color:#9c27b0; margin-top:30px; margin-left:20px">First Page Description</h3>
+          <p id="platform-slide-text" style="margin-top:30px; margin-left:20px"> 
+          </p>
+        </div>
+        <div class="col-md-8">
+
+        </div>
+      </div> <!-- row -->
+    </div>
+  </div>
+</section>
+
+
+<!-- Disable ugly focus and active states for buttons -->
+<script>
+$(".btn").mouseup(function(){
+    $(this).blur();
+})
+
+var platform_slide_text_content = [
+    "\"Project List\" demonstrates all blockchain projects launched on Ventureum. Each project has a brief description for its motivations and objectives, a progress bar for commenced projects, a crowdsale period countdown for upcoming projects, the amount of investment (ETH) pledged by investors, and the amount of VTH tokens staked for refund coverage.",
+    "\"Overview\" gives investors detailed description of a project’s objectives, technical background, roadmap, founder team members, etc. Investors are also able to comment on the project. If the project is during a contribution period, investors can contribute to the project, and view the amount of investment (ETH) pledged, the soft cap and hard cap of the crowdsale, and contribution period deadline.",
+    "Once the contribution period is over, investors can view a real-time project progress bar, the total amount of investment raised during the contribution period. Investors can stake Ventureum Network Tokens (VTH) for refund coverage. To receive a refund up to X ETH, investors need to stake (lock in) at least 0.25X ETH worth of VTH on Ventureum till the project finishes."
+];
+
+var platform_slide_text_title = [
+  "Project List",
+  "Project Overview",
+  "VTH staking"
+];
+
+platform_slide_text_id = 0;
+
+// update slide text onload
+platform_slide_text_update();
+
+function platform_slide_text_pre(){
+  platform_slide_text_id--;
+  if(platform_slide_text_id < 0){
+    platform_slide_text_id = platform_slide_text_content.length-1;
+  }
+  platform_slide_text_update();
+}
+
+function platform_slide_text_next(){
+  platform_slide_text_id = (platform_slide_text_id+1)%platform_slide_text_content.length;
+  platform_slide_text_update();
+}
+
+function platform_slide_text_update(){
+  document.getElementById("platform-slide-text").innerText = platform_slide_text_content[platform_slide_text_id];
+  document.getElementById("platform-slide-title").innerText = platform_slide_text_title[platform_slide_text_id];
+}
+
+</script>
+
+</body>
+</html>
