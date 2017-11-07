@@ -1,0 +1,710 @@
+body, footer {
+  font-family: 'Allerta', sans-serif;
+}
+
+.navbar-inverse {
+     background-color: transparent;
+     padding: 0.5% 5% 0.5% 5%;
+     border: 0px;
+}
+
+
+.nav.navbar-nav.navbar-right li a {
+    color: white;
+}
+
+@media (max-width: 767px) {
+  .navbar-collapse {
+        background-color:rgba(0, 0, 0, 0.76);
+    }
+  .navbar-inverse {
+     background-color: rgba(0, 0, 0, 0.76);
+  }
+}
+
+.nav-underline a {
+  border-bottom: transparent solid 2px;
+  padding-bottom: 40px;
+}
+
+.nav-underline .active a {
+  border-bottom: white solid 2px;
+  background: transparent;
+}
+
+.navbar-nav.nav-underline>li>a {
+  padding: 0px;
+}
+
+.navbar-nav.nav-underline>li {
+  padding: 15px;
+}
+
+.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:focus, .navbar-inverse .navbar-nav>.active>a:hover {
+    background-color: transparent;
+}
+
+/* logo */
+
+.navbar-brand{ 
+  background: url("../img/logo.png") center / contain no-repeat;
+  width: 50px;
+}
+
+
+
+/* Intro Section */
+
+ html, body, .container-table {
+    height: 100%;
+}
+
+
+.intro {
+	height: 100%;
+	width: 100%;
+	margin: auto;
+	background: url("../img/intro_bg.jpg") no-repeat center center;
+	background-size: cover;
+} 
+
+
+#intro-lg {
+  color: white;
+}
+
+#intro-sm {
+  color: white;
+  opacity: 0.66;
+}
+
+@media only screen and (max-width: 767px) {
+  #intro-lg {
+    font-size: 30px;
+    
+  }
+  #intro-sm {
+    font-size: 15px;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  #intro-lg {
+    font-size: 60px;
+  }
+  #intro-sm {
+    font-size: 20px;
+  }
+}
+
+/* intro button */
+
+.btn-outline {
+    background-color: transparent;
+    color: inherit;
+    transition: all .5s;
+    border-color: white;
+    border-width: 3px;
+}
+
+.btn-outline-purple {
+    background-color: transparent;
+    color: inherit;
+    transition: all .5s;
+    border-color: #9c27b0;
+    border-width: 1px;
+}
+
+.btn-outline-thin-round {
+    background-color: transparent;
+    color: inherit;
+    transition: all .5s;
+    border-color: white;
+    border-width: 1px;
+    border-radius: 25px;
+    padding: 2% 0;
+}
+
+
+.btn-primary.btn-outline-thin-round {
+    color: white;
+}
+
+.btn-primary.btn-outline {
+    color: white;
+}
+
+.btn-primary.btn-outline-purple {
+    color: #9c27b0;
+}
+
+
+.btn-primary.btn-outline-thin-round:hover {
+    color: white;
+    background-color: transparent;
+    border-color: white;
+}
+
+.btn-primary.btn-outline:hover {
+	color: rgba(0,0,0,0.6);;
+    background-color: white;
+    border-color: white;
+}
+
+.btn-primary.btn-outline-purple:hover {
+	color: rgba(0,0,0,0.6);;
+    background-color: white;
+    border-color: white;
+}
+
+.btn-intro {
+    padding: 10px 40px;
+    font-size: 20px;
+    border-radius: 10px;
+    margin-top: 30px; 
+}
+
+.btn-space {
+    margin-right: 30px;
+}
+
+#intro-icon-btn {
+  position:absolute;
+  bottom:0;
+}
+
+.intro-title {
+
+}
+
+.btn-group-pad-top {
+    padding-top: 10%;
+}
+
+/* for showing button icon only */
+.btn-transparent {
+    background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    outline:none;
+}
+
+.centerBlock {
+  display: table;
+  margin: auto;
+}
+
+/* features */
+
+@media only screen and (max-width: 767px) {
+  .feature-title {
+    text-align:center;
+  }
+
+  .feature-title h1 {
+    font-size: 30px;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .feature-title {
+    text-align:left;
+  }
+}
+
+.feature-content {
+    margin: 5% 5% 5% 5%;
+}
+
+@media only screen and (min-width: 768px) {
+  .row-eq-height {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display:         flex;
+  }
+
+  .feature-content {
+    height:100%;
+  }
+  .feature-content h3 {
+    padding-top: 5%;
+    font-size: 24px;
+    height: 80px;
+  }
+  .feature-content p {
+    font-size: 20px;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .feature-content {
+    height:100%;
+  }
+  .feature-content h3 {
+    padding-top: 5%;
+    font-size: 20px;
+  }
+  .feature-content p {
+    font-size: 15px;
+  }
+}
+
+.feature-content h3 {
+  color:#9c27b0;
+  margin-bottom: 5px;
+  margin-top: 20px;
+}
+
+.feature-content p {
+  color:#616161;
+}
+
+
+.shadow {
+    background: white;
+    box-shadow: 0 8px 9px -5px rgba(0,0,0,.1),0 15px 22px 2px rgba(0,0,0,.07),0 6px 28px 5px rgba(0,0,0,.06);
+}
+
+.shadow-hover:focus,.shadow-hover:hover {
+    box-shadow: 0 11px 15px -6px rgba(0,0,0,.15),0 20px 31px 3px rgba(0,0,0,.08),0 8px 38px 7px rgba(0,0,0,.08);
+}
+
+.animate-box {
+  opacity: 0;
+}
+
+/* platform */
+
+@media only screen and (max-width: 767px) {
+  .platform-title {
+    text-align:center;
+  }
+
+  .platform-title h1 {
+    font-size: 30px;
+  }
+  .platform-card #style-1 {
+    height:100%;
+  }
+  .platform-card #style-1 .img-responsive {
+    width:100%;
+  } 
+}
+
+@media only screen and (min-width: 768px) {
+  .platform-title {
+    text-align:left;
+  }
+  .platform-card #style-1 {
+    height:600px;
+  }
+  .platform-card #style-1 .img-responsive {
+    width:50%;
+  } 
+}
+
+.platform-card #style-1 {
+  width:100%;
+  overflow: auto; 
+}
+.platform-card #style-1 .img-responsive {
+  display:block; 
+  margin:auto; 
+} 
+
+#style-1::-webkit-scrollbar-track
+{
+  border-radius: 1px;
+  background-color: none;
+}
+
+#style-1::-webkit-scrollbar
+{
+  width: 12px;
+  background-color: none;
+}
+
+#style-1::-webkit-scrollbar-thumb
+{
+  border-radius: 10px;
+  background-color: #555;
+}
+
+
+/* preview */
+
+@media only screen and (max-width: 767px) {
+  .preview-title {
+    text-align:center;
+  }
+  .preview-title h1 {
+    font-size: 30px;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .preview-title {
+    text-align:left;
+  }
+}
+
+#preview-slide-text b {
+  font-size: 16px;
+}
+
+#preview {
+  background: #eeeeee url(../img/platform_bg.png) no-repeat center center;
+  background-size: cover; 
+}
+
+.features.vertical-center {
+  margin-bottom: 0; /* Remove the default bottom margin of .jumbotron */
+}
+
+.vertical-center {
+  min-height: 100%;  /* Fallback for vh unit */
+  min-height: 100vh; /* You might also want to use
+                        'height' property instead.
+                        
+                        Note that for percentage values of
+                        'height' or 'min-height' properties,
+                        the 'height' of the parent element
+                        should be specified explicitly.
+  
+                        In this case the parent of '.vertical-center'
+                        is the <body> element */
+
+  /* Make it a flex container */
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex; 
+  
+  /* Align the bootstrap's container vertically */
+    -webkit-box-align : center;
+  -webkit-align-items : center;
+       -moz-box-align : center;
+       -ms-flex-align : center;
+          align-items : center;
+  
+  /* In legacy web browsers such as Firefox 9
+     we need to specify the width of the flex container */
+  width: 100%;
+  
+  /* Also 'margin: 0 auto' doesn't have any effect on flex items in such web browsers
+     hence the bootstrap's container won't be aligned to the center anymore.
+  
+     Therefore, we should use the following declarations to get it centered again */
+         -webkit-box-pack : center;
+            -moz-box-pack : center;
+            -ms-flex-pack : center;
+  -webkit-justify-content : center;
+          justify-content : center;
+}
+
+.feature-card, .platform-card, .preview-card, .tokens-card, .community-card {
+    background: white;
+    border-radius: 15px;
+    height:100%;
+    width:100%;
+}
+
+
+.preview-slider-text {
+	max-width:  300px;
+	margin: 20px 20px 20px 20px;
+}
+
+.preview-slider-pic {
+	margin: 20px 20px 20px 20px;
+	align-items: center;
+}
+
+.carousel-indicators li {
+  background-color: #999;
+  background-color: rgba(70,70,70,.25);
+}
+
+.carousel-indicators .active {
+  background-color: #444;
+}
+
+.row.is-flex {
+    display: flex;
+    flex-wrap: wrap;
+}
+.row.is-flex > [class*='col-'] {
+    display: flex;
+    flex-direction: column;
+}
+
+/*
+* And with max cross-browser enabled.
+* Nobody should ever write this by hand. 
+* Use a preprocesser with autoprefixing.
+*/
+
+.row.is-flex {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.row.is-flex > [class*='col-'] {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+/* Tokens */
+
+@media only screen and (max-width: 767px) {
+  .tokens-title {
+    text-align:center;
+  }
+  .tokens-title h1{
+    font-size: 30px;
+  }
+  .tokens-title p{
+    max-width: 100%;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .tokens-title {
+    text-align:left;
+  }
+  .tokens-title p{
+    max-width: 45%;
+  }
+}
+/* Token allocation responsive pie chart */
+
+#token-allocation-pie-chart-wrapper {
+    position: relative;
+    padding-bottom: 100%;
+    height: 100px;
+    overflow:hidden;
+    background:blue;
+}
+
+#token-allocation-pie-chart {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width:100%;
+    height:100%;
+    background:purple;
+}
+
+/* Token allocation responsive pie chart */
+
+.token-allocation-description ul li span {
+	  font-size: 15px;
+    color: white;
+}
+
+.token-allocation-description ul li{
+	margin-bottom: 10%;
+}
+
+.token-allocation-description {
+    display: flex;
+    align-items: center;
+    background: url("../img/token_bg.jpg");
+    background-size: cover;
+    width: 100%;
+    height:100%;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 12px 40px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 15px;
+  }
+
+.panel-title .glyphicon{
+        font-size: 14px;
+}
+
+/* community */
+
+@media only screen and (max-width: 767px) {
+  .community-title {
+    text-align:center;
+  }
+  .community-title h1{
+    font-size: 30px;
+  }
+  .community-title p{
+    max-width: 100%;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .community-title {
+    text-align:left;
+  }
+  .community-title p{
+    max-width: 45%;
+  }
+}
+
+a.member-profile {
+  color:white;
+  text-decoration: none; /* remove under line when focus */
+}
+
+/* 03. community SETTINGS ============================================ */
+
+#community {
+  padding: 60px 0;
+  background: #4c087c;
+  color:white;
+}
+
+#community p {
+  padding: 20px 0 60px;
+  color: white;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+}
+
+#community h3 {
+  padding: 0 0 15px;
+  font-size: 36px;
+}
+
+#community h4  {
+  margin-top: -20px;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+#community h4 span {
+  display: block;
+  position: relative;
+  left: -40px;
+  top: 3px;
+  font-size: 20px;
+  background: none;
+  padding: 0;
+}
+
+#community img {
+  width: 100%;
+  max-width: 240px;
+  border-radius: 50%; 
+  border: 15px solid none; 
+  box-shadow: 0 11px 15px -6px rgba(0,0,0,.15),0 20px 31px 3px rgba(0,0,0,.08),0 8px 38px 7px rgba(0,0,0,.08);
+  transition: all 0.1s ease-in;
+}
+  
+
+#community span {
+  padding: 8px 20px;
+  position: relative;
+  top: -64px;
+  left: -42px;
+  display: inline-block;
+  background: #4c087c;
+  border-radius: 0 16px 16px 0;
+  font-size: 16px;
+}
+
+/* Mobile Devices Optimization */
+
+@media (max-width: 992px) {
+
+  a.member-profile {
+    max-width: 240px !important;
+  }
+
+  #community img {max-width: 240px;}
+
+}
+
+
+/* Social Networks Meta */
+#community li {display: inline-block; padding: 0 6px; font-size: 18px;}
+
+.fa {
+  color:white;
+}
+
+/* Bounties */
+
+#footer-bounty-modal .modal-body {
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+
+.bounty-table {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+table.bounty-table {
+    text-align: center;
+    font-size: 14px;
+    line-height: 18px;
+    color: #36454e !important;
+    /* color: #36454e; */
+    margin-bottom: 15px;
+}
+
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+
+tbody {
+    display: table-row-group;
+    vertical-align: middle;
+    border-color: inherit;
+}
+
+.bounty-table tr > td {
+    border-left: 1px solid #d6d9dc;
+}
+
+.bounty-table td {
+    max-width: 200px;
+    padding: 12px 10px;
+}
+
+.bounty-table tr {
+    border-top: 1px solid #d6d9dc;
+}
+
+td, th {
+    display: table-cell;
+    vertical-align: inherit;
+}
+
+.bounty-table .top {
+    background: rgba(68, 81, 94, 0.075);
+    font-weight: bold;
+}

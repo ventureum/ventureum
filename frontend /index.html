@@ -1,63 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Bootstrap Example</title>
+  <title>The Ventureum Project</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <link rel="stylesheet" type="text/css" href="mdi.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="stylesheet" type="text/css" href="css/mdi.css">
+  <link rel="stylesheet" type="text/css" href="css/animate.css">
   <link href="https://fonts.googleapis.com/css?family=Allerta" rel="stylesheet">
+  <script src="https://use.fontawesome.com/716f153f88.js"></script> <!-- Font Awesome /-->
 
   <link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
 
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"> </script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.min.js"</script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script src="js/scrolling-nav.js"></script>
+  <script src="js/Chart.PieceLabel.min.js"></script>
+  <script src="js/animation.js"></script>
+  <script src="js/carousel-swipe.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
 </head>
 
-<body>
+<body data-spy="scroll" data-target=".navbar" data-offset="50">
 
-<nav class="navbar navbar-default navbar-fixed-top">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#"></a>
+  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#"></a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-right nav-underline">
+          <li>
+            <a href="#intro" class="hidden-xs">Start</a>
+            <a href="#intro" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Start</a>
+          </li>
+          <li>
+            <a href="#features" class="hidden-xs">Features</a>
+            <a href="#features" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Features</a>
+          </li>
+          <li>
+            <a href="#platform" class="hidden-xs">Platform</a>
+            <a href="#platform" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Platform</a>
+          </li>
+          <li>
+            <a href="#tokens" class="hidden-xs">Tokens</a>
+            <a href="#tokens" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Tokens</a>
+          </li>
+          <li>
+            <a href="#community" class="hidden-xs">Community</a>
+            <a href="#community" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Community</a>
+          </li>
+          <li>
+            <a href="#footer-bounty-modal" class="hidden-xs" data-toggle="modal">Bounty</a> 
+            <span data-toggle="collapse" data-target=".navbar-collapse">
+              <a href="#footer-bounty-modal" class="visible-xs" data-toggle="modal" style="padding-bottom: 0px;">Bounty</a> 
+            </span>
+          </li>
+          <li>
+            <a href="#footer-faq-modal" class="hidden-xs" data-toggle="modal">FAQ</a> 
+            <span data-toggle="collapse" data-target=".navbar-collapse">
+              <a href="#footer-faq-modal" class="visible-xs" data-toggle="modal" style="padding-bottom: 0px;">FAQ</a> 
+            </span>
+          </li>
+        </ul>
+      </div>
     </div>
-    <ul class="nav navbar-nav navbar-right">
-      <li><a class="nav-link js-scroll-trigger" href="#intro">Start</a></li>
-      <li><a class="nav-link js-scroll-trigger" href="#">Features</a></li>
-      <li><a class="nav-link js-scroll-trigger" href="#platform">Platform</a></li>
-      <li><a class="nav-link js-scroll-trigger" href="#">Tokens</a></li>
-      <li><a class="nav-link js-scroll-trigger" href="#">Community</a></li>
-    </ul>
-  </div>
-</nav>
+  </nav>
 
-<section id="intro" class="intro"> 
-  <div class="container-fluid container-table">
-    <div class = "row vertical-center-row">
-    <div class ="col-md-12 text-center">
-        <h1 id = "intro-lg"> Ventureum </h1>
-        <h4 id = "intro-sm"> A Community-governed Milestone-driven Crowdfunding Platform for Blockchain Projects </h4>
-        <button type="button" class="btn btn-primary btn-outline btn-intro">Whitepaper</button>
+  <section id="intro" class="intro vertical-center"> 
+    <div class="container">
+    <div class = "row" style="padding-top: 10%;">
+        <div class ="text-center">
+          <div class="intro-title">
+            
+            <h1 id = "intro-lg"> Ventureum </h1>
 
-        <div class = "row btn-group-pad-top">
-          <div class = "col-md-2 col-md-offset-3" >
-            <button type="button" class="btn btn-primary btn-md btn-outline-thin-round">
-               <i class="mdi mdi-slack mdi-light mdi-36px" aria-hidden="true" style="font-size:36px; vertical-align: middle; padding-left:5px;"></i>
-               <span style="font-size:15px; vertical-align: middle; padding-right:5px;"> Join the community!</span>
-               </button>
+            <h4 id = "intro-sm"> A Milestone-driven Community-governed Crowdfunding Protocol for Blockchain Projects </h4>
+
+            <a href="whitepaper/whitepaper.pdf" target="_blank" type="button" class="btn btn-primary btn-outline btn-intro">Whitepaper</a>
           </div>
-          <div class = "col-md-1 col-md-offset-1" >
-            <button type="button" class ="btn-transparent"> <i class="mdi mdi-telegram mdi-light mdi-36px" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div class = "row btn-group-pad-top text-center">
+        <a href="https://join.slack.com/t/ventureum/shared_invite/enQtMjU1MjU0NDE3MjIyLTUwMDA2YjE1ZGIzMGNjMjZiYmM5MzA2MWMyNDJlYmY3YzFjMGNjYmExMjMxMjJjNjE4ZmE3YmU3MDg4NDNkNGE" target="_blank" type="button" class ="btn btn-transparent"> <i class="mdi mdi-slack mdi-light mdi-36px" aria-hidden="true"></i></a>
+        <a href="https://www.facebook.com/VentureumPlatform" target="_blank" type="button" class ="btn btn-transparent"> <i class="mdi mdi-facebook mdi-light mdi-36px" aria-hidden="true"></i></a>
+        <a href="https://twitter.com/Ventureum_Platf" target="_blank" type="button" class ="btn btn-transparent"> <i class="mdi mdi-twitter mdi-light mdi-36px" aria-hidden="true"></i></a>
+        <a href="https://www.reddit.com/r/ventureum/" target="_blank" type="button" class ="btn btn-transparent"> <i class="mdi mdi-reddit mdi-light mdi-36px" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </section>
+
+<section id="features" class="vertical-center" style="background:#eeeeee;">
+  <div class="container">
+    <div class="feature-title">
+      <h1 style="color:#9c27b0; margin-bottom:5%";>HOW WE PROTECT INVESTORS</h1>
+    </div>
+    <div class="row row-eq-height">
+      <div class="col-md-4">
+        <div class="col-md-12 shadow shadow-hover feature-card animate-box">
+          <div class="feature-content">
+            <h3>Milestone-driven</h3>
+            <p>
+              Project founders can’t run away with your investments as the funds are locked in predefined milestones. Investors vote to decide whether the objectives of a milestone have been fulfilled and thus whether the funds is released to project founders.
+            </p>
           </div>
-          <div class = "col-md-1" >
-            <button type="button" class ="btn-transparent"> <i class="mdi mdi-twitter mdi-light mdi-36px" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="col-md-12 shadow shadow-hover feature-card animate-box">
+          <div class="feature-content">
+            <h3>Community-governed</h3>
+            <p>
+              Implementing the spirit of Decentralized Autonomous Organization, the progress of a project is supervised and governed by the community of investors. The ownership of project tokens entitles you voting rights. You, together with other investors, decide the fate of the project you invested.
+            </p>
           </div>
-          <div class = "col-md-1" >
-            <button type="button" class ="btn-transparent"> <i class="mdi mdi-reddit mdi-light mdi-36px" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="col-md-12 shadow shadow-hover feature-card animate-box">
+          <div class="feature-content">
+            <h3>Ultimate Investment Protection</h3>
+            <p>
+              Investors get refund (in ETH) if they are not satisfied. Furthermore, Ventureum builds on open source smart contracts running on the Ethereum blockchain, with total transparency and openness at all stages.
+            </p>
           </div>
         </div>
       </div>
@@ -65,41 +142,83 @@
   </div>
 </section>
 
-
-
-<section id="platform" class="vertical-center" style = "background:#eeeeee;"> 
+<section id="platform" class="vertical-center" style="background:#eeeeee;"> 
   <div class="container">
-    <h1 style="color:#9c27b0; margin-bottom:50px";>HOW VENTUREUM WORKS</h1>
-      <div class="platform-card">
+    <div class="platform-title">
+      <h1 style="color:#9c27b0; margin-bottom:5%";>HOW VENTUREUM WORKS</h1>
+    </div>
+    <div class="platform-card shadow shadow-hover animate-box">
+      <div class="row">
+        <div class="col-md-12">
+          <div id="style-1" class="center-block">
+            <img class="img-responsive" src="img/platform.png" alt=""/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="preview" class="vertical-center"> 
+  <div class="container">
+    <div class="preview-title">
+      <h1 style="color:#9c27b0; margin-bottom:5%";>A PREVIEW OF VENTUREUM PROTOCOL</h1>
+    </div>
+    <div class="preview-card shadow shadow-hover animate-box">
       <div class="row is-flex">
         <div class="col-md-4">
-          <h3 id="platform-slide-title" style="color:#9c27b0; margin-top:30px; margin-left:20px">First Page Description</h3>
-          <p id="platform-slide-text" style="margin-top:30px; margin-left:20px"> 
-          </p>
+          <h3 id="preview-slide-title" style="color:#9c27b0; margin-top:30px; margin-left:20px">First Page Description</h3>
+          <p id="preview-slide-text" style="margin-top:30px; margin-left:20px; color:#616161; height: 350px;"></p>
+          <!-- Indicators -->
+          <ol id="myCarousel-indicators" class="carousel-indicators">
+            <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+            <li data-target="#myCarousel" data-slide-to="1" ></li>
+            <li data-target="#myCarousel" data-slide-to="2" "></li>
+            <li data-target="#myCarousel" data-slide-to="3" ></li>
+            <li data-target="#myCarousel" data-slide-to="4" ></li>
+            <li data-target="#myCarousel" data-slide-to="5" ></li>
+            <li data-target="#myCarousel" data-slide-to="6" ></li>
+            <li data-target="#myCarousel" data-slide-to="7" ></li>
+          </ol>
         </div>
         <div class="col-md-8">
-          <div class="platform-slider-pic">
-            <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="false">
-              <!-- Indicators -->
-              <ol class="carousel-indicators">
-                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-                <li data-target="#myCarousel" data-slide-to="1"></li>
-                <li data-target="#myCarousel" data-slide-to="2"></li>
-              </ol>
-
+          <div class="preview-slider-pic" >
+            <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="5000">
+              
               <!-- Wrapper for slides -->
-              <div class="carousel-inner" style="height: 380px">
+              <div class="carousel-inner">
                 <div class="item active">
-                  <img src="img/project_list.png">
+                  <img src="img/token_sale.jpg">
                 </div>
 
                 <div class="item">
-                  <img src="img/token_sale.png">
+                  <img src="img/vth_staking.jpg">
                 </div>
 
                 <div class="item">
-                  <img src="img/vth_staking.png">
+                  <img src="img/milestones.jpg">
                 </div>
+
+                <div class="item">
+                  <img src="img/staking.jpg">
+                </div>
+
+                <div class="item">
+                  <img src="img/voting_period_1.jpg">
+                </div>
+
+                <div class="item">
+                  <img src="img/voting_period_1_objectives.jpg">
+                </div>
+
+                <div class="item">
+                  <img src="img/refund_period_stage_1.jpg">
+                </div>
+
+                <div class="item">
+                  <img src="img/refund_period_stage_2.jpg">
+                </div>
+                
               </div>
             </div>
           </div>
@@ -107,78 +226,994 @@
       </div> <!-- row -->
       <div class="row" style="margin-bottom: 20px; margin-right:40px">
         <div class="col-sm-2 pull-right">
-          <button type="button" class="btn btn-primary btn-outline-purple btn-block" href="#myCarousel" data-slide="next" onclick="platform_slide_text_next()">Next</button>
+          <button id="carousel-btn-next" type="button" class="btn btn-primary btn-outline-purple btn-block" href="#myCarousel" data-slide="next" onclick="preview_slide_next()">Next</button>
         </div>
         <div class="col-sm-2 pull-right">
-          <button type="button" class="btn btn-primary btn-outline-purple btn-block" href="#myCarousel" data-slide="prev" onclick="platform_slide_text_pre()">Previous</button>
+          <button type="button" class="btn btn-primary btn-outline-purple btn-block" href="#myCarousel" data-slide="prev" onclick="preview_slide_prev()">Previous</button>
         </div>
       </div>
-  </div>
-  </div>
-</section>
-
-<section id="tokens" class="vertical-center" style = "background:#eeeeee;"> 
-  <div class="container">
-    <h1 style="color:#9c27b0; margin-bottom:10px";>VTH Tokens</h1>
-    <p style="color:#9c27b0; margin-bottom:50px; max-width: 40%";>Ventureum Network Token (VTH) gives its owners full access to the Ventureum platform's services, features and functionalities, including coverage for refund in the Milestone-driven Funds Management module.</p>
-    <div class="platform-card">
-      <div class="row is-flex">
-        <div class="col-md-4">
-          <h3 id="platform-slide-title" style="color:#9c27b0; margin-top:30px; margin-left:20px">First Page Description</h3>
-          <p id="platform-slide-text" style="margin-top:30px; margin-left:20px"> 
-          </p>
-        </div>
-        <div class="col-md-8">
-
-        </div>
-      </div> <!-- row -->
     </div>
   </div>
 </section>
 
+<section id="tokens" class="vertical-center" style = "background:#4c087c;"> 
+  <div class="container">
+    <div class="tokens-title">
+      <h1 style="color:white; margin-bottom:2%";>VTH TOKENS</h1>
+      <p style="color:white; font-size: 15px; margin-bottom:5%;";>Ventureum Network Token (VTH) gives its holders refund coverage in the Milestone-driven Funds Management module.</p>
+    </div>
+    <div class="tokens-card shadow shadow-hover animate-box">
+      <div class="row is-flex" style="min-height: 400px">
+        <div class="col-md-8 center-block">
+          <div class="chart-container">
+            <canvas id="token-allocation-chart"></canvas>
+          </div>
+        </div>
+        <div class="col-md-4 center-block">
+          <div class="token-allocation-description">
+          <!--  ul style="list-style: none; removes list bullets -->
+           <ul style="list-style: none;">
+             <li> <span>Token name: </span> <span style="opacity: 0.8">VTH</span> </li>
+             <li> <span>Pre-sale: </span> <span style="opacity: 0.8">TBD</span> </li>
+             <li> <span>Tokens issued: </span> <span style="opacity: 0.8">1 Billion </span> </li>
+             <li> <span>Initial price per token: </span> <span style="opacity: 0.8">0.0001 ETH</span> </li>
+             <li> <span>Hard cap: </span> <span style="opacity: 0.8">20000 ETH (Pre-sale)</span> </li>
+           </ul>
+         </div>
+       </div>
+     </div> <!-- row -->
+   </div>
+ </div>
+</section>
 
-<!-- Disable ugly focus and active states for buttons -->
+<section id="community">
+  <div class="container">
+  <div class="community-title">
+      <h1 style="color:white; margin-bottom:2%";>A COMMUNITY DRIVEN PROJECT</h1>
+      <p style="color:white; font-size: 15px; margin-bottom:5%";>We are completely open source and anyone is free to contribute. Together, we are shaping the future of Ventureum, and creating the most advanced self-regulating crypto-crowdfunding protocol.</p>
+    </div>
+    <div class="row">
+
+      <div class="col-md-3 animate-box text-center">
+        <a class="member-profile">
+          <div class="unhover_img">
+            <img src="img/team_1.jpg" alt="" />
+          </div>
+          <span>Co-founder</span>
+          <h4><span>Timothy</span>Wang</h4>
+          <h5>SDE @ Amazon</h5>
+          <h5>University of Waterloo Alumnus</h5>
+          <h6>B.S. Computer Science</h6>
+        </a>  
+        <ul>
+          <li><a href="https://www.linkedin.com/in/timothy-wang-92905764"  target="_blank"><i class="fa fa-linkedin"></i></a></li>
+          <li><a href="https://github.com/timothywangdev" target="_blank"><i class="fa fa-github"></i></a></li>           
+        </ul>
+      </div>
+
+      <div class="col-md-3 animate-box text-center">
+        <a class="member-profile">
+          <div class="unhover_img">
+            <img src="img/team_2.jpg" alt="" />
+          </div>
+          <span>Co-founder</span>
+          <h4><span>Nathan</span>Liu</h4>
+          <h5>Data Scientist @ BOC</h5>
+          <h5>University of Waterloo Alumnus</h5>
+          <h6>Ph.D. CFA</h6>
+        </a>  
+        <ul>
+          <li><a href="https://www.linkedin.com/in/nathan-liu-65a17a14b"  target="_blank"><i class="fa fa-linkedin"></i></a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3 animate-box text-center">
+        <a class="member-profile">
+          <div class="unhover_img">
+            <img src="img/join_our_team.png" alt="" />
+          </div>
+          <span></span>
+          <h4><span>Interested?</span> Join us!</h4>
+        </a> 
+        <ul>
+          <li><a href="https://join.slack.com/t/ventureum/shared_invite/enQtMjU1MjU0NDE3MjIyLTUwMDA2YjE1ZGIzMGNjMjZiYmM5MzA2MWMyNDJlYmY3YzFjMGNjYmExMjMxMjJjNjE4ZmE3YmU3MDg4NDNkNGE"  target="_blank"><i class="fa fa-slack"></i></a></li>
+          <li><a href="https://www.facebook.com/VentureumPlatform" target="_blank"><i class="fa fa-facebook"></i></a></li>       
+          <li><a href="https://twitter.com/Ventureum_Platf" target="_blank"><i class="fa fa-twitter"></i></a></li>      
+          <li><a href="https://www.reddit.com/r/ventureum/" target="_blank"><i class="fa fa-reddit"></i></a></li>  
+        </ul> 
+      </div>
+    </div> <!-- End First Row -->
+  </div>
+</section>
+
 <script>
+
+// change navbar bg color while scrolling
+$(document).ready(function(){       
+   var scroll_start = 0;
+   var startchange = $('#intro');
+   var offset = startchange.offset();
+    if (startchange.length){
+   $(document).scroll(function() { 
+      scroll_start = $(this).scrollTop();
+
+      if(scroll_start > offset.top) {
+          $(".navbar-inverse").css('background-color', 'rgba(0, 0, 0, 0.76)');
+       } else if(screen.width >= 768 ){
+          // do not change color when screen width < 768px
+          $('.navbar-inverse').css('background-color', 'transparent');
+       }
+   });
+    }
+});
+
 $(".btn").mouseup(function(){
     $(this).blur();
 })
 
-var platform_slide_text_content = [
-    "\"Project List\" demonstrates all blockchain projects launched on Ventureum. Each project has a brief description for its motivations and objectives, a progress bar for commenced projects, a crowdsale period countdown for upcoming projects, the amount of investment (ETH) pledged by investors, and the amount of VTH tokens staked for refund coverage.",
-    "\"Overview\" gives investors detailed description of a project’s objectives, technical background, roadmap, founder team members, etc. Investors are also able to comment on the project. If the project is during a contribution period, investors can contribute to the project, and view the amount of investment (ETH) pledged, the soft cap and hard cap of the crowdsale, and contribution period deadline.",
-    "Once the contribution period is over, investors can view a real-time project progress bar, the total amount of investment raised during the contribution period. Investors can stake Ventureum Network Tokens (VTH) for refund coverage. To receive a refund up to X ETH, investors need to stake (lock in) at least 0.25X ETH worth of VTH on Ventureum till the project finishes."
+var preview_slide_text_content = [
+    "<b>Overview</b> gives investors detailed description of a project’s objectives, technical background, roadmap, founder team members, etc. Investors are also able to comment on the project. If the project is during a contribution period, investors can contribute to the project, and view the amount of investment (ETH) pledged, the soft cap and hard cap of the crowdsale, and contribution period deadline.",
+    "Once the contribution period is over, investors can view a real-time project progress bar, the total amount of investment raised during the contribution period. Investors can stake Ventureum Network Tokens (VTH) for refund coverage. To receive a refund up to X ETH, investors need to stake (lock in) at least 0.25X ETH worth of VTH on Ventureum till the project finishes.",
+    "<b>Milestones</b> navigates investors into the project’s milestone-driven funds management mechanism, the essential innovation on Ventureum that gives investors unprecedented protection for their investments. Each milestone node is labeled with a title and an icon to represent its state, e.g., <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_1.png\"> implies milestone objectives are met, <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_2.png\"> means the node <b>Smart Contract A</b> is in a <b>Voting Period</b>, <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_3.png\"> reminds investors to stake project tokens for a pending vote, and <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_4.png\"> means investors voted for a refund for the node <b>Smart Contract B</b>.",
+    "Investors are required to stake project tokens for a pending vote to be eligible to vote. An investor’s voting weight for a given vote is proportional to the amount of project tokens staked.",
+    "For a milestone node in the <b>Voting Period</b> state, investors with voting eligibility can vote <b>Approve</b> or <b>Reject</b> to determine if the funds locked in the milestone are released to project founders. Investors who vote <b>Reject</b> will be provided an option to receive a refund, regardless of the collective decision. The real-time <b>Approval rate</b> and <b>Participation rate</b> are also displayed.",
+    "A detailed <b>Objectives</b> pane is viewable for each milestone node.",
+    "A milestone enters the <b>Refund Period</b> if most investors voted <b>Reject</b>, and the voting was final. <b>Refund Period</b> consists of 2 stages. In the first stage, investors can withdraw project tokens they previously staked for voting. The unwithdrawn portion of the project tokens is forwarded into the second stage of the <b>Refund Period</b>.",
+    "To calculate the amount of refund (ETH) an investor is entitled to withdraw, both the unwithdrawn portion of the project tokens and the number of VTH tokens staked for refund coverage are considered. Investors can then withdraw a refund (ETH). The equivalent amount of project tokens (by average crowdsale price) will be burned. Investors can withdraw project tokens that cannot be used for a refund due to other limitations.",
+
 ];
 
-var platform_slide_text_title = [
-  "Project List",
+var preview_slide_text_title = [
   "Project Overview",
-  "VTH staking"
+  "VTH staking",
+  "Milestones",
+  "Staking",
+  "Voting Period 1",
+  "Voting Period 1 Objectives",
+  "Refund Period stage 1",
+  "Refund Period stage 2",
 ];
 
-platform_slide_text_id = 0;
+preview_slide_text_id = 0;
 
 // update slide text onload
-platform_slide_text_update();
+preview_slide_text_update();
 
-function platform_slide_text_pre(){
-  platform_slide_text_id--;
-  if(platform_slide_text_id < 0){
-    platform_slide_text_id = platform_slide_text_content.length-1;
+function preview_slide_text_update(){
+  $('#myCarousel-indicators li').removeClass('active');
+  $('#myCarousel-indicators li:nth-child(' + (preview_slide_text_id + 1) + ')').addClass('active');
+  document.getElementById("preview-slide-text").innerHTML = preview_slide_text_content[preview_slide_text_id];
+  document.getElementById("preview-slide-title").innerHTML = preview_slide_text_title[preview_slide_text_id];
+}
+
+function preview_slide_next() {
+  $('#myCarousel').carousel('pause');
+}
+
+function preview_slide_prev() {
+  $('#myCarousel').carousel('pause');
+}
+
+$("#myCarousel").on('slide.bs.carousel', function(e) {
+    preview_slide_text_id = $(e.relatedTarget).index();
+    preview_slide_text_update();
+})
+
+$('.carousel-indicators li').click(function(e){
+  $('#myCarousel').carousel('pause');
+});
+
+// enlarge image on click
+$(function() {
+      $('img').on('click', function() {
+      $('.enlargeImageModalSource').attr('src', $(this).attr('src'));
+      $('#enlargeImageModal').modal('show');
+    });
+});
+
+// token allocation pie chart
+
+window.chartColors = {
+  red: 'rgb(255, 99, 132)',
+  orange: 'rgb(255, 159, 64)',
+  yellow: 'rgb(255, 205, 86)',
+  green: 'rgb(75, 192, 192)',
+  blue: 'rgb(54, 162, 235)',
+  purple: 'rgb(153, 102, 255)',
+  grey: 'rgb(201, 203, 207)'
+};
+
+data = {
+  datasets: [{
+    data: [15, 15, 25, 25, 20],
+    backgroundColor: [
+    window.chartColors.red,
+    window.chartColors.orange,
+    window.chartColors.yellow,
+    window.chartColors.green,
+    window.chartColors.blue,
+    ],
+  }],
+
+    // These labels appear in the legend and in the tooltips when hovering different arcs
+    labels: [
+    'Core Dev',
+    'Genesis Tokens',
+    'Contribution Round 1',
+    'Contribution Round 2',
+    'Pre-sale',
+    ]
+  };
+
+var ctx = document.getElementById("token-allocation-chart");
+var myDoughnutChart = new Chart(ctx, {
+  type: 'doughnut',
+  data: data,
+  options: {
+    legend: {
+      position: 'right',
+    },
+    pieceLabel: {
+      render: 'percentage',
+      fontColor: function (args) {
+        var rgb = args.dataset.backgroundColor[args.index];
+        var threshold = 140;
+        var luminance = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+        return luminance > threshold ? 'black' : 'white';
+      },
+      precision: 2
+    },
+    title: {
+      display: true,
+      text: 'VTH Token Allocation'
+    },
+    animation: {
+      animateRotate: true,
+      animateScale: true
+    },
+    tooltips: {
+      enabled: true,
+      mode: 'single',
+      callbacks: {
+        label: function(tooltipItem, data) { 
+            // data value
+            var d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]
+            // data label
+            var l = data.labels[tooltipItem.index]
+            // add percentage at the end of data value
+            return l + ' : ' + d + '%';
+        }
+      }
+    },
   }
-  platform_slide_text_update();
-}
+});
 
-function platform_slide_text_next(){
-  platform_slide_text_id = (platform_slide_text_id+1)%platform_slide_text_content.length;
-  platform_slide_text_update();
-}
+function hexToRgb(hex) {
+      // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+      var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+      hex = hex.replace(shorthandRegex, function (m, r, g, b) {
+        return r + r + g + g + b + b;
+      });
 
-function platform_slide_text_update(){
-  document.getElementById("platform-slide-text").innerText = platform_slide_text_content[platform_slide_text_id];
-  document.getElementById("platform-slide-title").innerText = platform_slide_text_title[platform_slide_text_id];
-}
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
 
+$(document).ready(function(){
+        // Add minus icon for collapse element which is open by default
+        $(".collapse.in").each(function(){
+          $(this).siblings(".panel-heading").find(".glyphicon").addClass("glyphicon-minus").removeClass("glyphicon-plus");
+        });
+        
+        // Toggle plus minus icon on show hide of collapse element
+        $(".collapse").on('show.bs.collapse', function(){
+          $(this).parent().find(".glyphicon").removeClass("glyphicon-plus").addClass("glyphicon-minus");
+        }).on('hide.bs.collapse', function(){
+          $(this).parent().find(".glyphicon").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+        });
+    });
+ window.onorientationchange = function() { 
+        var orientation = window.orientation; 
+            switch(orientation) { 
+                case 0:
+                case 90:
+                case -90: window.location.reload(); 
+                break; } 
+    };
 </script>
 
 </body>
+
+<footer>
+  <div class="row" style="min-height: 30px; margin-top: 15px; margin-right: 15px">
+    <div class="col-md-3 pull-left text-center">
+      <span style="color:#4c087c; opacity: 0.51">Copyright © Ventureum</span>
+    </div>
+    <div class="col-md-1 pull-right text-center">
+      <span style="color:#9c27b0">BitcoinTalk</span>
+    </div>
+    <div class="col-md-1 pull-right text-center">
+      <span> <a href="#footer-faq-modal" data-toggle="modal" style="color:#9c27b0;">FAQ </a> </span>
+    </div>
+    <div class="col-md-1 pull-right text-center">
+      <span> <a href="#footer-bounty-modal" data-toggle="modal" style="color:#9c27b0;">Bounties </a> </span>
+    </div>
+    <div class="col-md-1 pull-right text-center">
+      <span> <a href="#footer-contact-modal" data-toggle="modal" style="color:#9c27b0;">Contact </a> </span>
+    </div>
+  </div>
+</footer>
+
+ <div class="modal fade" id="enlargeImageModal" tabindex="-1" role="dialog" aria-labelledby="enlargeImageModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+        </div>
+        <div class="modal-body">
+          <img src="" class="enlargeImageModalSource" style="width: 100%;">
+        </div>
+      </div>
+    </div>
+</div>
+
+<div id="footer-contact-modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background:#eeeeee">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <div class="row text-center"> 
+          <h3 id="footer-contact-modal-title" style="color:#9c27b0;">We'd Love to Hear From You</h3>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="row"> 
+          <span style="color:#9c27b0; font-size: 15px; font-weight: bold; margin-left: 10%"> Core Dev Team: </span> 
+          <span style="font-size: 15px"> dev@ventureum.io </span>
+        </div>
+        <div class="row"> 
+          <span style="color:#9c27b0; font-size: 15px; font-weight: bold; margin-left: 10%"> General Issues: </span> 
+          <span style="font-size: 15px"> support@ventureum.io </span>
+        </div>
+        <div class="row"> 
+          <span style="color:#9c27b0; font-size: 15px; font-weight: bold; margin-left: 10%"> Sale: </span> 
+          <span style="font-size: 15px"> sale@ventureum.io </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-bounty-modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="background:#eeeeee;">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <div class="row text-center"> 
+          <h3 id="footer-contact-modal-title" style="color:#9c27b0;">Ventureum Bounty Program</h3>
+        </div>
+      </div>
+      <div id="style-1" class="modal-body" style="overflow: auto;">
+
+        <div>
+          <p>5% (50 000 000) of the total amount of VTH tokens will be available for the Bounty campaigns pool. These VTH tokens will be distributed to the contributors and participants of the bounty program in the form of Ventureum Genesis Tokens (VGTH). VGTH will be redeemable for Class B VTH tokens after the conclusion of Contribution Round 1.
+          </p>
+          <span>The tokens will be distributed as follows:</span>
+          <ul>
+            <li>Feedback and critiques of the whitepaper, and contribution of source code (30%, 15 000 000 VGTH)</li>
+            <li>Blogs, forums and media publications (20%, 10 000 000 VGTH)</li>
+            <li>Translation (15%, 7 500 000 VGTH)</li>
+            <li>Bitcointalk.org signature campaign (15%, 7 500 000 VGTH)</li>
+            <li>Facebook bounty (10%, 5 000 000 VGTH)</li>
+            <li>Twitter bounty (10%, 5 000 000 VGTH)</li>
+          </ul>
+        </div>
+
+        <hr>
+
+        <div> 
+          <h2> Terms and Conditions </h2>
+          <h3> General rules </h3>
+          <ul>
+            <li>
+              <p> 
+                The bounty program starts on October 9th, 2017, and ends on the last day of the Contribution Round 1 token sale. The Contribution Round 1 is scheduled to take place in November 2017. The exact dates will be announced on Ventureum official website (https://ventureum.io) and social media.
+              </p>
+            </li>
+            <li>
+              <p> 
+                The exact dates, terms and conditions of the sale will be published on Ventureum official website.
+              </p>
+            </li>
+            <li>
+              <p> 
+                5% (50 000 000) of the total amount of VTH tokens in the form of VGTH tokens are allocated to the bounty campaigns pool. One participant can participate only with one account. In case that we note any double-registrations, duplicate accounts (except the initial one) will be permanently disqualified from the campaign.
+              </p>
+            </li>
+            <li>
+              <p> 
+                As a reward for the bounty activities, you receive VGTH tokens. The tokens are allocated gradually to your Ethereum wallet within 30 days after the conclusion of Contribution Round 1 token sale. VGTH tokens are redeemable for Class B VTH tokens.
+              </p>
+            </li>
+            <li>
+              <p> 
+                Bitcointalk.org signature campaign, Facebook and Twitter bounties will be counted after the end of the campaign. No intermediate count will be displayed.
+              </p>
+            </li>
+            <li>
+              <p> 
+                To participate in the bounty campaign, you must have reached the age of majority in your country of residence.
+              </p>
+            </li>
+            <li>
+              <p> 
+                For technical support during the bounty campaign, please contact us: support@ventureum.io
+              </p>
+            </li>
+          </ul>
+        </div>
+
+        <hr>
+
+        <div>
+          <h2> Feedback and critiques of the whitepaper, and contribution of source code </h2>
+          <span>30% of bounty tokens (15 000 000 VGTH) are allocated for this part of contribution.</span>
+          <ul>
+            <li> 
+              <p> The Ventureum core dev team is fully aware of that there is no perfect product design and our Ventureum platform is no exception. Though we have committed a tremendous amount of time to revise and improve our product design and the whitepaper, we still can’t guarantee that our current product design is bug-free. Thus, we welcome feedback and critiques on our product design and the whitepaper.  
+              </p>
+            </li>
+            <li>
+              <p>Contributors can send their feedback and critiques of the product design and the whitepaper directly to the Ventureum team dev@ventureum.io, or they can choose to publish them on a website of their choice, such as blogging platforms, and send the link to dev@ventureum.io. According to the severity of the bugs and flaws pointed out by the feedback and critiques, they are rated into 4 categories:
+              </p>
+              <table class="bounty-table">
+                <tbody>
+                  <tr class="top">
+                    <td>Severity</td>
+                    <td>Reward</td>
+                  </tr>
+                  <tr>
+                    <td>Critical</td>
+                    <td>20 000 VGTH</td>
+                  </tr>
+                  <tr>
+                    <td>Severe</td>
+                    <td>10 000 VGTH</td>
+                  </tr>
+                  <tr>
+                    <td>Medium</td>
+                    <td>4 000 VGTH</td>
+                  </tr>
+                  <tr>
+                    <td>Low</td>
+                    <td>2 000 VGTH</td>
+                  </tr>
+                </tbody>
+              </table>
+            </li>
+            <li> 
+              <p>
+                <!-- target="_blank" to open in a new tab -->
+                Contributors must register their feedback and critiques in this <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSdYTk3NMtMi1AoQGZLjSUbwRMwX-IG1cyZ3HbhLtPrTBn9cug/viewform?usp=sf_link"> form </a>.
+              </p>
+            </li>
+            <li> 
+              <p> 
+                Source code contributions are also highly valued. The amount of contribution is measured by the estimated hours for finishing a task, or solving an issue, designated by the Ventureum team on GitHub. We set the compensation for 1 hour of work to be 2000 VGTH temporarily, and we will adjust the hourly compensation according to VTH market price later.
+              </p>
+            </li>
+            <li> 
+              <p> 
+                If your contribution is significant, we will invite you to be a member of the Ventureum team and your reward will not be limited to VGTH tokens.
+              </p>
+            </li>
+            <li> 
+              <p> 
+                In case that the reward and compensation for contributors’ work exceeds the limit of 15 000 000 VGTH, the Ventureum team will allocate our own VTH tokens (15% of the total amount of VTH tokens) to the contributors. This portion of VTH tokens have a 6-month vesting period which starts at the end of Contribution Round 2.
+              </p>
+            </li>
+            <li> 
+              <p> 
+                Your reward is displayed in this <a target="_blank" href="https://docs.google.com/spreadsheets/d/1kbym_RYm3xPhKtJCASRPvOlUUCMop_qp6Gqq1oaq5bs/edit#gid=758728747" >spreadsheet</a>.
+              </p>
+            </li>
+            <li> 
+              <p> 
+                The Ventureum team reserves the rights to change any rules.
+              </p>
+            </li>
+          </ul>
+        </div>
+
+        <hr>
+
+        <div>
+          <h2>Blog and Media Publications Bounty</h2>
+          <p>
+            The Ventureum team rewards authors, bloggers, journalists and video composers with VGTH tokens for publishing quality content about our project. 20% of bounty tokens (10 000 000 VGTH) are allocated for this bounty.
+          </p>
+          <p>
+            In this bounty, we accept only articles, blogs and videos.
+          </p>
+          <p>
+            All pieces of content (including articles, blogs, videos, etc.) are rated into 3 categories according to their quality:
+          </p>
+          <table class="bounty-table">
+            <tbody>
+              <tr>
+                <td>Exceptional</td>
+                <td>1000 stakes</td>
+              </tr>
+              <tr>
+                <td>Great</td>
+                <td>500 stakes</td>
+              </tr>
+              <tr>
+                <td>Good</td>
+                <td>200 stakes</td>
+              </tr>
+            </tbody>
+          </table>
+          <ul>
+            <li>
+              <p>
+                To send us a link to the publication or video, fill this <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSfpHfTSu2bW3pV375UQrnO2m3iGGtvvQdVziPX3dWTgH6VsfA/viewform?usp=sf_link" >form</a>.
+              </p>
+            </li>
+            <li>
+              <p>
+                All content must be original. Plagiarism, including translating other contributors’ work into another language, is prohibited and will lead to disqualification.
+              </p>
+            </li>
+            <li>
+              <p>
+                You can use our official images, logo, graphics and other published on our website and in the ANN thread.
+              </p>
+            </li>
+            <li>
+              <p>
+                Articles must be longer than 300 words.
+              </p>
+            </li>
+            <li>
+              <p>
+                Videos must be at least 1 minute long.
+              </p>
+            </li>
+            <li>
+              <p>
+                Articles or the description of a video must contain at least 1 link to our website or to the official ANN thread. Articles or the description of a video must also contain a link to your BitcoinTalk profile to prove your authorship.
+              </p>
+            </li>
+            <li>
+              <p>
+                Blogging platforms like Medium are allowed, but only up to 3 posts per person are accepted on these platforms.
+              </p>
+            </li>
+            <li>
+              <p>
+                The number of your stakes is displayed in this <a target="_blank" href="https://docs.google.com/spreadsheets/d/1kbym_RYm3xPhKtJCASRPvOlUUCMop_qp6Gqq1oaq5bs/edit#gid=1919547536">spreadsheet</a>.
+              </p>
+            </li>
+            <li>
+              <p>
+                The Ventureum team reserves the rights to change any rules.
+              </p>
+            </li>
+          </ul>
+        </div>
+
+        <hr>
+
+        <div>
+          <h2>Translation</h2>
+          <p>The Ventureum team rewards contributors who translate the whitepaper, the Ventureum landing page and the official ANN page with VGTH tokens.</p>
+          <p>15% of bounty tokens (7 500 000 VGTH) are allocated for this campaign.</p>
+          <ul>
+            <li>
+              <p>
+                To reserve a language for translation, apply in this <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSdjpsFy0Ozd9CsOzVYn3K5yLkL5jXX4fUS3ec6Tgxx7nz7ZgA/viewform?usp=sf_link">form</a>.
+              </p>
+            </li>
+            <li>
+              <p>
+                Translations must be original and done by the contributor only. Using machine translation is strictly prohibited.
+              </p>
+            </li>
+            <li>
+              <p>
+                The number of your stakes is displayed in this <a target="_blank" href="https://docs.google.com/spreadsheets/d/1kbym_RYm3xPhKtJCASRPvOlUUCMop_qp6Gqq1oaq5bs/edit#gid=532331869">spreadsheet</a>.
+              </p>
+            </li>
+            <li>
+              <p>
+                The Ventureum team reserves the rights to change any rules.
+              </p>
+            </li>
+          </ul>
+          <table class="bounty-table">
+            <tbody>
+              <tr>
+                <td>Whitepaper</td>
+                <td>1000 stakes</td>
+              </tr>
+              <tr>
+                <td>Landing page</td>
+                <td>500 stakes</td>
+              </tr>
+              <tr>
+                <td>ANN page</td>
+                <td>200 stakes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <hr>
+
+        <div>
+          <h2>Bitcointalk.org Signature Campaign</h2>
+          <p>15% of bounty tokens (7 500 000 VGTH) are allocated for this campaign.</p>
+          <ul>
+            <li>
+              <p> 
+                To participate in the Signature bounty campaign, apply in this <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSciz5Atr45Wp9WvYUppximBkybuqKvIcrrPPfd_7tuKLLyuuA/viewform?usp=sf_link">form</a>.
+              </p> 
+            </li>
+            <li>
+              <p> 
+                The signature codes and the logo can be found <a target="_blank" href="https://drive.google.com/drive/folders/0Bx8t8m3e2UWxTFZfVTUwNURhZEU?usp=sharing">here</a>
+              </p> 
+            </li>
+            <li>
+              <p> 
+                The Signature must be held until the end of the campaign. In case that you remove the signature in the middle of the campaign, you are disqualified.
+              </p> 
+            </li>
+            <li>
+              <p> 
+                Your need to make at least 7 constructive posts each week.
+              </p> 
+            </li>
+            <li>
+              <p> 
+                Your need to make at least 1 constructive post in the Ventureum thread each week.
+              </p> 
+            </li>
+            <li>
+              <p> 
+                To get the signature reward, you must have written at least 28 posts by the end of the campaign.
+              </p> 
+            </li>
+            <li>
+              <p> 
+                Eligible posts must be over 100 characters. Posts shorter than 100 characters are not counted.
+              </p> 
+            </li>
+            <li>
+              <p> 
+                Posts must be constructive and on-topic. Spamming, low quality posts, copy paste and off topic posts will not be counted.
+              </p> 
+            </li>
+            <li>
+              <p> 
+                Spammers and multi-accounts will be banned and disqualified.
+              </p> 
+            </li>
+            <li>
+              <p> 
+                Receiving negative trust or ban during your participation in the campaign will lead to disqualification.
+              </p> 
+            </li>
+            <li>
+              <p> 
+                The number of your stakes is displayed in this <a target="_blank" href="https://docs.google.com/spreadsheets/d/1kbym_RYm3xPhKtJCASRPvOlUUCMop_qp6Gqq1oaq5bs/edit#gid=1940488462">spreadsheet</a>.
+              </p> 
+            </li>
+            <li>
+              <p> 
+                The Ventureum team reserves the rights to change any rules.
+              </p> 
+            </li>
+          </ul>
+          <p>
+            Discussion boards we don’t count: Games and round, Micro earnings, Politics and Society, Off-topic, Archival, Posts in «tipster» threads, Auctions, Lending, Beginners and help, Press, Investor based games.
+          </p>
+          <p>
+            Participants receive different amounts of stakes according to their rank. The rank is fixed when you apply and cannot be changed during the campaign.
+          </p>
+          <table class="bounty-table">
+            <tbody>
+              <tr class="top">
+                <td>Rank</td>
+                <td>Stakes per Week</td>
+              </tr>
+              <tr>
+                <td>Junior Member</td>
+                <td>10</td>
+              </tr>
+              <tr>
+                <td>Member</td>
+                  <td>20</td>
+                </tr>
+                <tr>
+                  <td>Full Member</td>
+                  <td>50</td>
+                </tr>
+                <tr>
+                  <td>Senior Member</td>
+                  <td>100</td>
+                </tr>
+                <tr>
+                  <td>Hero Member and Legendary</td>
+                  <td>200</td>
+                </tr>
+              </tbody>
+            </table>
+            <p> 
+              Participants of ranks from Junior to Legendary also receive 10 additional stakes for wearing Ventureum logo during the campaign.
+            </p>
+        </div>
+
+        <hr>
+
+        <div>
+        <h2>Facebook Bounty</h2>
+        <p>10% of bounty tokens (5 000 000 VGTH) are allocated for this campaign.</p>
+        <ul>
+          <li>
+            <p> 
+            To participate in the Facebook bounty campaign, apply in this <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSfCgZ8b2rYL3pDuu-Bi-hToixfKIjnkyysvPoBvn1HxN-Cjsw/viewform?usp=sf_link">form</a>.
+            </p>
+          </li>
+          <li>
+            <p> 
+              Like our <a target="_blank" href="https://www.facebook.com/Ventureum_Platform-282314582272190/">Facebook page</a>.
+            </p>
+          </li>
+          <li>
+            <p> 
+              Your account must have at least 100 friends. The number of friends must be public.
+            </p>
+          </li>
+          <li>
+            <p> 
+              Share posts from Ventureum Facebook page at least 3 times a week.
+            </p>
+          </li>
+          <li>
+            <p> 
+              In the end of every week fill in the <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSeiRL9HpOSk05vVAljGm5w-FW44zlp34aLr9_Yh_J45Q-CYLg/viewform?usp=sf_link">form</a> to provide us with the links to your reposts.
+            </p>
+          </li>
+          <li>
+            <p> 
+              The posts must not be removed from your personal page until the end of the bounty campaign. The posts must be public.
+            </p>
+          </li>
+          <li>
+            <p> 
+              Facebook accounts must be original. Fake, dead, inactive and bot accounts will not be accepted.
+            </p>
+          </li>
+          <li>
+            <p> 
+              Joining with multiple accounts is not allowed. Participants using multi-accounts will be disqualified.
+            </p>
+          </li>
+          <li>
+            <p> 
+              The number of your stakes is displayed in this <a target="_blank" href="https://docs.google.com/spreadsheets/d/1kbym_RYm3xPhKtJCASRPvOlUUCMop_qp6Gqq1oaq5bs/edit#gid=282172758">spreadsheet</a>.
+            </p>
+          </li>
+          <li>
+            <p> 
+              The Ventureum team reserves the rights to change any rules.
+            </p>
+          </li>
+        </ul>
+        <p> Participants receive different amounts of stakes according to the number of friends. </p>
+        <table class="bounty-table">
+          <tbody>
+            <tr class="top">
+              <td>Number of Friends</td>
+              <td>Stakes per Week</td>
+            </tr>
+            <tr>
+              <td>100 – 300</td>
+              <td>10</td>
+            </tr>
+            <tr>
+              <td>300 - 1000</td>
+              <td>20</td>
+            </tr>
+            <tr>
+              <td>1 000 and more</td>
+              <td>40</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+        <hr>
+
+        <div>
+          <h2>Twitter Bounty</h2>
+          <p>10% of bounty tokens (5 000 000 VGTH) are allocated for this campaign.</p>
+          <ul>
+            <li>
+              <p>
+                To participate in the Twitter bounty campaign, apply in this <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSeMO8W1SARlayGulJG5WwHQI9PfjbVfWQFhEQJCjbPD8GwIwg/viewform?usp=sf_link">form</a>.
+              </p>
+            </li>
+            <li>
+              <p>
+                Follow us on <a target="_blank" href="https://twitter.com/Ventureum_Platf">Twitter</a>.
+              </p>
+            </li>
+            <li>
+              <p>
+                Your account must have at least 100 friends. The number of friends must be public.
+              </p>
+            </li>
+            <li>
+              <p>
+                Retweet tweets from official Ventureum Twitter at least 3 times a week.
+              </p>
+            </li>
+            <li>
+              <p>
+                In the end of every week fill in the <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSdrttAU3znkM0Y7SueRfjeLai4MON9YyKLY5OpT18zUHcYy3w/viewform?usp=sf_link">form</a> to provide us with the links to your retweets.
+              </p>
+            </li>
+            <li>
+              <p>
+                The tweets must not be removed from your personal Twitter until the end of the bounty campaign. The posts must be public.
+              </p>
+            </li>
+            <li>
+              <p>
+                Twitter accounts must be original. Fake, dead, inactive and bot accounts will not be accepted.
+              </p>
+            </li>
+            <li>
+              <p>
+                Joining with multiple accounts is not allowed. Participants using multi-accounts will be disqualified.
+              </p>
+            </li>
+            <li>
+              <p>
+                The number of your stakes is displayed in this <a target="_blank" href="https://docs.google.com/spreadsheets/d/1kbym_RYm3xPhKtJCASRPvOlUUCMop_qp6Gqq1oaq5bs/edit#gid=205033094">spreadsheet</a>.
+            </li>
+            <li>
+              <p>
+                The Ventureum team reserves the rights to change any rules.
+            </li>
+          </ul>
+          <p>Participants receive different amounts of stakes according to the number of followers.</p>
+          <table class="bounty-table">
+          <tbody>
+            <tr class="top">
+              <td>Number of Followers</td>
+              <td>Stakes per Week</td>
+            </tr>
+            <tr>
+              <td>100 – 300</td>
+              <td>10</td>
+            </tr>
+            <tr>
+              <td>300 - 1000</td>
+              <td>20</td>
+            </tr>
+            <tr>
+              <td>1 000 and more</td>
+              <td>40</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+        <hr> 
+
+        <div class="bounty-disclaimer" >
+          <h4> Disclaimer </h4>
+          <p style="font-size: 10px; color: grey"> We designed the Ventureum bounty program by learning from other crowdfunding projects’ bounty programs, such as Snovio, Minerva, Bowhead, NOTARY.  </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-faq-modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content" style="background:#eeeeee">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <div class="row text-center"> 
+          <h3 id="footer-contact-modal-title" style="color:#9c27b0;">FAQ</h3>
+        </div>
+      </div>
+      <div class="modal-body">
+       <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><span class="glyphicon glyphicon-plus"></span> What is Ventureum?</a>
+            </h4>
+          </div>
+          <div id="collapse1" class="panel-collapse collapse">
+            <div class="panel-body">
+              <p>Ventureum is a community-governed milestone-driven crowdfunding platform for blockchain projects. It builds on the Ethereum blockchain. It works as a Decentralized Autonomous Organization (DAO) in which investors who have a stake in blockchain projects can vote to monitor and influence the progress of a project, and get a (partial) refund if the progress fails to meet their expectations.</p>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"><span class="glyphicon glyphicon-plus"></span> What does the word ‘Ventureum’ stand for?</a>
+            </h4>
+          </div>
+          <div id="collapse2" class="panel-collapse collapse">
+            <div class="panel-body">
+              <p>The word ‘Ventureum’ is a portmanteau of ‘venture’ and ‘eum’ (place) which means a place or a platform for (blockchain) venture projects.</p>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"><span class="glyphicon glyphicon-plus"></span> How does Ventureum distinguish itself from other blockchain crowdfunding platforms?</a>
+            </h4>
+          </div>
+          <div id="collapse3" class="panel-collapse collapse">
+            <div class="panel-body">
+              <p>To our best knowledge, Ventureum is the first ever proposed blockchain crowdfunding platform in which investors have influence over the progress of a project, and particularly the release of funds (ETH) raised in a crowdsale to project founders. It implements a milestone-driven funds management mechanism in which investors can vote to decide the objectives of a milestone have been met. In case of a milestone failure, investors are eligible for a refund (ETH).</p>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse4"><span class="glyphicon glyphicon-plus"></span> What is the name of the token?</a>
+            </h4>
+          </div>
+          <div id="collapse4" class="panel-collapse collapse">
+            <div class="panel-body">
+              <p>The token is named VTH, demonstrating its connection with the Ethereum ecosystem.</p>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse5"><span class="glyphicon glyphicon-plus"></span> What is the use of VTH?</a>
+            </h4>
+          </div>
+          <div id="collapse5" class="panel-collapse collapse">
+            <div class="panel-body">
+              <p>VTH gives its holders full access to the Ventureum platform's services, features, and functionalities, particularly coverage for a refund in the Milestone-driven Funds Management module.</p>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse6"><span class="glyphicon glyphicon-plus"></span> Can I mine VTH?</a>
+            </h4>
+          </div>
+          <div id="collapse6" class="panel-collapse collapse">
+            <div class="panel-body">
+              <p>No. The Ventureum platform resides on the Ethereum blockchain. The VTH tokens are created during contribution periods. No mining is required to create VTH tokens.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
 </html>
