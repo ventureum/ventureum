@@ -433,14 +433,27 @@ body, footer {
   background-color: #444;
 }
 
+/*
 .row.is-flex {
-    display: flex;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex; 
+    -webkit-flex-wrap: wrap; 
     flex-wrap: wrap;
 }
 .row.is-flex > [class*='col-'] {
-    display: flex;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex; 
+    -webkit-flex-direction: column; 
     flex-direction: column;
 }
+
+*/
 
 /*
 * And with max cross-browser enabled.
@@ -524,8 +537,21 @@ body, footer {
 }
 
 .token-allocation-description {
-    display: flex;
-    align-items: center;
+    /* Make it a flex container */
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex; 
+  
+  /* Align the bootstrap's container vertically */
+    -webkit-box-align : center;
+  -webkit-align-items : center;
+       -moz-box-align : center;
+       -ms-flex-align : center;
+          align-items : center;
+
+    /* align-items: center; */
     background: url("../img/token_bg.jpg");
     background-size: cover;
     width: 100%;
@@ -536,6 +562,18 @@ body, footer {
 
 .panel-title .glyphicon{
         font-size: 14px;
+}
+
+@media only screen and (max-width : 767px) {
+  .equal-height {
+    height: auto !important;
+  } 
+}
+
+@media only screen and (max-width : 767px) {
+  .features-equal-height {
+    height: auto !important;
+  } 
 }
 
 /* community */

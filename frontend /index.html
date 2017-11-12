@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.js"> </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.js"> </script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.min.js"></script>
@@ -25,6 +25,7 @@
   <script src="js/animation.js"></script>
   <script src="js/carousel-swipe.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
+  <script src="js/jquery.matchHeight.js" type="text/javascript"></script>
 </head>
 
 <body data-spy="scroll" data-target=".navbar" data-offset="50">
@@ -107,19 +108,19 @@
     <div class="feature-title">
       <h1 style="color:#9c27b0; margin-bottom:5%";>HOW WE PROTECT INVESTORS</h1>
     </div>
-    <div class="row row-eq-height">
+    <div class="row">
       <div class="col-md-4">
-        <div class="col-md-12 shadow shadow-hover feature-card animate-box">
+        <div class="col-md-12 shadow shadow-hover feature-card animate-box features-equal-height">
           <div class="feature-content">
             <h3>Milestone-driven</h3>
             <p>
-              Project founders can’t run away with your investments as the funds are locked in predefined milestones. Investors vote to decide whether the objectives of a milestone have been fulfilled and thus whether the funds is released to project founders.
+              Project founders can’t run away with your investments as the funds are locked in predefined milestones. Investors vote to decide whether the objectives of a milestone have been fulfilled and thus whether the funds are released to project founders.
             </p>
           </div>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="col-md-12 shadow shadow-hover feature-card animate-box">
+        <div class="col-md-12 shadow shadow-hover feature-card animate-box features-equal-height">
           <div class="feature-content">
             <h3>Community-governed</h3>
             <p>
@@ -129,7 +130,7 @@
         </div>
       </div>
       <div class="col-md-4">
-        <div class="col-md-12 shadow shadow-hover feature-card animate-box">
+        <div class="col-md-12 shadow shadow-hover feature-card animate-box features-equal-height">
           <div class="feature-content">
             <h3>Ultimate Investment Protection</h3>
             <p>
@@ -165,7 +166,7 @@
       <h1 style="color:#9c27b0; margin-bottom:5%";>A PREVIEW OF VENTUREUM PROTOCOL</h1>
     </div>
     <div class="preview-card shadow shadow-hover animate-box">
-      <div class="row is-flex">
+      <div class="row">
         <div class="col-md-4">
           <h3 id="preview-slide-title" style="color:#9c27b0; margin-top:30px; margin-left:20px">First Page Description</h3>
           <p id="preview-slide-text" style="margin-top:30px; margin-left:20px; color:#616161; height: 350px;"></p>
@@ -243,14 +244,14 @@
       <p style="color:white; font-size: 15px; margin-bottom:5%;";>Ventureum Network Token (VTH) gives its holders refund coverage in the Milestone-driven Funds Management module.</p>
     </div>
     <div class="tokens-card shadow shadow-hover animate-box">
-      <div class="row is-flex" style="min-height: 400px">
-        <div class="col-md-8 center-block">
-          <div class="chart-container">
-            <canvas id="token-allocation-chart"></canvas>
+      <div class="row">
+        <div class="col-md-8">
+          <div class="equal-height center-block">
+            <img class="img-responsive" src="img/token_allocation.png" alt=""  style="border-radius: 15px;">
           </div>
         </div>
         <div class="col-md-4 center-block">
-          <div class="token-allocation-description">
+          <div class="equal-height token-allocation-description">
           <!--  ul style="list-style: none; removes list bullets -->
            <ul style="list-style: none;">
              <li> <span>Token name: </span> <span style="opacity: 0.8">VTH</span> </li>
@@ -411,82 +412,82 @@ $(function() {
     });
 });
 
-// token allocation pie chart
+// // token allocation pie chart
 
-window.chartColors = {
-  red: 'rgb(255, 99, 132)',
-  orange: 'rgb(255, 159, 64)',
-  yellow: 'rgb(255, 205, 86)',
-  green: 'rgb(75, 192, 192)',
-  blue: 'rgb(54, 162, 235)',
-  purple: 'rgb(153, 102, 255)',
-  grey: 'rgb(201, 203, 207)'
-};
+// window.chartColors = {
+//   red: 'rgb(255, 99, 132)',
+//   orange: 'rgb(255, 159, 64)',
+//   yellow: 'rgb(255, 205, 86)',
+//   green: 'rgb(75, 192, 192)',
+//   blue: 'rgb(54, 162, 235)',
+//   purple: 'rgb(153, 102, 255)',
+//   grey: 'rgb(201, 203, 207)'
+// };
 
-data = {
-  datasets: [{
-    data: [15, 15, 25, 25, 20],
-    backgroundColor: [
-    window.chartColors.red,
-    window.chartColors.orange,
-    window.chartColors.yellow,
-    window.chartColors.green,
-    window.chartColors.blue,
-    ],
-  }],
+// data = {
+//   datasets: [{
+//     data: [15, 15, 25, 25, 20],
+//     backgroundColor: [
+//     window.chartColors.red,
+//     window.chartColors.orange,
+//     window.chartColors.yellow,
+//     window.chartColors.green,
+//     window.chartColors.blue,
+//     ],
+//   }],
 
-    // These labels appear in the legend and in the tooltips when hovering different arcs
-    labels: [
-    'Core Dev',
-    'Genesis Tokens',
-    'Contribution Round 1',
-    'Contribution Round 2',
-    'Pre-sale',
-    ]
-  };
+//     // These labels appear in the legend and in the tooltips when hovering different arcs
+//     labels: [
+//     'Core Dev',
+//     'Genesis Tokens',
+//     'Contribution Round 1',
+//     'Contribution Round 2',
+//     'Pre-sale',
+//     ]
+//   };
 
-var ctx = document.getElementById("token-allocation-chart");
-var myDoughnutChart = new Chart(ctx, {
-  type: 'doughnut',
-  data: data,
-  options: {
-    legend: {
-      position: 'right',
-    },
-    pieceLabel: {
-      render: 'percentage',
-      fontColor: function (args) {
-        var rgb = args.dataset.backgroundColor[args.index];
-        var threshold = 140;
-        var luminance = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
-        return luminance > threshold ? 'black' : 'white';
-      },
-      precision: 2
-    },
-    title: {
-      display: true,
-      text: 'VTH Token Allocation'
-    },
-    animation: {
-      animateRotate: true,
-      animateScale: true
-    },
-    tooltips: {
-      enabled: true,
-      mode: 'single',
-      callbacks: {
-        label: function(tooltipItem, data) { 
-            // data value
-            var d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]
-            // data label
-            var l = data.labels[tooltipItem.index]
-            // add percentage at the end of data value
-            return l + ' : ' + d + '%';
-        }
-      }
-    },
-  }
-});
+// var ctx = document.getElementById("token-allocation-chart");
+// var myDoughnutChart = new Chart(ctx, {
+//   type: 'doughnut',
+//   data: data,
+//   options: {
+//     legend: {
+//       position: 'right',
+//     },
+//     pieceLabel: {
+//       render: 'percentage',
+//       fontColor: function (args) {
+//         var rgb = args.dataset.backgroundColor[args.index];
+//         var threshold = 140;
+//         var luminance = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+//         return luminance > threshold ? 'black' : 'white';
+//       },
+//       precision: 2
+//     },
+//     title: {
+//       display: true,
+//       text: 'VTH Token Allocation'
+//     },
+//     animation: {
+//       animateRotate: true,
+//       animateScale: true
+//     },
+//     tooltips: {
+//       enabled: true,
+//       mode: 'single',
+//       callbacks: {
+//         label: function(tooltipItem, data) { 
+//             // data value
+//             var d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]
+//             // data label
+//             var l = data.labels[tooltipItem.index]
+//             // add percentage at the end of data value
+//             return l + ' : ' + d + '%';
+//         }
+//       }
+//     },
+//   }
+// });
 
 function hexToRgb(hex) {
       // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -524,6 +525,9 @@ $(document).ready(function(){
                 case -90: window.location.reload(); 
                 break; } 
     };
+
+$('.equal-height').matchHeight();
+$('.features-equal-height').matchHeight();
 </script>
 
 </body>
