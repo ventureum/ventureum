@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
-import 'VTHToken.sol';
-import 'zeppelin-solidity/blob/master/contracts/math/SafeMath.sol';
+import './VTHToken.sol';
+import './SafeMath.sol';
 
 contract Crowdsale {
   using SafeMath for uint256;
@@ -24,6 +24,8 @@ contract Crowdsale {
   // amount of raised money in wei
   uint256 public weiRaised;
 
+  uint256 public cap;
+
   /**
    * event for token purchase logging
    * @param purchaser who paid for the tokens
@@ -34,22 +36,24 @@ contract Crowdsale {
   event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
 
-  function Crowdsale(address _token, uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet) {
+  function Crowdsale(address _token, uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, uint256 _cap) public {
     require(_startTime >= now);
     require(_endTime >= _startTime);
     require(_rate > 0);
     require(_wallet != address(0));
+    require(_cap > 0);
 
     token = VTHToken(_token);
     startTime = _startTime;
     endTime = _endTime;
     rate = _rate;
     wallet = _wallet;
+    cap = _cap;
   }
 
 
   // fallback function can be used to buy tokens
-  function () payable {
+  function () public payable {
     buyTokens(msg.sender);
   }
 
@@ -68,7 +72,7 @@ contract Crowdsale {
 
     if(!token.transfer(beneficiary, tokens)) {
       // cannot allocate tokens to the beneficiary, revert changes
-      throw;
+      revert();
     }
 
     TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
