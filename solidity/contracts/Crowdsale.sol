@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import './VTHToken.sol';
+import './VTHTokenClassA.sol';
 import './SafeMath.sol';
 
 contract Crowdsale {
@@ -8,7 +8,7 @@ contract Crowdsale {
 
   // The token being sold
 
-  VTHToken public token;
+  VTHTokenClassA public token;
 
   // start and end timestamps where investments are allowed (both inclusive)
   uint256 public startTime;
@@ -43,7 +43,7 @@ contract Crowdsale {
     require(_wallet != address(0));
     require(_cap > 0);
 
-    token = VTHToken(_token);
+    token = VTHTokenClassA(_token);
     startTime = _startTime;
     endTime = _endTime;
     rate = _rate;
