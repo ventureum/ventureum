@@ -5,34 +5,29 @@ import './ERC20Token.sol';
 
 contract RedeemableERC20Token is ERC20Token {
 
-  address public redemptionTargetToken;
-  event RedemptionTargetTokenSetByOwner(address indexed owner, address indexed targetToken);
+  mapping(address => bool) public isRedemptionTargetToken;
+  event RedemptionTargetTokenSetByOwner(address indexed owner, address indexed targetToken, bool value);
   event Redeemed(address targetToken, address addr, uint256 balance);
   event RedeemedFrom(address tokenFrom, address addr, uint256 redeemAmount);
-  /**
-   * construct VGTH token
-   * Total Supply: 15% of VTH supply = 1.5e25 mVTH, or 1.5e7 VTH
-   */
+
   function RedeemableERC20Token(string _name, string _symbol, uint8 _decimals, uint256 _totalSupply)
     ERC20Token(_name, _symbol, _decimals, _totalSupply) public {
-
-    redemptionTargetToken = address(0x0);
   }
 
-  function setRedemptionTargetToken(address targetToken) public onlyOwner {
-    redemptionTargetToken = targetToken;
-    RedemptionTargetTokenSetByOwner(msg.sender, redemptionTargetToken);
+  function setRedemptionTargetToken(address targetToken, bool value) public onlyOwner {
+    isRedemptionTargetToken[targetToken] = value;
+    RedemptionTargetTokenSetByOwner(msg.sender, targetToken, value);
   }
 
   function redeemable() view public returns (bool) {
-    return (redemptionTargetToken != address(0x0)) && (msg.sender == redemptionTargetToken);
+    return isRedemptionTargetToken[msg.sender];
   }
 
   function redeem(address addr) public returns (uint256) {
     require(redeemable());
     uint256 addr_balance = balances[addr];
     balances[addr] = 0;
-    Redeemed(redemptionTargetToken, addr, addr_balance);
+    Redeemed(msg.sender, addr, addr_balance);
     return addr_balance;
   }
 
