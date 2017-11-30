@@ -14,7 +14,7 @@ contract VTHTokenClassB is DualClassRedeemableERC20Token {
   function VTHTokenClassB() DualClassRedeemableERC20Token('Ventureum Token Class B',
                                                                           'VTH',
                                                                           18,
-                                                                          8.5e26,
+                                                                          1.5e26,
                                                                           false) public {
 
   }
