@@ -1,4 +1,4 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.18;
 
 import './DualClassRedeemableERC20Token.sol';
 
@@ -14,7 +14,7 @@ contract VTHTokenClassB is DualClassRedeemableERC20Token {
   function VTHTokenClassB() DualClassRedeemableERC20Token('Ventureum Token Class B',
                                                                           'VTH',
                                                                           18,
-                                                                          8.5e26,
+                                                                          1.5e26,
                                                                           false) public {
 
   }
