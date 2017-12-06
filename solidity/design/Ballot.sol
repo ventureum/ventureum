@@ -31,10 +31,10 @@ Contract Ballot is Ownable{
 
     /** In order to transfer tokens owned by someone else, we need to do it in
      * two steps:
-     * 1. Investor call token.approve(address(VoteAddr), value) from web3
+     * 1. Investor call token.approve(address(ballotAddr), value) from web3
      * 2. Transfer funds from the investor to this contract using transferFrom()
      */
-    ERC20 token = ERC20 token(projectMeta.getVTHAddr());
+    ERC20 token = ERC20 token(projectMeta.getProjectTokenAddr());
     require(token.transferFrom(msg.sender, address(this), value));
 
     uint8 nextState = milestone.nextState();
