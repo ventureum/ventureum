@@ -22,7 +22,7 @@ function state() public {
     } else if(parentState == C) {
       // parent milestone is complete, now this milestone is activated
       // first calculate deadline using parent's deadline
-      _deadline = parent.deadline() + TTC;
+      _deadline = parent.deadline() + TTC * days;
     } else if(parentState == RP) {
       // parent milestone is in RP
       return RP;
@@ -65,19 +65,20 @@ function state() public {
           return RP;
         }
       }
-      else{
+      else {
         // In this case, we need to consider VP2 results as well
-        if(_deadline + 1 * weeks <= now) {
-          if(ballot.votingResults(address(this), VP2)){
-            // VP2 passed, but the new deadline has not been updated,
-            // staying at WVP2 and waiting for project founder to call
-            // finalizeVP2(), which updates deadline and objectives
-            return WVP2;
-          } else {
-            // VP2 rejected,  state is RP
-            return RP;
-          }
+        if(_deadline + 1 * weeks <= now && now <= _deadline + 1 * weeks + 1 * days &&
+           ballot.votingResults(address(this), VP2)) {
+          // VP2 passed, but the new deadline has not been updated,
+          // staying at WVP2 for maximum 24 hr start at deadline + 1W,
+          // and waiting for project founder to call finalizeVP2(),
+          // which updates deadline and objectives
+          return WVP2;
         }
+
+        // either VP2 rejected, or VP2 passed but VP2 was not finalized
+        // during the 24 hr period after VP2 completed
+        return RP;
       }
     }
   }
