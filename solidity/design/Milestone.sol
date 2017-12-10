@@ -38,15 +38,6 @@ Contract Milestone is Ownable, States {
         parent = Milestone(parentAddr);
     }
 
-    // if the milestone is INACTIVE, but is supposed to be in RP,
-    // investors are able to call this function to update the milestone's
-    // state, assuming parent is in state RP
-    function jumpToRP() inState(INACTIVE) public returns (bool) {
-        require(state() == RP);
-        // set state to RP permenently
-        RPPerm = true;
-    }
-
     // set TTC (Time-to-completion) in days
     function setTTC(uint _TTC) public onlyOwner inState(INACTIVE) returns (bool) {
         TTC= _TTC;
