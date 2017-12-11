@@ -1,60 +1,132 @@
-/**
- * returns the current state of a milestone
- * note that state() itself is not a transaction since state of the network is not changed
- */
-function state() public {
-
-    if(now < deadline - 1 * weeks){
-        // IP
-        return IP;
-    } else if(deadline - 1 * weeks <= now && now < deadline && !VP2Initiated) {
-        // VP1
-        return VP1;
-    } else if(deadline <= now && now < deadline + 1 * weeks && VP2Initiated && !deadlineUpdated) {
-        // VP2, deadlineUpdated is needed since we don't know if this happens after VP2 or during VP2
-        return VP2;
-    } else if(deadline - 1 * weeks <= now && now < deadline && VP2Initiated) {
-        // VP1 After VP2
-        return VP1_AFTER_VP2;
-    } else if(deadline <= now) {
-        if(!VP2Initiated) {
-            // VP2 has not been initiated
-            if(ballot.votingResults(address(this), VP1)){
-                // VP1 passed, now we are at C
-                return C;
-            } else {
-                // VP1 rejected, VP2 not initiated, state is RP
-                return RP;
-            }
-        } else {
-            // VP2 has been initiated
-            if(deadlineUpdated){
-                // We are at state 4 (VP1 After VP2), only check VP1 After VP2 results
-                if(ballot.votingResults(address(this), VP1_AFTER_VP2)){
-                    // VP1 After VP2 passed, go to C
-                    return C;
-                } else {
-                    // VP1 After VP2 rejected, go to RP
-                    return RP;
-                }
-            }
-            else {
-                // In this case, we need to consider VP2 results as well
-                if(deadline + 1 * weeks <= now && now <= deadline + 1 * weeks + 1 * days &&
-                   ballot.votingResults(address(this), VP2)) {
-                    // VP2 passed, but the new deadline has not been updated,
-                    // staying at WVP2 for maximum 24 hr start at deadline + 1W,
-                    // and waiting for project founder to call finalizeVP2(),
-                    // which updates deadline and objectives
-                    return WVP2;
-                }
-
-                // either VP2 rejected, or VP2 passed but VP2 was not finalized
-                // during the 24 hr period after VP2 completed
-                return RP;
+// return the current deadline of the milestone
+function getDeadline() return (uint) {
+    if(VP2Initiated) {
+        if(deadline + 1 weeks <= now) {
+            // only use the new deadline after VP2 has passed
+            if(!ballot.votingResults(address(this), VP1) &&
+               ballot.votingResults(address(this), VP2)) {
+                // VP1 rejected, VP2 approved
+                // use the new deadline
+                return _VP2Info.deadline;
             }
         }
     }
-    // this shouldn't happen
-    throw;
+
+    // use the original deadline
+    if(deadline == 0) {
+        if(parent.state() == TERMINATED) {
+            deadline = parent.getDeadline() + TTC * 1 days;
+        }
+    }
+    return deadline;
+
+}
+
+/**
+ * returns the current state of a milestone
+ * note that state() itself is not a transaction since state of the network is not changed  */
+function states() public returns (uint8, uint8, uint8) {
+
+    if(parent.state() != TERMINATED) {
+        return (INACTIVE, INACTIVE, INACTIVE);
+    }
+
+    // get the current deadline
+    uint _deadline = getDeadline();
+    
+    if (now < _deadline - 1 * weeks) {
+        if (!VP2Initiated) {
+            // IP before VP1
+            return (INACTIVE, IP, VP1);
+        }
+        else if (_deadline <= now){
+            // we are past the old _deadline
+            // VP2 passed, we are at VP1_AFTER_VP2
+            return (VP2, IP, VP1_AFTER_VP2);
+        }
+    } else if (_deadline - 1 * weeks <= now && now < _deadline) {
+        if (!VP2Initiated) {
+            // VP2 has not been init, next state is undetermined
+            return (IP, VP1, UNDERTERMINED);
+        } else if(_deadline <= now) {
+            // we are past the old _deadline
+            // VP1 After VP2
+            return (IP, VP1_AFTER_VP2, UNDERTERMINED);
+        }
+    } else if(_deadline <= now && now < _deadline + 1 * weeks) {
+        if (!VP2Initiated) {
+            // VP2 has not been initiated
+            if (ballot.votingResults(address(this), VP1)){
+                // VP1 passed, now we are at C
+                return (VP1, C, TERMINATED);
+            } else {
+                // VP1 rejected, VP2 not initiated, state is RP
+                return (VP1, RP, TERMINATED);
+            }
+        } else {
+            // VP2 initiated
+            if(_VP2Info._deadline <= now) {
+                // we are past VP1_AFTER_VP2
+                if(ballot.votingResults(address(this), VP1_AFTER_VP2)) {
+                    // VP1 After VP2 passed, previous state is C
+                    return (VP1_AFTER_VP2, C, TERMINATED);
+                } else {
+                    // VP1 After VP2 rejected, previous state is RP
+                    return (VP1_AFTER_VP2, RP, TERMINATED);
+                }
+            } else {
+                // we are at VP2
+                return (VP1, VP2, UNDETERMINED);
+            }
+        }
+    } else if(_deadline + 1 * weeks <= now && now < _deadline + 2 * weeks) {
+        if(!VP2Initiated) {
+            // VP2 has not been initiated
+            if (ballot.votingResults(address(this), VP1)){
+                // C passed, now we are at TERMINATED
+                return (C, TERMINATED, TERMINATED);
+            } else {
+                // RP passed, now we are at TERMINATED
+                return (RP, TERMINATED, TERMINATED);
+            }
+        } else {
+            if(ballot.votingResults(address(this), VP2)) {
+                // VP2 approved, we are using the new _deadline,
+                // which implies we are past the new _deadline and
+                // VP1_AFTER_VP2
+                if(ballot.votingResults(address(this), VP1_AFTER_VP2)) {
+                    // VP1 After VP2 passed, previous state is C
+                    return (C, TERMINATED, TERMINATED);
+                } else {
+                    // VP1 After VP2 rejected, previous state is RP
+                    return (RP, TERMINATED, TERMINATED);
+                }
+            } else {
+                // VP2 rejected
+                return (VP2, RP, TERMINATED);
+            }
+        }
+    } else {
+        // Although the previous state is potentially incorrect,
+        // it does affect our core functions of milestone contracts
+        return (TERMINATED, TERMINATED, TERMINATED);
+    }
+}
+
+// return the current state
+function state() returns (uint8) {
+    (uint8 pre, uint8 curr, uint8 next) = states();
+    return curr;
+}
+
+// return the previous state
+function preState() returns (uint8) {
+    (uint8 pre, uint8 curr, uint8 next) = states();
+    return pre;
+}
+
+// return the next states
+function nextState() returns (uint8) {
+    (uint8 pre, uint8 curr, uint8 next) = states();
+    return next;
 }
