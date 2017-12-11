@@ -12,8 +12,15 @@ Contract VTHManager is Ownable, States {
     // number of VTH tokens staked
     mapping(address => uint) staked;
 
+    struct RC {
+		// RC of the subtree starting at this milestone
+		uint subtree;
+		// RC of this milestone
+		uint vertex;
+	}
+
     // milestone => investor address => refund coverage
-    mapping(address => mapping(address => uint)) RCByMilestone;
+    mapping(address => mapping(address => RC)) RCByMilestone;
 
     // VTH collected by the Ventureum team as fees
     unit public VTHOwnedByVentureum;
@@ -23,11 +30,11 @@ Contract VTHManager is Ownable, States {
 
         require( msg.sender != address(0x0) );  
 
-        /** In order to transfer tokens owned by someone else, we need to do it in
-          * two steps:
-          * 1. Investor call token.approve(milestoneAddr, value) from web3
-          * 2. Transfer funds from the investor to this contract using transferFrom()
-          */
+        /* In order to transfer tokens owned by someone else, we need to do it in
+         * two steps:
+         * 1. Investor call token.approve(milestoneAddr, value) from web3
+         * 2. Transfer funds from the investor to this contract using transferFrom()
+         */
         ERC20 token = ERC20(projectMeta.getVTHAddr());
         require(token.transferFrom(msg.sender, address(this), value));
 
@@ -47,7 +54,15 @@ Contract VTHManager is Ownable, States {
         // calculate refund coverage
         uint RCInWei = ven.mVTHToWei(value);
 
-        RCByMilestone[milestoneAddr][msg.sender] += RCInWei;
+        RCByMilestone[milestoneAddr][msg.sender].vertex += RCInWei;
+        RCByMilestone[milestoneAddr][msg.sender].subtree += RCInWei;
+
+        // update all ancestors
+        while(milestone.parent() != address(0x0)) {
+            milestone = milestone.parent();
+            RCByMilestone[milestone][msg.sender].subtree += RCInWei;
+        }
+
         return RCInWei;
     }
 
