@@ -35,8 +35,15 @@ Contract Milestone is Ownable, States {
     // whether VP2 has been initiated
     bool public VP2Initiated = false;
 
-    Milestone(string _name) public {
+    Milestone(string _name, uint _TTC, bytes32 _hash_obj) public {
         name = _name;
+
+        // set TTC (Time-to-completion) in days
+        TTC= _TTC;
+
+        // set objectives hash
+        // Usage(js): let _hash_obj = '0x' + web3.sha3(text);
+        hash_obj = _hash_obj;
     }
 
     // set parent milestone, can only be done when state is INACTIVE
@@ -44,21 +51,10 @@ Contract Milestone is Ownable, States {
         parent = Milestone(parentAddr);
     }
 
-    // set TTC (Time-to-completion) in days
-    function setTTC(uint _TTC) public onlyOwner inState(INACTIVE) returns (bool) {
-        TTC= _TTC;
-    }
-
     // verify objectives hash
     function verifyObjectives(bytes32 _hash_obj) public inState(INACTIVE) returns (bool) {
         return hash_obj== _hash_obj;
     }
-
-    // set objectives hash
-    // Usage(js): let _hash_obj = '0x' + web3.sha3(text);
-    function setObjectives(bytes32 _hash_obj) public onlyOwner inState(INACTIVE) returns (bool) {
-        hash_obj = _hash_obj
-            }
 
     // deposit ETH raised from a crowdsale by the project founder to this milestone
     function depositETHByProjectFounder() public payable onlyOwner inState(INACTIVE) {
