@@ -7,5 +7,7 @@ Contract States {
   uint8 constant VP1_AFTER_VP2 = 4;
   uint8 constant C = 5;
   uint8 constant RP = 6;
-  uint8 constant WVP2 = 7;
+  uint8 constant TERMINATED = 7;
+  uint8 constant UNDETERMINED = 8; 
 }
+
