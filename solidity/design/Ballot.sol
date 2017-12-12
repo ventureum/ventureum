@@ -132,4 +132,9 @@ Contract Ballot is Ownable {
         VoteInfo storage _voteInfo = voteInfo[milestoneAddr][votingPeriodID];
         return _voteInfo.approval > _voteInfo.disapproval;
     }
+
+    // return true if the investor voted "Yes" in a voting period of a milestone, otherwise return false
+    function hasApproved(address milestoneAddr, address investor, uint8 votingPeriodID) public view returns (bool) {
+        return voteInfo[milestoneAddr][votingPeriodID].individualVoteInfo[investor].approved;
+    }
 }
