@@ -27,6 +27,7 @@ Contract Milestone is Ownable, States {
         // tentative ttc and objectives become the milestone's ttc and objectives once VP2 gets approved
         uint TTC;
         bytes32 hash_obj;
+        uint deadline;
     }
 
     VP2Info public _VP2Info;
@@ -91,19 +92,7 @@ Contract Milestone is Ownable, States {
 
         _VP2Info.TTC = TTC;
         _VP2Info.hash_obj = hash_obj;
-    }
-
-    // finalize VP2
-    function finalizeVP2 public onlyOwner inState(WVP2) {
-
-        // new TTC must be longer than old TTC by 15 days
-        require(_VP2Info.TTC >= TTC + 15);
-        TTC = _VP2Info.TTC;
-
-        // update objectives
-        hash_obj== _VP2Info.hash_obj;
-
-        deadlineUpdated = true;
+        _VP2Info.deadline = parent.getDeadline() + _VP2Info.TTC * 1 days;
     }
 
     function withdrawRefund() public {
