@@ -6,8 +6,13 @@ Contract Milestone is Ownable, States {
     // parent milestone
     Milestone public parent;
 
+    struct WeiLocked {
+        uint subtree;
+        uint vertex;
+    }
+
     // number of weis locked in this milestone
-    uint public weiLocked = 0;
+    Weilocked public weiLocked;
 
     // project meta info
     ProjectMeta public projectMeta;
@@ -22,6 +27,7 @@ Contract Milestone is Ownable, States {
         // tentative ttc and objectives become the milestone's ttc and objectives once VP2 gets approved
         uint TTC;
         bytes32 hash_obj;
+        uint deadline;
     }
 
     VP2Info public _VP2Info;
@@ -29,8 +35,15 @@ Contract Milestone is Ownable, States {
     // whether VP2 has been initiated
     bool public VP2Initiated = false;
 
-    Milestone(string _name) public {
+    Milestone(string _name, uint _TTC, bytes32 _hash_obj) public {
         name = _name;
+
+        // set TTC (Time-to-completion) in days
+        TTC= _TTC;
+
+        // set objectives hash
+        // Usage(js): let _hash_obj = '0x' + web3.sha3(text);
+        hash_obj = _hash_obj;
     }
 
     // set parent milestone, can only be done when state is INACTIVE
@@ -38,25 +51,22 @@ Contract Milestone is Ownable, States {
         parent = Milestone(parentAddr);
     }
 
-    // set TTC (Time-to-completion) in days
-    function setTTC(uint _TTC) public onlyOwner inState(INACTIVE) returns (bool) {
-        TTC= _TTC;
-    }
-
     // verify objectives hash
     function verifyObjectives(bytes32 _hash_obj) public inState(INACTIVE) returns (bool) {
         return hash_obj== _hash_obj;
     }
 
-    // set objectives hash
-    // Usage(js): let _hash_obj = '0x' + web3.sha3(text);
-    function setObjectives(bytes32 _hash_obj) public onlyOwner inState(INACTIVE) returns (bool) {
-        hash_obj = _hash_obj
-            }
-
     // deposit ETH raised from a crowdsale by the project founder to this milestone
     function depositETHByProjectFounder() public payable onlyOwner inState(INACTIVE) {
-        weiLocked += msg.value;
+        // update this vetex
+        weiLocked.vertex += msg.value;
+
+        // update all ancestors
+        Milestone milestone = parent;
+        while(address(milestone) != address(0x0)) {
+            milestone.weiLocked.subtree += msg.value;
+            milestone = milestone.parent();
+        }
     }
 
     // withdraw ETH by the project founder from this milestone after the 
@@ -64,8 +74,8 @@ Contract Milestone is Ownable, States {
     // investors
     function withdrawETHByProjectFounder(address beneficiary) public onlyOwner inState(C) {
 
-        uint weiToSend = weiLocked;
-        weiLocked = 0;
+        uint weiToSend = weiLocked.vertex;
+        weiLocked.vertex = 0;
 
         require(beneficiary.send(weiToSend));
     }
@@ -78,18 +88,45 @@ Contract Milestone is Ownable, States {
 
         _VP2Info.TTC = TTC;
         _VP2Info.hash_obj = hash_obj;
+        _VP2Info.deadline = parent.getDeadline() + _VP2Info.TTC * 1 days;
     }
 
-    // finalize VP2
-    function finalizeVP2 public onlyOwner inState(WVP2) {
+    function withdrawRefund() public {
+        RefundManager refundManager = projectMeta.refundManager();
+        (uint8 preState, uint8 currState, uint8 nextState) = states();
 
-        // new TTC must be longer than old TTC by 15 days
-        require(_VP2Info.TTC >= TTC + 15);
-        TTC = _VP2Info.TTC;
+        // must be at a valid state
+        require(currState == RP || currState == C);
 
-        // update objectives
-        hash_obj== _VP2Info.hash_obj;
+        uint8 stateForRefund;
+        if(preState == VP1 || preState == VP2) {
+            // we use tokens staked at VP1 for calculating refunds
+            stateForRefund = VP1;
+        } else if(preState == VP1_AFTER_VP2) {
+            // we use tokens staked at VP1_AFTER_VP2 for calculating refunds
+            stateForRefund = VP1_AFTER_VP2;
+        } else {
+            // this should not happen
+            throw;
+        }
 
-        deadlineUpdated = true;
+        (uint subtree, uint vertex) = refundManager.refundAmount(address(this), msg.sender, stateForRefund);
+
+        uint refund = 0;
+        if(currState == RP) {
+            // we consider the entire subtree in this case
+            refund = subtree;
+        } else if(currState == C) {
+            // we consider the current vertex (milestone node)
+            // in the previous voting, investor who voted for a refund will
+            // receive a refund
+            if(!ballot.hasApproved(address(this), msg.sender, preState)) {
+                refund = vertex;
+            }
+        }
+
+        // transfer refund to the investor
+        refundManager.clear(address(this), msg.sender, stateForRefund);
+        require(msg.sender.transfer(refund));
     }
 }
