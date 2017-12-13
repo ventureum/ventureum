@@ -26,7 +26,7 @@ Contract VTHManager is Ownable, States {
          * 1. Investor call token.approve(milestoneAddr, value) from web3
          * 2. Transfer funds from the investor to this contract using transferFrom()
          */
-        ERC20 token = ERC20(projectMeta.getVTHAddr());
+        ERC20 token = projectMeta.VTHToken();
         require(token.transferFrom(msg.sender, address(this), value));
 
         // must be a valid milestone address
