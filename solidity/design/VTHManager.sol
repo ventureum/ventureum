@@ -19,7 +19,7 @@ Contract VTHManager is Ownable, States {
     // milestone => investor address => refund coverage
     mapping(address => mapping(address => RC)) RCByMilestone;
 
-    function stakeVTH(address milestoneAddr, uint value) returns (uint) {
+    function stakeVTH(address milestoneAddr, uint value) external returns (uint) {
 
         /** In order to transfer tokens owned by someone else, we need to do it in
          * two steps:
@@ -54,7 +54,7 @@ Contract VTHManager is Ownable, States {
         return RCInWei;
     }
 
-    function withdrawVTH() returns (bool) {
+    function withdrawVTH() external returns (bool) {
         // project must have been completed
         require(projectMeta.completed());
 
@@ -68,7 +68,7 @@ Contract VTHManager is Ownable, States {
     }
 
     // transfer remaining RC of a milestone to another milestone
-    function transferRC(address from, address to, uint value) returns (bool) {
+    function transferRC(address from, address to, uint value) external returns (bool) {
 
         // must be a valid milestone address
         require(projectMeta.isMilestone(from));
