@@ -14,7 +14,7 @@ function getDeadline() return (uint) {
 
     // use the original deadline
     if(deadline == 0) {
-        if(parent.state() == TERMINATED) {
+        if(parent.state() == TERMINAL) {
             deadline = parent.getDeadline() + TTC * 1 days;
         }
     }
@@ -27,7 +27,7 @@ function getDeadline() return (uint) {
  * note that state() itself is not a transaction since state of the network is not changed  */
 function states() public returns (uint8, uint8, uint8) {
 
-    if(parent.state() != TERMINATED) {
+    if(parent.state() != TERMINAL) {
         return (INACTIVE, INACTIVE, INACTIVE);
     }
 
@@ -58,10 +58,10 @@ function states() public returns (uint8, uint8, uint8) {
             // VP2 has not been initiated
             if (ballot.votingResults(address(this), VP1)){
                 // VP1 passed, now we are at C
-                return (VP1, C, TERMINATED);
+                return (VP1, C, TERMINAL);
             } else {
                 // VP1 rejected, VP2 not initiated, state is RP
-                return (VP1, RP, TERMINATED);
+                return (VP1, RP, TERMINAL);
             }
         } else {
             // VP2 initiated
@@ -69,10 +69,10 @@ function states() public returns (uint8, uint8, uint8) {
                 // we are past VP1_AFTER_VP2
                 if(ballot.votingResults(address(this), VP1_AFTER_VP2)) {
                     // VP1 After VP2 passed, previous state is C
-                    return (VP1_AFTER_VP2, C, TERMINATED);
+                    return (VP1_AFTER_VP2, C, TERMINAL);
                 } else {
                     // VP1 After VP2 rejected, previous state is RP
-                    return (VP1_AFTER_VP2, RP, TERMINATED);
+                    return (VP1_AFTER_VP2, RP, TERMINAL);
                 }
             } else {
                 // we are at VP2
@@ -83,11 +83,11 @@ function states() public returns (uint8, uint8, uint8) {
         if(!VP2Initiated) {
             // VP2 has not been initiated
             if (ballot.votingResults(address(this), VP1)){
-                // C passed, now we are at TERMINATED
-                return (C, TERMINATED, TERMINATED);
+                // C passed, now we are at TERMINAL
+                return (C, TERMINAL, TERMINAL);
             } else {
-                // RP passed, now we are at TERMINATED
-                return (RP, TERMINATED, TERMINATED);
+                // RP passed, now we are at TERMINAL
+                return (RP, TERMINAL, TERMINAL);
             }
         } else {
             if(ballot.votingResults(address(this), VP2)) {
@@ -96,20 +96,20 @@ function states() public returns (uint8, uint8, uint8) {
                 // VP1_AFTER_VP2
                 if(ballot.votingResults(address(this), VP1_AFTER_VP2)) {
                     // VP1 After VP2 passed, previous state is C
-                    return (C, TERMINATED, TERMINATED);
+                    return (C, TERMINAL, TERMINAL);
                 } else {
                     // VP1 After VP2 rejected, previous state is RP
-                    return (RP, TERMINATED, TERMINATED);
+                    return (RP, TERMINAL, TERMINAL);
                 }
             } else {
                 // VP2 rejected
-                return (VP2, RP, TERMINATED);
+                return (VP2, RP, TERMINAL);
             }
         }
     } else {
         // Although the previous state is potentially incorrect,
         // it does affect our core functions of milestone contracts
-        return (TERMINATED, TERMINATED, TERMINATED);
+        return (TERMINAL, TERMINAL, TERMINAL);
     }
 }
 
