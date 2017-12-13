@@ -19,9 +19,9 @@ Contract RefundManagerWithVTH is RefundManager, Ownable, States {
     // update refund info for an investor
     function updateRefund(address milestoneAddr, address investor, uint tokensStaked, uint8 state) external {
         // can only be called from a ballot contract
-        require(projectMeta.getBallotAddr() == msg.sender);
+        require(address(projectMeta.ballot()) == msg.sender);
 
-        VTHManager _VTHManager = VTHManager(projectMeta.getVTHManagerAddr());
+        VTHManager _VTHManager = projectMeta._VTHManager();
         (uint RCSubtree, uint RCVertex) = _VTHManager.RCByMilestone(milestoneAddr, investo);
 
         // token value in wei

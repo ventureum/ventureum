@@ -20,7 +20,7 @@ Contract RefundManagerStandard is RefundManager, Ownable, States {
     // update refund info for an investor
     function updateRefund(address milestoneAddr, address investor, uint tokensStaked, uint8 state) external {
         // can only be called from a ballot contract
-        require(projectMeta.getBallotAddr() == msg.sender);
+        require(address(projectMeta.ballot()) == msg.sender);
 
         // token value in wei
         uint tokenValue = projectMeta.tokenToWei(tokensStaked);
