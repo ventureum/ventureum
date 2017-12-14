@@ -19,17 +19,20 @@ Contract Ballot is Ownable {
         mapping(address => IndividualVoteInfo) individualVoteInfo;
     }
 
-    // milestone address => voting state => VoteInfo
-    mapping(address => mapping(uint8 => VoteInfo))  voteInfo;
+    // milestone id => voting state => VoteInfo
+    mapping(uint8 => mapping(uint8 => VoteInfo))  voteInfo;
 
-    function stake(address milestoneAddr, uint value) public {
-        Milestone milestone = Milestone(milestoneAddr);
+
+    function stake(uint8 id, uint value) public {
+        // must be a valid milestone id
+        Milestones milestone = projectMeta.milestones();
+        require(milestones.valid(id));
 
         // staking is only allowed during IP
-        require(milestone.state() == 1);
+        require(milestones.state(id) == IP);
 
         // and 30 days before VP1 or VP1 After VP2
-        require(now < milestone.deadline() - 30 * days);
+        require(now < milestones.deadline(id) - 30 * days);
 
         /** In order to transfer tokens owned by someone else, we need to do it in
          * two steps:
@@ -39,9 +42,9 @@ Contract Ballot is Ownable {
         ERC20 token = projectMeta.token();
         require(token.transferFrom(msg.sender, address(this), value));
 
-        uint8 nextState = milestone.nextState();
+        uint8 nextState = milestones.nextState(id);
 
-        VoteInfo storage _voteInfo = voteInfo[milestoneAddr][nextState];
+        VoteInfo storage _voteInfo = voteInfo[id][nextState];
         IndividualVoteInfo storage _individualVoteInfo = _voteInfo.individualVoteInfo[msg.sender];
 
         // update the total number of tokens staked for this voting period
@@ -52,25 +55,27 @@ Contract Ballot is Ownable {
     }
 
     // withdraw staked tokens
-    function withdraw(address milestoneAddr) public {
-        Milestone milestone = Milestone(milestoneAddr);
+    function withdraw(uint8 id) public {
+        // must be a valid milestone id
+        Milestones milestone = projectMeta.milestones();
+        require(milestones.valid(id));
 
         // withdrawal is allowed during the following states:
-        // IP, C, RP, WVP2
-        uint8 state = milestone.state();
-        require(state < 2 || state > 4);
+        // IP, C, RP, TERMINAL
+        uint8 state = milestones.state(id);
+        require(state == IP || state == C || state == RP || state == TERMINAL);
 
         // tokens to be withdrawn
         uint tokensStaked = 0;
 
         // we process withdrawal requests for tokens staked for both VP1 and VP1 After VP2 
-        VoteInfo storage _voteInfoVP1 = voteInfo[milestoneAddr][2];
+        VoteInfo storage _voteInfoVP1 = voteInfo[id][VP1];
         IndividualVoteInfo storage _individualVoteInfoVP1 = _voteInfoVP1.individualVoteInfo[msg.sender];
 
         tokensStaked += _individualVoteInfoVP1.tokensStaked;
         _individualVoteInfoVP1.tokensStaked = 0;
 
-        VoteInfo storage _voteInfoVP1AfterVP2 = voteInfo[milestoneAddr][4];
+        VoteInfo storage _voteInfoVP1AfterVP2 = voteInfo[id][VP1_AFTER_VP2];
         IndividualVoteInfo storage _individualVoteInfoVP1AfterVP2 = _voteInfoVP1AfterVP2.individualVoteInfo[msg.sender];
 
         tokensStaked += _individualVoteInfoVP1AfterVP2.tokensStaked;
@@ -82,21 +87,23 @@ Contract Ballot is Ownable {
     }
 
     // called by investors
-    function vote(address milestoneAddr, bool approve) return (uint) public {
-        Milestone milestone = Milestone(milestoneAddr);
+    function vote(uint8 id, bool approve) return (uint) public {
+        // must be a valid milestone id
+        Milestones milestone = projectMeta.milestones();
+        require(milestones.valid(id));
 
         /** ID:
          *  2: VP1
          *  3: VP2
-         *  4: VP1 after VP2
+         *  4: VP1_AFTER_VP2
          *  others: ineligible for voting
          */
-        uint8 state = milestone.state();
+        uint8 state = milestones.state(id);
 
         // must be at a voting period
-        require( 2 <= state && state <= 4);
+        require(state == VP1 || state == VP2 || state == VP1_AFTER_VP2);
 
-        VoteInfo storage _voteInfo = voteInfo[milestoneAddr][state];
+        VoteInfo storage _voteInfo = voteInfo[id][state];
         IndividualVoteInfo storage _individualVoteInfo = _voteInfo.individualVoteInfo[msg.sender];
 
         // can only vote once
@@ -115,26 +122,38 @@ Contract Ballot is Ownable {
 
         // calculate effective refunds based on VP1
         if(state == VP1 || state == VP1_AFTER_VP2) {
-            projectMeta.refundManager().updateRefund(milestoneAddr, msg.sender, tokensStaked);
+            projectMeta.refundManager().updateRefund(id, msg.sender, tokensStaked);
         }
 
         return votingWeight18;
     }
 
     // returns the approval rating of a voting period in percentage with 18 decimal precision
-    function getApprovalRating(address milestoneAddr, uint8 votingPeriodID) view returns (uint) {
-        VoteInfo storage _voteInfo = voteInfo[milestoneAddr][votingPeriodID];
+    function getApprovalRating(uint8 id, uint8 votingPeriodID) view returns (uint) {
+        // must be a valid milestone id
+        Milestones milestone = projectMeta.milestones();
+        require(milestones.valid(id));
+
+        VoteInfo storage _voteInfo = voteInfo[id][votingPeriodID];
         return (_voteInfo.approval * 1e18)/(_voteInfo.approval + _voteInfo.disapproval);
     }
 
     // returns true if approved, otherwise returns false
-    function getVotingResults(address milestoneAddr, uint8 votingPeriodID) view returns (bool) {
-        VoteInfo storage _voteInfo = voteInfo[milestoneAddr][votingPeriodID];
+    function getVotingResults(uint8 id, uint8 votingPeriodID) view returns (bool) {
+        // must be a valid milestone id
+        Milestones milestone = projectMeta.milestones();
+        require(milestones.valid(id));
+
+        VoteInfo storage _voteInfo = voteInfo[id][votingPeriodID];
         return _voteInfo.approval > _voteInfo.disapproval;
     }
 
     // return true if the investor voted "Yes" in a voting period of a milestone, otherwise return false
-    function hasApproved(address milestoneAddr, address investor, uint8 votingPeriodID) public view returns (bool) {
+    function hasApproved(uint8 id, address investor, uint8 votingPeriodID) public view returns (bool) {
+        // must be a valid milestone id
+        Milestones milestone = projectMeta.milestones();
+        require(milestones.valid(id));
+
         return voteInfo[milestoneAddr][votingPeriodID].individualVoteInfo[investor].approved;
     }
 }

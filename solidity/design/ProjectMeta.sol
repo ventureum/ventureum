@@ -5,12 +5,8 @@ Contract ProjectMeta is Ownable, States {
 
     RefundManager public refundManager;
 
-    // milestone list
-    Milestone[] public milestones;
-
-    // check if an address is a milestone address
-    // of this project
-    mapping(address => bool) isMilestone;
+    // milestones
+    Milestones public milestones;
 
     Ballot public ballot;
 
@@ -28,11 +24,8 @@ Contract ProjectMeta is Ownable, States {
         refundManager = RefundManager(addr);
     }
 
-    function setMilestones(address[] addrList) external {
-        for(uint i=0; i < addrList.length; i++) {
-            milestones.push(Milestone[addrList[i]]);
-            isMilestone[addrList[i]] = true;
-        }
+    function setMilestones(address addr) external {
+        milestones = Milestones(addr);
     }
 
     function setBallot(address addr) external {
@@ -41,17 +34,6 @@ Contract ProjectMeta is Ownable, States {
 
     function setToken(address addr) external {
         token = ERC20(addr);
-    }
-
-    // returns true only if all milestones are in a terminal state
-    function completed() external returns (bool) {
-        for(uint i=0; i < milestones.length; i++) {
-            uint8 _state = milestones[i].state();
-            if(_state != RP && _state!= C) {
-                return false;
-            }
-        }
-        return true;
     }
 
     function setTokenPrice(uint _price) external {
