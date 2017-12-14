@@ -1,6 +1,6 @@
 // return the current deadline of the milestone
 function getDeadline(uint8 id) return (uint) {
-    ifV(m[id].P2Initiated) {
+    ifV(m[id].VP2Initiated) {
         if(m[id].deadline + 1 weeks <= now) {
             // only use the new deadline after VP2 has passed
             if(!ballot.votingResults(id, VP1) &&
@@ -25,6 +25,11 @@ function getDeadline(uint8 id) return (uint) {
  * returns the current state of a milestone
  * note that state() itself is not a transaction since state of the network is not changed  */
 function states(uint8 id) public returns (uint8, uint8, uint8) {
+
+    if(id == 0) {
+        // root node, always return TERMINAL
+        return (TERMINAL, TERMINA, TERMINAL);
+    }
 
     if(state(m[id].parent) != TERMINAL) {
         return (INACTIVE, INACTIVE, INACTIVE);
