@@ -47,6 +47,7 @@ Contract Milestones is Ownable, States {
     }
 
     // milestones
+    // the root node has an index of zero
     Milestone[] m;
 
     function addMilestone(string _name, uint _TTC, bytes32 _hash_obj) public {
@@ -68,7 +69,7 @@ Contract Milestones is Ownable, States {
     // deposit ETH raised from a crowdsale by the project founder to this milestone
     function depositETHByProjectFounder(uint8 id) public payable onlyOwner inState(id, INACTIVE) {
         require(valid(id));
-        
+
         // update this vetex
         m[id].weiLocked.vertex += msg.value;
 
