@@ -1,41 +1,40 @@
 // return the current deadline of the milestone
-function getDeadline() return (uint) {
-    if(VP2Initiated) {
-        if(deadline + 1 weeks <= now) {
+function getDeadline(uint8 id) return (uint) {
+    ifV(m[id].P2Initiated) {
+        if(m[id].deadline + 1 weeks <= now) {
             // only use the new deadline after VP2 has passed
-            if(!ballot.votingResults(address(this), VP1) &&
-               ballot.votingResults(address(this), VP2)) {
+            if(!ballot.votingResults(id, VP1) &&
+               ballot.votingResults(id, VP2)) {
                 // VP1 rejected, VP2 approved
                 // use the new deadline
-                return _VP2Info.deadline;
+                return m[id]._VP2Info.deadline;
             }
         }
     }
 
     // use the original deadline
-    if(deadline == 0) {
-        if(parent.state() == TERMINAL) {
-            deadline = parent.getDeadline() + TTC * 1 days;
+    if(m[id].deadline == 0) {
+        if(state(m[id].parent) == TERMINAL) {
+            deadline = getDeadline(m[id].parent) + m[id].TTC * 1 days;
         }
     }
     return deadline;
-
 }
 
 /**
  * returns the current state of a milestone
  * note that state() itself is not a transaction since state of the network is not changed  */
-function states() public returns (uint8, uint8, uint8) {
+function states(uint8 id) public returns (uint8, uint8, uint8) {
 
-    if(parent.state() != TERMINAL) {
+    if(state(m[id].parent) != TERMINAL) {
         return (INACTIVE, INACTIVE, INACTIVE);
     }
 
     // get the current deadline
-    uint _deadline = getDeadline();
-    
+    uint _deadline = getDeadline(id);
+
     if (now < _deadline - 1 * weeks) {
-        if (!VP2Initiated) {
+        if (!m[id].VP2Initiated) {
             // IP before VP1
             return (INACTIVE, IP, VP1);
         }
@@ -45,7 +44,7 @@ function states() public returns (uint8, uint8, uint8) {
             return (VP2, IP, VP1_AFTER_VP2);
         }
     } else if (_deadline - 1 * weeks <= now && now < _deadline) {
-        if (!VP2Initiated) {
+        if (!m[id].VP2Initiated) {
             // VP2 has not been init, next state is undetermined
             return (IP, VP1, UNDERTERMINED);
         } else if(_deadline <= now) {
@@ -54,9 +53,9 @@ function states() public returns (uint8, uint8, uint8) {
             return (IP, VP1_AFTER_VP2, UNDERTERMINED);
         }
     } else if(_deadline <= now && now < _deadline + 1 * weeks) {
-        if (!VP2Initiated) {
+        if (!m[id].VP2Initiated) {
             // VP2 has not been initiated
-            if (ballot.votingResults(address(this), VP1)){
+            if (ballot.votingResults(id, VP1)){
                 // VP1 passed, now we are at C
                 return (VP1, C, TERMINAL);
             } else {
@@ -65,9 +64,9 @@ function states() public returns (uint8, uint8, uint8) {
             }
         } else {
             // VP2 initiated
-            if(_VP2Info._deadline <= now) {
+            if(m[id]._VP2Info._deadline <= now) {
                 // we are past VP1_AFTER_VP2
-                if(ballot.votingResults(address(this), VP1_AFTER_VP2)) {
+                if(ballot.votingResults(id, VP1_AFTER_VP2)) {
                     // VP1 After VP2 passed, previous state is C
                     return (VP1_AFTER_VP2, C, TERMINAL);
                 } else {
@@ -80,9 +79,9 @@ function states() public returns (uint8, uint8, uint8) {
             }
         }
     } else if(_deadline + 1 * weeks <= now && now < _deadline + 2 * weeks) {
-        if(!VP2Initiated) {
+        if(!m[id].VP2Initiated) {
             // VP2 has not been initiated
-            if (ballot.votingResults(address(this), VP1)){
+            if (ballot.votingResults(id, VP1)){
                 // C passed, now we are at TERMINAL
                 return (C, TERMINAL, TERMINAL);
             } else {
@@ -90,11 +89,11 @@ function states() public returns (uint8, uint8, uint8) {
                 return (RP, TERMINAL, TERMINAL);
             }
         } else {
-            if(ballot.votingResults(address(this), VP2)) {
+            if(ballot.votingResults(id, VP2)) {
                 // VP2 approved, we are using the new _deadline,
                 // which implies we are past the new _deadline and
                 // VP1_AFTER_VP2
-                if(ballot.votingResults(address(this), VP1_AFTER_VP2)) {
+                if(ballot.votingResults(id, VP1_AFTER_VP2)) {
                     // VP1 After VP2 passed, previous state is C
                     return (C, TERMINAL, TERMINAL);
                 } else {
@@ -114,19 +113,19 @@ function states() public returns (uint8, uint8, uint8) {
 }
 
 // return the current state
-function state() returns (uint8) {
-    (uint8 pre, uint8 curr, uint8 next) = states();
+function state(uint8 id) returns (uint8) {
+    (uint8 pre, uint8 curr, uint8 next) = states(id);
     return curr;
 }
 
 // return the previous state
-function preState() returns (uint8) {
-    (uint8 pre, uint8 curr, uint8 next) = states();
+function preState(uint8 id) returns (uint8) {
+    (uint8 pre, uint8 curr, uint8 next) = states(id);
     return pre;
 }
 
 // return the next states
-function nextState() returns (uint8) {
-    (uint8 pre, uint8 curr, uint8 next) = states();
+function nextState(uint8 id) returns (uint8) {
+    (uint8 pre, uint8 curr, uint8 next) = states(id);
     return next;
 }

@@ -6,7 +6,7 @@ Contract VTHManager is Ownable, States {
     // project meta info
     ProjectMeta public projectMeta;
 
-    // number of VTH tokens staked
+    // number of VTH tokens staked by investors
     mapping(address => uint) staked;
 
     struct RC {
@@ -17,9 +17,9 @@ Contract VTHManager is Ownable, States {
     }
 
     // milestone => investor address => refund coverage
-    mapping(address => mapping(address => RC)) RCByMilestone;
+    mapping(uint8 => mapping(address => RC)) RCByMilestone;
 
-    function stakeVTH(address milestoneAddr, uint value) external returns (uint) {
+    function stakeVTH(uint8 id, uint value) external returns (uint) {
 
         /** In order to transfer tokens owned by someone else, we need to do it in
          * two steps:
@@ -29,12 +29,12 @@ Contract VTHManager is Ownable, States {
         ERC20 token = projectMeta.VTHToken();
         require(token.transferFrom(msg.sender, address(this), value));
 
-        // must be a valid milestone address
-        require(projectMeta.isMilestone(milestoneAddr));
-        Milestone milestone = Milestone(milestoneAddr);
+        // must be a valid milestone id
+        Milestones milestones = projectMeta.milestones();
+        require(milestones.valid(id));
 
         // must be at in a valid state
-        require(milestone.state() == IP);
+        require(milestones.state(id) == IP);
 
         // update number of VTH staked by this address
         staked[msg.sender] += value;
@@ -42,13 +42,16 @@ Contract VTHManager is Ownable, States {
         // calculate refund coverage
         uint RCInWei = ven.mVTHToWei(value);
 
-        RCByMilestone[milestoneAddr][msg.sender].vertex += RCInWei;
-        RCByMilestone[milestoneAddr][msg.sender].subtree += RCInWei;
+        RCByMilestone[id][msg.sender].vertex += RCInWei;
+        RCByMilestone[id][msg.sender].subtree += RCInWei;
 
         // update all ancestors
-        while(milestone.parent() != address(0x0)) {
-            milestone = milestone.parent();
-            RCByMilestone[milestone][msg.sender].subtree += RCInWei;
+        uint8 curr = id;
+        while(true) {
+            RCByMilestone[curr][msg.sender].subtree += RCInWei;
+            if(curr != 0){
+                curr = milestones.m(curr).parent;
+            }
         }
 
         return RCInWei;
@@ -68,18 +71,16 @@ Contract VTHManager is Ownable, States {
     }
 
     // transfer remaining RC of a milestone to another milestone
-    function transferRC(address from, address to, uint value) external returns (bool) {
+    function transferRC(uint8 from, uint8 to, uint value) external returns (bool) {
 
-        // must be a valid milestone address
-        require(projectMeta.isMilestone(from));
-        require(projectMeta.isMilestone(to));
-
-        Milestone milestoneFrom = Milestone(from);
-        Milestone milestoneTo = Milestone(to);
+        // both must be valid milestone IDs
+        Milestones milestones = projectMeta.milestones();
+        require(milestones.valid(from));
+        require(milestones.valid(to));
 
         // both must be in valid states
-        require(milestoneFrom.state() == IP);
-        require(milestoneTo.state() == IP);
+        require(milestones.state(from) == IP);
+        require(milestones.state(to) == IP);
 
         // now transfer RC
         require(value <= RCByMilestone[from][msg.sender]);

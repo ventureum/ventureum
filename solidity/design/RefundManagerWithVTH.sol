@@ -11,18 +11,21 @@ Contract RefundManagerWithVTH is RefundManager, Ownable, States {
     }
 
     // milestone => state => investor address => Refund
-    mapping(address => mapping(uint8 => mapping(address => Refund))) public refundByMilestone;
+    mapping(uint8 => mapping(uint8 => mapping(address => Refund))) public refundByMilestone;
 
     // milestone => total effective refund amount
-    mapping(address => mapping(uint8 => Refund)) public totEffRefund;
+    mapping(uint8 => mapping(uint8 => Refund)) public totEffRefund;
 
     // update refund info for an investor
-    function updateRefund(address milestoneAddr, address investor, uint tokensStaked, uint8 state) external {
+    function updateRefund(uint8 id, address investor, uint tokensStaked, uint8 state) external {
+        // must be a valid milestone id
+        require(projectMeta.milestones().valid(id));
+
         // can only be called from a ballot contract
         require(address(projectMeta.ballot()) == msg.sender);
 
         VTHManager _VTHManager = projectMeta._VTHManager();
-        (uint RCSubtree, uint RCVertex) = _VTHManager.RCByMilestone(milestoneAddr, investo);
+        (uint RCSubtree, uint RCVertex) = _VTHManager.RCByMilestone(id, investor);
 
         // token value in wei
         uint tokenValue = projectMeta.tokenToWei(tokensStaked);
@@ -34,24 +37,26 @@ Contract RefundManagerWithVTH is RefundManager, Ownable, States {
         uint effRefundSubtree = max(RCVertex, tokenValue);
 
         // update investor refund data
-        refundByMilestone[milestoneAddr][state][investor] = Refund(effRefundSubtree, effRefundVertex);
+        refundByMilestone[id][state][investor] = Refund(effRefundSubtree, effRefundVertex);
 
         // update the total effective refund
-        totEffRefund[milestoneAddr][state].subtree += effRefundSubtree;
-        totEffRefund[milestoneAddr][state].vertex += effRefundVertex;
+        totEffRefund[id][state].subtree += effRefundSubtree;
+        totEffRefund[id][state].vertex += effRefundVertex;
     }
 
     // return the exact refund amount in wei for both subtree and a single milestone vertex
     // refund amount of a subtree is used in RP
     // refund amount of a vertex is used in C
-    function refundAmount(address milestoneAddr, address investor, uint8 state) external returns (uint, uint) {
-        Milestone milestone = Milestone(milestoneAddr);
-        Refund rTot = totEffRefund[milestoneAddr][state];
+    function refundAmount(uint8 id, address investor, uint8 state) external returns (uint, uint) {
+        // must be a valid milestone id
+        require(projectMeta.milestones().valid(id));
+
+        Refund rTot = totEffRefund[id][state];
 
         // using "memory" to creat a copy
-        Refund memory r = refundByMilestone[milestoneAddr][state][investor];
+        Refund memory r = refundByMilestone[id][state][investor];
 
-        WeiLocked weiLocked = milestone.weiLocked();
+        WeiLocked weiLocked = m[id].weiLocked();
         if(weiLocked.subtree < rTot.subtree) {
             // scale down effective refund amount
             r.subtree = (r.subtree * weiLocked.subtree) / rTot.subtree;
@@ -65,8 +70,11 @@ Contract RefundManagerWithVTH is RefundManager, Ownable, States {
     }
 
     // clear refund data
-    function clear(address milestoneAddr, address investor, uint8 state) {
-        Refund storage r = refundByMilestone[milestoneAddr][state][investor];
+    function clear(uint8 id, address investor, uint8 state) {
+        // must be a valid milestone id
+        require(projectMeta.milestones().valid(id));
+
+        Refund storage r = refundByMilestone[id][state][investor];
         r.subtree = 0;
         r.vertex = 0;
     }
