@@ -120,7 +120,7 @@ contract Ballot is Ownable, States{
         if(state == VP2) {
             // we use tokens staked at VP1 in this case
             tokensStaked = voteInfo[id][VP1].individualVoteInfo[msg.sender].tokensStaked;
-            totalTokensStaked.voteInfo[id][VP1].totalTokensStaked;
+            totalTokensStaked = voteInfo[id][VP1].totalTokensStaked;
         }
 
         // can only vote once
