@@ -9,8 +9,8 @@ import './SafeMath.sol';
 // Standard RefundManager contract without using VTH
 contract RefundManagerStandard is IRefundManager, Ownable, States {
 
-    // using SafeMath for uint;
-
+    using SafeMath for uint;
+    
     // project meta info
     ProjectMeta public projectMeta;
 
