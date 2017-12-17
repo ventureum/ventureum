@@ -4,7 +4,7 @@ import './SafeMath.sol';
 import './Ownable.sol';
 import './States.sol';
 import './ProjectMeta.sol';
-import './RefundManager.sol';
+import './IRefundManager.sol';
 import './Ballot.sol';
 import './SafeMath.sol';
 
@@ -147,7 +147,7 @@ contract Milestones is Ownable, States {
     function withdrawRefund(uint8 id) external {
         require(valid(id));
 
-        RefundManager refundManager = projectMeta.refundManager();
+        IRefundManager refundManager = projectMeta.refundManager();
 
         uint8 preState = preStateTx(id);
         uint8 currState = stateTx(id);

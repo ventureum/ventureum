@@ -3,7 +3,7 @@ pragma solidity ^0.4.18;
 import './SafeMath.sol';
 import './Ownable.sol';
 import './States.sol';
-import './RefundManager.sol';
+import './IRefundManager.sol';
 import './ERC20.sol';
 import './Ballot.sol';
 import './Milestones.sol';
@@ -13,7 +13,7 @@ contract ProjectMeta is Ownable, States {
     // project name
     string public name;
 
-    RefundManager public refundManager;
+    IRefundManager public refundManager;
 
     // milestones
      Milestones public milestones;
@@ -31,10 +31,9 @@ contract ProjectMeta is Ownable, States {
     }
 
     function setRefundManager(address addr) external {
-        refundManager = RefundManager(addr);
+        refundManager = IRefundManager(addr);
     }
 
-    
     function setMilestones(address addr) external {
         milestones = Milestones(addr);
     }

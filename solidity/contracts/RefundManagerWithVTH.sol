@@ -3,11 +3,11 @@ pragma solidity ^0.4.18;
 import './Ownable.sol';
 import './ProjectMetaWithVTH.sol';
 import './States.sol';
-import './RefundManager.sol';
+import './IRefundManager.sol';
 import './VTHManager.sol';
 import './SafeMath.sol';
 
-contract RefundManagerWithVTH is RefundManager, Ownable, States {
+contract RefundManagerWithVTH is IRefundManager, Ownable, States {
 
     using SafeMath for uint;
 

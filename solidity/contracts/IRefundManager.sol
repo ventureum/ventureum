@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 // Refund Manager Interface
-contract RefundManager {
+contract IRefundManager {
     // update refund info for an investor
     function updateRefund(uint8 id, address investor, uint tokensStaked, uint8 state) external;
 
