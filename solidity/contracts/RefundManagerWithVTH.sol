@@ -64,12 +64,12 @@ contract RefundManagerWithVTH is IRefundManager, Ownable, States {
 
         if(subtree < rTot) {
             // scale down effective refund amount
-            subtreeRefund = (RC.mul(subtree)).div(rTot);
+            subtreeRefund = (refund.mul(subtree)).div(rTot);
         }
 
         if(vertex < rTot) {
             // scale down effective refund amount
-            vertexRefund = (RC.mul(vertex)).div(rTot);
+            vertexRefund = (refund.mul(vertex)).div(rTot);
         }
         return (subtreeRefund, vertexRefund);
     }

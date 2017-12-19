@@ -32,7 +32,7 @@ contract RefundManagerStandard is IRefundManager, Ownable, States {
         uint tokenValue = projectMeta.tokenToWei(tokensStaked);
 
         // update investor refund data
-        refundByMilestone[id][state][investor] = tokenValue
+        refundByMilestone[id][state][investor] = tokenValue;
         // update the total refund
         totRefund[id][state] = totRefund[id][state].add(tokenValue);
     }
