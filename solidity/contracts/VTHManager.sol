@@ -18,15 +18,8 @@ contract VTHManager is Ownable, States {
     // number of VTH tokens staked by investors
     mapping(address => uint) staked;
 
-    struct RC {
-        // RC of the subtree starting at this milestone
-        uint subtree;
-        // RC of this milestone
-        uint vertex;
-    }
-
     // milestone => investor address => refund coverage
-    mapping(uint8 => mapping(address => RC)) public RCByMilestone;
+    mapping(uint8 => mapping(address => uint)) public RCByMilestone;
 
     function stakeVTH(uint8 id, uint value) external returns (uint) {
         /** In order to transfer tokens owned by someone else, we need to do it in
@@ -50,17 +43,7 @@ contract VTHManager is Ownable, States {
         // calculate refund coverage
         uint RCInWei = ven.mVTHToWei(value);
 
-        RCByMilestone[id][msg.sender].vertex += RCInWei;
-        RCByMilestone[id][msg.sender].subtree += RCInWei;
-
-        // update all ancestors
-        uint8 curr = id;
-        while(true) {
-            RCByMilestone[curr][msg.sender].subtree += RCInWei;
-            if(curr != 0){
-                curr = milestones.getParent(curr);
-            }
-        }
+        RCByMilestone[id][msg.sender] += RCInWei;
 
         return RCInWei;
     }
@@ -86,30 +69,13 @@ contract VTHManager is Ownable, States {
         require(milestones.valid(to));
 
         // both must be in valid states
-        require(milestones.state(from) == IP);
+        require(milestones.state(from) == TERMINAL);
         require(milestones.state(to) == IP);
 
         // now transfer RC
-        require(value <= RCByMilestone[from][msg.sender].vertex);
+        require(value <= RCByMilestone[from][msg.sender]);
 
-        RCByMilestone[from][msg.sender].vertex -= value;
-        RCByMilestone[to][msg.sender].vertex += value;
-
-        // update all ancestors
-        uint8 curr = from;
-        while(true) {
-            RCByMilestone[curr][msg.sender].subtree -= value;
-            if(curr != 0){
-                curr = milestones.getParent(curr);
-            }
-        }
-
-        curr = to;
-        while(true) {
-            RCByMilestone[curr][msg.sender].subtree += value;
-            if(curr != 0){
-                curr = milestones.getParent(curr);
-            }
-        }
+        RCByMilestone[from][msg.sender] -= value;
+        RCByMilestone[to][msg.sender] += value;
     }
 }
