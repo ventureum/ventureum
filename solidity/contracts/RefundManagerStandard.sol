@@ -14,19 +14,11 @@ contract RefundManagerStandard is IRefundManager, Ownable, States {
     // project meta info
     ProjectMeta public projectMeta;
 
-    // effective refunds
-    struct Refund {
-        // refund of the subtree
-        uint subtree;
-        // refund of this milestone
-        uint vertex;
-    }
-
     // milestone => state => investor address => Refund
-    mapping(uint8 => mapping(uint8 => mapping(address => Refund))) private refundByMilestone;
+    mapping(uint8 => mapping(uint8 => mapping(address => uint))) public refundByMilestone;
 
     // milestone => total refund amount
-    mapping(uint8 => mapping(uint8 => Refund)) private totRefund;
+    mapping(uint8 => mapping(uint8 => uint)) public totRefund;
 
     // update refund info for an investor
     function updateRefund(uint8 id, address investor, uint tokensStaked, uint8 state) external {
@@ -40,11 +32,9 @@ contract RefundManagerStandard is IRefundManager, Ownable, States {
         uint tokenValue = projectMeta.tokenToWei(tokensStaked);
 
         // update investor refund data
-        refundByMilestone[id][state][investor] = Refund(tokenValue, tokenValue);
-
+        refundByMilestone[id][state][investor] = tokenValue;
         // update the total refund
-        totRefund[id][state].subtree = totRefund[id][state].subtree.add(tokenValue);
-        totRefund[id][state].vertex = totRefund[id][state].vertex.add(tokenValue);
+        totRefund[id][state] = totRefund[id][state].add(tokenValue);
     }
 
     // return the exact refund amount in wei for both subtree and a single milestone vertex
@@ -55,22 +45,25 @@ contract RefundManagerStandard is IRefundManager, Ownable, States {
         Milestones milestones = projectMeta.milestones();
         require(milestones.valid(id));
 
-        Refund storage rTot = totRefund[id][state];
+        uint rTot = totRefund[id][state];
 
-        // using "memory" to creat a copy
-        Refund memory r = refundByMilestone[id][state][investor];
+        uint refund = refundByMilestone[id][state][investor];
 
         var (subtree, vertex) = milestones.getWeiLocked(id);
-        if(subtree < rTot.subtree) {
+
+        uint subtreeRefund = 0;
+        uint vertexRefund = 0;
+
+        if(subtree < rTot) {
             // scale down effective refund amount
-            // r.subtree = (r.subtree.mul(subtree)).div(rTot.subtree);
+            subtreeRefund = (refund.mul(subtree)).div(rTot);
         }
 
-        if(vertex < rTot.vertex) {
+        if(vertex < rTot) {
             // scale down effective refund amount
-            // r.vertex = (r.vertex.mul(vertex)).div(rTot.vertex);
+            vertexRefund = (refund.mul(vertex)).div(rTot);
         }
-        return (r.subtree, r.vertex);
+        return (subtreeRefund, vertexRefund);
     }
 
     // clear refund data
@@ -78,9 +71,7 @@ contract RefundManagerStandard is IRefundManager, Ownable, States {
         // must be a valid milestone id
         require(projectMeta.milestones().valid(id));
 
-        Refund storage r = refundByMilestone[id][state][investor];
-        r.subtree = 0;
-        r.vertex = 0;
+       refundByMilestone[id][state][investor] = 0;
     }
 
 }
