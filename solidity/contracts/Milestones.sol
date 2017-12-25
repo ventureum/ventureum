@@ -132,13 +132,13 @@ contract Milestones is Ownable, States {
     // withdraw ETH by the project founder from this milestone after the 
     // decision of releasing milestone payment is approved by the majority of
     // investors
-    function withdrawETHByProjectFounder(uint8 id, address beneficiary) external onlyOwner inState(id, C) {
+    function withdrawETHByProjectFounder(uint8 id, address beneficiary) external onlyOwner inState(id, TERMINAL) {
         require(valid(id));
-
-        uint weiToSend = weiLocked[id].vertex;
-        weiLocked[id].vertex = 0;
-
-        beneficiary.transfer(weiToSend);
+        if(preStateTx(id) == C) {
+            uint weiToSend = weiLocked[id].vertex;
+            weiLocked[id].vertex = 0;
+            beneficiary.transfer(weiToSend);
+        }
     }
 
     // initialize VP2 while in VP1
@@ -276,10 +276,10 @@ contract Milestones is Ownable, States {
             // root node
             if(_now() >= _deadline) {
                 // already passed the deadline, root node is in TERMINAL
-                return (INACTIVE, TERMINAL, TERMINAL);
+                return (C, TERMINAL, TERMINAL);
             } else {
-                // before root node's deadline, root node is in INACTIVE
-                return (INACTIVE, INACTIVE, TERMINAL);
+                // before root node's deadline, root node is in C
+                return (INACTIVE, C, TERMINAL);
             }
         }
 
