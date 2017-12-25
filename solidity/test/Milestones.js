@@ -111,4 +111,18 @@ contract('Milestones', function(accounts) {
         var parent = (await milestones.getParent(2)).toNumber();
         assert.equal(parent, 1 , "parent id should be zero");
     });
+
+    it("verifyObjectives() true", async function() {
+        // add a milestone
+        await milestones.addMilestone("TEST", 10, "0x5", 0);
+        var rv = await milestones.verifyObjectives.call(1, "0x5");
+        assert.equal(rv, true, "return value should be true");
+    });
+
+    it("verifyObjectives() false", async function() {
+        // add a milestone
+        await milestones.addMilestone("TEST", 10, "0x5", 0);
+        var rv = await milestones.verifyObjectives.call(1, "0x0");
+        assert.equal(rv, false, "return value should be false");
+    });
 });
