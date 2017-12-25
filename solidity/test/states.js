@@ -65,7 +65,7 @@ contract('Milestone States', function(accounts) {
 
     it("state() root node, before deadline", async function() {
         var state = await milestones.state.call(0);
-        assert.equal(state.toNumber(), INACTIVE, "Root node state should be INACTIVE");
+        assert.equal(state.toNumber(), C, "Root node state should be INACTIVE");
     });
 
     it("state() root node, on deadline", async function() {
