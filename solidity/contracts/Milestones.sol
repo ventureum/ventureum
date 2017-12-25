@@ -108,7 +108,7 @@ contract Milestones is Ownable, States {
     }
 
     // verify objectives hash
-    function verifyObjectives(uint8 id, bytes32 hashObj) public view inState(id, INACTIVE) returns (bool) {
+    function verifyObjectives(uint8 id, bytes32 hashObj) public view returns (bool) {
         require(valid(id));
         return (m[id].hashObj == hashObj);
     }
@@ -273,8 +273,14 @@ contract Milestones is Ownable, States {
      */
     function states(uint8 id, uint _deadline) public view returns (uint8, uint8, uint8) {
         if(id == 0) {
-            // root node, always return TERMINAL
-            return (TERMINAL, TERMINAL, TERMINAL);
+            // root node
+            if(_now() >= _deadline) {
+                // already passed the deadline, root node is in TERMINAL
+                return (INACTIVE, TERMINAL, TERMINAL);
+            } else {
+                // before root node's deadline, root node is in INACTIVE
+                return (INACTIVE, INACTIVE, TERMINAL);
+            }
         }
 
         if(state(m[id].parent) != TERMINAL) {
