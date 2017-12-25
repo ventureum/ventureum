@@ -15,11 +15,13 @@ contract Milestones is Ownable, States {
     // project meta info
     ProjectMeta public projectMeta;
 
+    // number of weis locked in this milestone
     struct WeiLocked {
         uint subtree;
         uint vertex;
     }
 
+    // VP2 info
     struct VP2Info {
         // tentative new time-to-completion and/or a tentative new objectives
         // tentative ttc and objectives become the milestone's ttc and objectives once VP2 gets approved
@@ -48,18 +50,20 @@ contract Milestones is Ownable, States {
 
         // deadline of the milestone
         uint deadline;
-
-        // number of weis locked in this milestone
-        WeiLocked weiLocked;
-
-        // VP2 info
-        VP2Info _VP2Info;
     }
 
     // milestones
     // the root node has an index of zero
-    // 0.4.18 does not support public array of nested struct, set to private
-    Milestone[] private m;
+    // 0.4.18 does not support public array of nested struct, flattened
+    Milestone[] public m;
+
+    // using mapping so we do not need to worry about initialization
+    mapping(uint8 => WeiLocked) public weiLocked;
+    mapping(uint8 => VP2Info) public _VP2Info;
+
+    // DEBUG OPTIONS
+    bool DEBUG = true;
+    uint DEBUG_now = 0;
 
     modifier inState(uint8 id, uint8 _state) {
         require(_state == state(id));
@@ -69,28 +73,33 @@ contract Milestones is Ownable, States {
     function Milestones() public {
         Milestone memory milestone;
         milestone.name = "ROOT";
+        milestone.TTC = 0;
+        milestone.hashObj = 0;
+        milestone.parent = 0;
+        milestone.VP2Initiated = false;
 
         // we set the root node's deadline to the current timestamp plus 1 week,
         // which leaves 1 week for setting up the milestone tree.
         // the root node's deadline indicates the starting time of the whole process
         // project founders need to take this part into their deployment consideration.
-        milestone.deadline = now.add(1 weeks);
+        milestone.deadline = _now().add(1 weeks);
 
         m.push(milestone);
     }
 
-    function addMilestone(string name, uint TTC, bytes32 hashObj) external {
+    function setProjectMeta(address addr) external {
+        projectMeta = ProjectMeta(addr);
+    }
+
+    function addMilestone(string name, uint TTC, bytes32 hashObj, uint8 parent) external {
+        require(valid(parent));
         Milestone memory milestone;
         milestone.name = name;
         milestone.TTC = TTC;
         milestone.hashObj = hashObj;
+        milestone.parent = parent;
+        milestone.deadline = m[parent].deadline.add(TTC.mul(1 days));
         m.push(milestone);
-    }
-
-    // set parent milestone, can only be done when state is INACTIVE
-    function setParent(uint8 id, uint8 parent) external onlyOwner inState(id, INACTIVE) {
-        require(valid(id));
-        m[id].parent = parent;
     }
 
     function getParent(uint8 id) public view returns (uint8) {
@@ -109,12 +118,12 @@ contract Milestones is Ownable, States {
         require(valid(id));
 
         // update this vetex
-        m[id].weiLocked.vertex = m[id].weiLocked.vertex.add(msg.value);
+        weiLocked[id].vertex = weiLocked[id].vertex.add(msg.value);
 
         // update all ancestors
         uint8 curr = m[id].parent;
         while(true) {
-            m[curr].weiLocked.subtree =  m[curr].weiLocked.subtree.add(msg.value);
+            weiLocked[curr].subtree =  weiLocked[curr].subtree.add(msg.value);
             if(curr == 0) break;
             curr = m[curr].parent;
         }
@@ -126,8 +135,8 @@ contract Milestones is Ownable, States {
     function withdrawETHByProjectFounder(uint8 id, address beneficiary) external onlyOwner inState(id, C) {
         require(valid(id));
 
-        uint weiToSend = m[id].weiLocked.vertex;
-        m[id].weiLocked.vertex = 0;
+        uint weiToSend = weiLocked[id].vertex;
+        weiLocked[id].vertex = 0;
 
         beneficiary.transfer(weiToSend);
     }
@@ -139,9 +148,9 @@ contract Milestones is Ownable, States {
         // can only be initiated once
         require(!m[id].VP2Initiated);
         m[id].VP2Initiated = true;
-        m[id]._VP2Info.TTC = TTC;
-        m[id]._VP2Info.hash_obj = hash_obj;
-        m[id]._VP2Info.deadline = getDeadline(m[id].parent).add(m[id]._VP2Info.TTC * 1 days);
+        _VP2Info[id].TTC = TTC;
+        _VP2Info[id].hash_obj = hash_obj;
+        _VP2Info[id].deadline = getDeadline(m[id].parent).add(_VP2Info[id].TTC * 1 days);
     }
 
     function withdrawRefund(uint8 id) external {
@@ -204,7 +213,11 @@ contract Milestones is Ownable, States {
 
     function getWeiLocked(uint8 id) public view returns (uint, uint) { 
         require(valid(id));
-        return (m[id].weiLocked.subtree, m[id].weiLocked.vertex);
+        return (weiLocked[id].subtree, weiLocked[id].vertex);
+    }
+
+    function getMilestoneCount() public view returns (uint) {
+        return m.length;
     }
 
     // return the current deadline of the milestone
@@ -217,7 +230,7 @@ contract Milestones is Ownable, States {
                ballot.getVotingResults(id, VP2)) {
                 // VP1 rejected, VP2 approved
                 // use the new deadline
-                return m[id]._VP2Info.deadline;
+                return _VP2Info[id].deadline;
             }
         }
 
@@ -240,7 +253,7 @@ contract Milestones is Ownable, States {
                ballot.getVotingResults(id, VP2)) {
                 // VP1 rejected, VP2 approved
                 // use the new deadline
-                return m[id]._VP2Info.deadline;
+                return _VP2Info[id].deadline;
             }
         }
 
@@ -270,30 +283,30 @@ contract Milestones is Ownable, States {
 
         Ballot ballot = projectMeta.ballot();
 
-        if (now < _deadline.sub(1 weeks)) {
+        if (_now() < _deadline.sub(1 weeks)) {
             if (!m[id].VP2Initiated) {
                 // IP before VP1
                 return (INACTIVE, IP, VP1);
             }
-            else if (_deadline <= now){
+            else if (_deadline <= _now()){
                 // we are past the old _deadline
                 // VP2 passed, we are at VP1_AFTER_VP2
                 return (VP2, IP, VP1_AFTER_VP2);
             }
-        } else if (_deadline.sub(1 weeks) <= now && now < _deadline) {
+        } else if (_deadline.sub(1 weeks) <= _now() && _now() < _deadline) {
             if (!m[id].VP2Initiated) {
                 // VP2 has not been init, next state is undetermined
                 return (IP, VP1, UNDETERMINED);
-            } else if(_deadline <= now) {
+            } else if(_deadline <= _now()) {
                 // we are past the old _deadline
                 // VP1 After VP2
                 return (IP, VP1_AFTER_VP2, UNDETERMINED);
             }
-        } else if(_deadline <= now && now < _deadline.add(1 weeks)) {
+        } else if(_deadline <= _now() && _now() < _deadline.add(1 weeks)) {
             if (!m[id].VP2Initiated) {
                 // VP2 has not been initiated
                 if (ballot.getVotingResults(id, VP1)){
-                    // VP1 passed, now we are at C
+                    // VP1 passed, _now() we are at C
                     return (VP1, C, TERMINAL);
                 } else {
                     // VP1 rejected, VP2 not initiated, state is RP
@@ -301,7 +314,7 @@ contract Milestones is Ownable, States {
                 }
             } else {
                 // VP2 initiated
-                if(m[id]._VP2Info.deadline <= now) {
+                if(_VP2Info[id].deadline <= _now()) {
                     // we are past VP1_AFTER_VP2
                     if(ballot.getVotingResults(id, VP1_AFTER_VP2)) {
                         // VP1 After VP2 passed, previous state is C
@@ -315,14 +328,14 @@ contract Milestones is Ownable, States {
                     return (VP1, VP2, UNDETERMINED);
                 }
             }
-        } else if(_deadline.add(1 weeks) <= now && now < _deadline.add( 2 * 1 weeks)) {
+        } else if(_deadline.add(1 weeks) <= _now() && _now() < _deadline.add( 2 * 1 weeks)) {
             if(!m[id].VP2Initiated) {
                 // VP2 has not been initiated
                 if (ballot.getVotingResults(id, VP1)){
-                    // C passed, now we are at TERMINAL
+                    // C passed, _now() we are at TERMINAL
                     return (C, TERMINAL, TERMINAL);
                 } else {
-                    // RP passed, now we are at TERMINAL
+                    // RP passed, _now() we are at TERMINAL
                     return (RP, TERMINAL, TERMINAL);
                 }
             } else {
@@ -413,5 +426,17 @@ contract Milestones is Ownable, States {
         curr;
 
         return next;
+    }
+
+    // Debug options
+
+    function _now() internal returns (uint) {
+        // DEBUG is false or DEBUG_no is zero
+        if(!DEBUG) return now;
+        return DEBUG_now;
+    }
+
+    function setNow(uint val) public {
+        DEBUG_now = val;
     }
 }
