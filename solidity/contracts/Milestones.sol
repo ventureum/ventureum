@@ -108,7 +108,7 @@ contract Milestones is Ownable, States {
     }
 
     // verify objectives hash
-    function verifyObjectives(uint8 id, bytes32 hashObj) public view inState(id, INACTIVE) returns (bool) {
+    function verifyObjectives(uint8 id, bytes32 hashObj) public view returns (bool) {
         require(valid(id));
         return (m[id].hashObj == hashObj);
     }
@@ -132,13 +132,13 @@ contract Milestones is Ownable, States {
     // withdraw ETH by the project founder from this milestone after the 
     // decision of releasing milestone payment is approved by the majority of
     // investors
-    function withdrawETHByProjectFounder(uint8 id, address beneficiary) external onlyOwner inState(id, C) {
+    function withdrawETHByProjectFounder(uint8 id, address beneficiary) external onlyOwner inState(id, TERMINAL) {
         require(valid(id));
-
-        uint weiToSend = weiLocked[id].vertex;
-        weiLocked[id].vertex = 0;
-
-        beneficiary.transfer(weiToSend);
+        if(preStateTx(id) == C) {
+            uint weiToSend = weiLocked[id].vertex;
+            weiLocked[id].vertex = 0;
+            beneficiary.transfer(weiToSend);
+        }
     }
 
     // initialize VP2 while in VP1
@@ -273,8 +273,14 @@ contract Milestones is Ownable, States {
      */
     function states(uint8 id, uint _deadline) public view returns (uint8, uint8, uint8) {
         if(id == 0) {
-            // root node, always return TERMINAL
-            return (TERMINAL, TERMINAL, TERMINAL);
+            // root node
+            if(_now() >= _deadline) {
+                // already passed the deadline, root node is in TERMINAL
+                return (C, TERMINAL, TERMINAL);
+            } else {
+                // before root node's deadline, root node is in C
+                return (INACTIVE, C, TERMINAL);
+            }
         }
 
         if(state(m[id].parent) != TERMINAL) {
