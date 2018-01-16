@@ -661,21 +661,31 @@ a.member-profile {
   font-size: 16px;
 }
 
-/* Mobile Devices Optimization */
-
-@media (max-width: 992px) {
-
-  a.member-profile {
-    max-width: 240px !important;
-  }
-
-  #community img {max-width: 240px;}
-
-}
 
 
 /* Social Networks Meta */
 #community li {display: inline-block; padding: 0 6px; font-size: 18px;}
+
+/* careers */
+#careers p, #careers h3, #careers ul li {
+  font-size: 15px;
+  color: white;
+}
+
+#careers h3 a {
+  font-size: 22px;
+  color: white;
+}
+
+#careers h3 a {
+  font-size: 20px;
+  color: white;
+}
+
+#careers h3 small {
+  font-size: 10px;
+  color: white;
+}
 
 .fa {
   color:white;

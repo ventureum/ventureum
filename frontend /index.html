@@ -81,6 +81,10 @@
             <a href="#platform" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Workflow</a>
           </li>
           <li>
+            <a href="#preview" class="hidden-xs">Preview</a>
+            <a href="#preview" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Preview</a>
+          </li>
+          <li>
             <a href="#tokens" class="hidden-xs">Tokens</a>
             <a href="#tokens" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Tokens</a>
           </li>
@@ -439,7 +443,7 @@ $(".btn").mouseup(function(){
 
 var preview_slide_text_content = [
     "<b>Overview</b> gives investors detailed description of a project’s objectives, technical background, roadmap, founder team members, etc. Investors are also able to comment on the project. If the project is during a contribution period, investors can contribute to the project, and view the amount of investment (ETH) pledged, the soft cap and hard cap of the crowdsale, and contribution period deadline.",
-    "Once the contribution period is over, investors can view a real-time project progress bar, the total amount of investment raised during the contribution period. Investors can stake Ventureum Network Tokens (VTH) for refund coverage. To receive a refund up to X ETH, investors need to stake (lock in) at least 0.25X ETH worth of VTH on Ventureum till the project finishes.",
+    "Investors purchase Ventureum Network Tokens (VTH) for Refund Quota. In a milestone, to receive a refund up to X ETH, investors need to transfer at least 1% * X ETH worth of VTH to that milestone.",
     "<b>Milestones</b> navigates investors into the project’s milestone-driven funds management mechanism, the essential innovation on Ventureum that gives investors unprecedented protection for their investments. Each milestone node is labeled with a title and an icon to represent its state, e.g., <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_1.png\"> implies milestone objectives are met, <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_2.png\"> means the node <b>Smart Contract A</b> is in a <b>Voting Period</b>, <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_3.png\"> reminds investors to stake project tokens for a pending vote, and <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_4.png\"> means investors voted for a refund for the node <b>Smart Contract B</b>.",
     "Investors are required to stake project tokens for a pending vote to be eligible to vote. An investor’s voting weight for a given vote is proportional to the amount of project tokens staked.",
     "For a milestone node in the <b>Voting Period</b> state, investors with voting eligibility can vote <b>Approve</b> or <b>Reject</b> to determine if the funds locked in the milestone are released to project founders. Investors who vote <b>Reject</b> will be provided an option to receive a refund, regardless of the collective decision. The real-time <b>Approval rate</b> and <b>Participation rate</b> are also displayed.",
@@ -449,7 +453,7 @@ var preview_slide_text_content = [
 
 var preview_slide_text_title = [
   "Project Overview",
-  "VTH staking",
+  "Activating ETH Refund Quota",
   "Milestones",
   "Staking",
   "Voting Period 1",
