@@ -4,6 +4,26 @@
   <title>The Ventureum Project</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon-precomposed" sizes="57x57" href="img/apple-touch-icon-57x57.png" />
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/apple-touch-icon-114x114.png" />
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/apple-touch-icon-72x72.png" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="img/apple-touch-icon-144x144.png" />
+<link rel="apple-touch-icon-precomposed" sizes="60x60" href="aimg/pple-touch-icon-60x60.png" />
+<link rel="apple-touch-icon-precomposed" sizes="120x120" href="img/apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon-precomposed" sizes="76x76" href="img/apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon-precomposed" sizes="152x152" href="img/apple-touch-icon-152x152.png" />
+<link rel="icon" type="image/png" href="img/favicon-196x196.png" sizes="196x196" />
+<link rel="icon" type="image/png" href="img/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/png" href="img/favicon-32x32.png" sizes="32x32" />
+<link rel="icon" type="image/png" href="img/favicon-16x16.png" sizes="16x16" />
+<link rel="icon" type="image/png" href="img/favicon-128.png" sizes="128x128" />
+<meta name="application-name" content="&nbsp;"/>
+<meta name="msapplication-TileColor" content="#FFFFFF" />
+<meta name="msapplication-TileImage" content="img/mstile-144x144.png" />
+<meta name="msapplication-square70x70logo" content="img/mstile-70x70.png" />
+<meta name="msapplication-square150x150logo" content="img/mstile-150x150.png" />
+<meta name="msapplication-wide310x150logo" content="img/mstile-310x150.png" />
+<meta name="msapplication-square310x310logo" content="img/mstile-310x310.png" />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="css/style.css">
   <link rel="stylesheet" type="text/css" href="css/mdi.css">
@@ -14,18 +34,19 @@
   <link rel="stylesheet" href="https://cdn.materialdesignicons.com/2.0.46/css/materialdesignicons.min.css">
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.js"> </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.7.1/dist/Chart.js"> </script>
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script src="js/scrolling-nav.js"></script>
   <script src="js/Chart.PieceLabel.min.js"></script>
   <script src="js/animation.js"></script>
   <script src="js/carousel-swipe.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
   <script src="js/jquery.matchHeight.js" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
 </head>
 
 <body data-spy="scroll" data-target=".navbar" data-offset="50">
@@ -52,16 +73,24 @@
             <a href="#features" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Features</a>
           </li>
           <li>
-            <a href="#platform" class="hidden-xs">Platform</a>
-            <a href="#platform" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Platform</a>
+            <a href="#network" class="hidden-xs">Network Effect</a>
+            <a href="#network" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Network Effect</a>
+          </li>
+          <li>
+            <a href="#platform" class="hidden-xs">Workflow</a>
+            <a href="#platform" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Workflow</a>
           </li>
           <li>
             <a href="#tokens" class="hidden-xs">Tokens</a>
             <a href="#tokens" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Tokens</a>
           </li>
           <li>
-            <a href="#community" class="hidden-xs">Community</a>
-            <a href="#community" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Community</a>
+            <a href="#community" class="hidden-xs">Team</a>
+            <a href="#community" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Team</a>
+          </li>
+          <li>
+            <a href="#careers" class="hidden-xs">Careers</a>
+            <a href="#careers" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Careers</a>
           </li>
           <li>
             <a href="#footer-bounty-modal" class="hidden-xs" data-toggle="modal">Bounty</a> 
@@ -91,7 +120,7 @@
             <h4 id = "intro-sm"> A Milestone-driven Community-governed Crowdfunding Protocol for Blockchain Projects </h4>
             <div class="col-md-4 col-md-offset-4">
               <div class="row">
-                <a href="whitepaper/whitepaper.pdf" target="_blank" type="button" class="btn btn-primary btn-outline btn-intro">Whitepaper</a>
+                <a href="https://www.ventureum.io/whitepaper/whitepaper.pdf" target="_blank" type="button" class="btn btn-primary btn-outline btn-intro">Whitepaper</a>
               </div>
               <div class="row">
                 <a href="https://github.com/ventureum/ventureum" target="_blank" type="button" class="btn btn-primary btn-outline btn-intro">Github</a>
@@ -149,6 +178,21 @@
   </div>
 </section>
 
+<section id="network" class="vertical-center" style="background:#eeeeee;"> 
+  <div class="container">
+    <div class="platform-title">
+      <h1 style="color:#9c27b0; margin-bottom:5%";>Network Effect</h1>
+    </div>
+    <div class="animate-box">
+      <div class="row">
+        <div class="col-md-12 center">
+            <img class="img-responsive" src="img/network.png" alt=""/>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="platform" class="vertical-center" style="background:#eeeeee;"> 
   <div class="container">
     <div class="platform-title">
@@ -158,7 +202,7 @@
       <div class="row">
         <div class="col-md-12">
           <div id="style-1" class="center-block">
-            <img class="img-responsive" src="img/platform.png" alt=""/>
+            <img class="img-responsive" src="img/workflow.png" alt=""/>
           </div>
         </div>
       </div>
@@ -185,7 +229,6 @@
             <li data-target="#myCarousel" data-slide-to="4" ></li>
             <li data-target="#myCarousel" data-slide-to="5" ></li>
             <li data-target="#myCarousel" data-slide-to="6" ></li>
-            <li data-target="#myCarousel" data-slide-to="7" ></li>
           </ol>
         </div>
         <div class="col-md-8">
@@ -219,13 +262,8 @@
                 </div>
 
                 <div class="item">
-                  <img src="img/refund_period_stage_1.jpg">
-                </div>
-
-                <div class="item">
-                  <img src="img/refund_period_stage_2.jpg">
-                </div>
-                
+                  <img src="img/refund_period.jpg">
+                </div> 
               </div>
             </div>
           </div>
@@ -247,28 +285,14 @@
   <div class="container">
     <div class="tokens-title">
       <h1 style="color:white; margin-bottom:2%";>VTH TOKENS</h1>
-      <p style="color:white; font-size: 15px; margin-bottom:5%;";>Ventureum Network Token (VTH) gives its holders refund coverage in the Milestone-driven Funds Management module.</p>
+      <p style="color:white; font-size: 15px; margin-bottom:1%;";>Ventureum Network Token (VTH) activates ETH refund quota for its holders in the Milestone-driven Funds Management module. </p>
+      <p style="color:white; font-size: 15px; margin-bottom:1%;";>Refund quota represents the maximum amount of ETH refund one can receive in a project. </p>
+      <p style="color:white; font-size: 15px; margin-bottom:5%;";>1 Billion VTH will be issued. We will ensure that Ventureum 1.0 is fully tested before running a token sale.</p>
     </div>
     <div class="tokens-card shadow shadow-hover animate-box">
-      <div class="row">
-        <div class="col-md-8">
-          <div class="equal-height center-block">
-            <img class="img-responsive" src="img/token_allocation.png" alt=""  style="border-radius: 15px;">
-          </div>
-        </div>
-        <div class="col-md-4 center-block">
-          <div class="equal-height token-allocation-description">
-          <!--  ul style="list-style: none; removes list bullets -->
-           <ul style="list-style: none;">
-             <li> <span>Token name: </span> <span style="opacity: 0.8">VTH</span> </li>
-             <li> <span>Pre-sale: </span> <span style="opacity: 0.8">TBD</span> </li>
-             <li> <span>Tokens issued: </span> <span style="opacity: 0.8">1 Billion </span> </li>
-             <li> <span>Initial price per token: </span> <span style="opacity: 0.8">0.0001 ETH</span> </li>
-             <li> <span>Hard cap: </span> <span style="opacity: 0.8">20000 ETH (Pre-sale)</span> </li>
-           </ul>
-         </div>
-       </div>
-     </div> <!-- row -->
+      <div class="row center-block">
+        <canvas id="token-allocation-chart" style="margin-top: 2%; margin-bottom: 2%; max-height: 500px;"></canvas>
+     </div> 
    </div>
  </div>
 </section>
@@ -276,7 +300,7 @@
 <section id="community">
   <div class="container">
   <div class="community-title">
-      <h1 style="color:white; margin-bottom:2%";>A COMMUNITY DRIVEN PROJECT</h1>
+      <h1 style="color:white; margin-bottom:2%";>TEAM</h1>
       <p style="color:white; font-size: 15px; margin-bottom:5%";>We are completely open source and anyone is free to contribute. Together, we are shaping the future of Ventureum, and creating the most advanced self-regulating crypto-crowdfunding protocol.</p>
     </div>
     <div class="row">
@@ -305,7 +329,7 @@
           </div>
           <span>Co-founder</span>
           <h4><span>Nathan</span>Liu</h4>
-          <h5>Data Scientist @ BOC</h5>
+          <h5>Former Data Scientist @ two top-tier financial companies in Canada and China</h5>
           <h5>University of Waterloo Alumnus</h5>
           <h6>Ph.D. CFA</h6>
         </a>  
@@ -317,23 +341,78 @@
       <div class="col-md-3 animate-box text-center">
         <a class="member-profile">
           <div class="unhover_img">
-            <img src="img/join_our_team.png" alt="" />
+            <img src="img/team_3.jpg" alt="" />
           </div>
-          <span></span>
-          <h4><span>Interested?</span> Join us!</h4>
-        </a> 
+          <span>Co-founder</span>
+          <h4><span>Lucas</span>Gu</h4>
+          <h5>Counterparty Risk Manager @ Bank of Nova Scotia</h5>
+          <h5>University of Waterloo Alumnus</h5>
+          <h6>MSc physics, visiting scholar at the Institute for Advanced Study (IAS) in Princeton</h6>
+        </a>  
         <ul>
-          <li><a href="https://join.slack.com/t/ventureum/shared_invite/enQtMjU1MjU0NDE3MjIyLTUwMDA2YjE1ZGIzMGNjMjZiYmM5MzA2MWMyNDJlYmY3YzFjMGNjYmExMjMxMjJjNjE4ZmE3YmU3MDg4NDNkNGE"  target="_blank"><i class="fa fa-slack"></i></a></li>
-          <li><a href="https://www.facebook.com/VentureumPlatform" target="_blank"><i class="fa fa-facebook"></i></a></li>       
-          <li><a href="https://twitter.com/Ventureum_Platf" target="_blank"><i class="fa fa-twitter"></i></a></li>      
-          <li><a href="https://www.reddit.com/r/ventureum/" target="_blank"><i class="fa fa-reddit"></i></a></li>  
-        </ul> 
+          <li><a href="https://www.linkedin.com/in/yuxiang-lucas-gu-a7418732/"  target="_blank"><i class="fa fa-linkedin"></i></a></li>
+          <li><a href="https://github.com/yuxianggu" target="_blank"><i class="fa fa-github"></i></a></li>  
+        </ul>
       </div>
-    </div> <!-- End First Row -->
   </div>
 </section>
 
+<section id="careers" class="vertical-center" style = "background:#4c087c;"> 
+  <div class="container">
+    <div class="tokens-title">
+      <h1 style="color:white; margin-bottom:2%";>CAREERS</h1>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p>Excited about tackling the hard problems in cryptocurrency world? Are you passionate about digital currency? If so, you've found the right place.</p>
+          <p>Together, we’ll create and iterate on the most advanced crypto-crowdfunding protocol.</p>
+          <h3>Benefits</h3>
+          <ul>
+            <li>Own your own projects from conception to launch</li>
+            <li>The option of getting paid in Ethers</li>
+            <li>Work whenever you work best (flexible hours)</li>
+            <li>Flexible vacation - take time off when you need it</li>
+            <li>12 weeks<strong>&nbsp;</strong>maternity/paternity leave</li>
+          </ul>
+        </div>
+        <div class="col-md-4 col-md-offset-2">
+          <div class="row">
+            <h3><a href="">Software Engineer - Smart Contract </a><br><small>Toronto - Canada</small></h3>
+            <h3><a href="">Software Engineer - Frontend</a><br><small>Toronto - Canada</small></h3>
+            <h3><a href="">UI/UX Designer</a><br><small>Toronto - Canada</small></h3>
+            <h3><a href="">QA Engineer</a><br><small>Toronto - Canada</small></h3>
+            <h3><a href="">Integrated Marketing Manager</a><br><small>Toronto - Canada</small></h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+  
 <script>
+
+
+//jQuery for page scrolling feature - requires jQuery Easing plugin
+$(function() {
+    $('a.visible-xs').bind('click', function(event) {
+        var $anchor = $(this);
+        $('html, body').stop().animate({
+            scrollTop: $($anchor.attr('href')).offset().top
+        }, 1500, 'easeInOutExpo');
+        event.preventDefault();
+    });
+});
+
+$(function() {
+    $('a.hidden-xs').bind('click', function(event) {
+        var $anchor = $(this);
+        $('html, body').stop().animate({
+            scrollTop: $($anchor.attr('href')).offset().top-50
+        }, 1500, 'easeInOutExpo');
+        event.preventDefault();
+    });
+});
 
 // change navbar bg color while scrolling
 $(document).ready(function(){       
@@ -365,9 +444,7 @@ var preview_slide_text_content = [
     "Investors are required to stake project tokens for a pending vote to be eligible to vote. An investor’s voting weight for a given vote is proportional to the amount of project tokens staked.",
     "For a milestone node in the <b>Voting Period</b> state, investors with voting eligibility can vote <b>Approve</b> or <b>Reject</b> to determine if the funds locked in the milestone are released to project founders. Investors who vote <b>Reject</b> will be provided an option to receive a refund, regardless of the collective decision. The real-time <b>Approval rate</b> and <b>Participation rate</b> are also displayed.",
     "A detailed <b>Objectives</b> pane is viewable for each milestone node.",
-    "A milestone enters the <b>Refund Period</b> if most investors voted <b>Reject</b>, and the voting was final. <b>Refund Period</b> consists of 2 stages. In the first stage, investors can withdraw project tokens they previously staked for voting. The unwithdrawn portion of the project tokens is forwarded into the second stage of the <b>Refund Period</b>.",
-    "To calculate the amount of refund (ETH) an investor is entitled to withdraw, both the unwithdrawn portion of the project tokens and the number of VTH tokens staked for refund coverage are considered. Investors can then withdraw a refund (ETH). The equivalent amount of project tokens (by average crowdsale price) will be burned. Investors can withdraw project tokens that cannot be used for a refund due to other limitations.",
-
+    "A milestone enters the <b>Refund Period</b> if majority of investors voted <b>Reject</b>, and the voting was final. To calculate the amount of ETH refund an investor is entitled to withdraw, both the staked project tokens and the refund quota are considered. After withdrawing a refund, the staked project tokens are burned.",
 ];
 
 var preview_slide_text_title = [
@@ -377,8 +454,7 @@ var preview_slide_text_title = [
   "Staking",
   "Voting Period 1",
   "Voting Period 1 Objectives",
-  "Refund Period stage 1",
-  "Refund Period stage 2",
+  "Refund Period stage",
 ];
 
 preview_slide_text_id = 0;
@@ -418,82 +494,42 @@ $(function() {
     });
 });
 
-// // token allocation pie chart
-
-// window.chartColors = {
-//   red: 'rgb(255, 99, 132)',
-//   orange: 'rgb(255, 159, 64)',
-//   yellow: 'rgb(255, 205, 86)',
-//   green: 'rgb(75, 192, 192)',
-//   blue: 'rgb(54, 162, 235)',
-//   purple: 'rgb(153, 102, 255)',
-//   grey: 'rgb(201, 203, 207)'
-// };
-
-// data = {
-//   datasets: [{
-//     data: [15, 15, 25, 25, 20],
-//     backgroundColor: [
-//     window.chartColors.red,
-//     window.chartColors.orange,
-//     window.chartColors.yellow,
-//     window.chartColors.green,
-//     window.chartColors.blue,
-//     ],
-//   }],
-
-//     // These labels appear in the legend and in the tooltips when hovering different arcs
-//     labels: [
-//     'Core Dev',
-//     'Genesis Tokens',
-//     'Contribution Round 1',
-//     'Contribution Round 2',
-//     'Pre-sale',
-//     ]
-//   };
-
-// var ctx = document.getElementById("token-allocation-chart");
-// var myDoughnutChart = new Chart(ctx, {
-//   type: 'doughnut',
-//   data: data,
-//   options: {
-//     legend: {
-//       position: 'right',
-//     },
-//     pieceLabel: {
-//       render: 'percentage',
-//       fontColor: function (args) {
-//         var rgb = args.dataset.backgroundColor[args.index];
-//         var threshold = 140;
-//         var luminance = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
-//         return luminance > threshold ? 'black' : 'white';
-//       },
-//       precision: 2
-//     },
-//     title: {
-//       display: true,
-//       text: 'VTH Token Allocation'
-//     },
-//     animation: {
-//       animateRotate: true,
-//       animateScale: true
-//     },
-//     tooltips: {
-//       enabled: true,
-//       mode: 'single',
-//       callbacks: {
-//         label: function(tooltipItem, data) { 
-//             // data value
-//             var d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]
-//             // data label
-//             var l = data.labels[tooltipItem.index]
-//             // add percentage at the end of data value
-//             return l + ' : ' + d + '%';
-//         }
-//       }
-//     },
-//   }
-// });
+// token allocation pie chart
+var ctx = $("#token-allocation-chart");
+var myLineChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ["Ventureum Team", "Bounty Programs", "Institutional Investors", "Contribution Round 1", "Future Contribution Rounds"],
+        datasets: [
+            {
+                data: [10, 5, 20, 30, 35],
+                backgroundColor: ["#F7464A", "#46BFBD", "#FDB45C", "#4AB654", "#8080FF"],
+                hoverBackgroundColor: ["#FF5A5E", "#5AD3D1", "#FFC870", "#A1FFA3", "#BBB5FF"],
+            }
+        ]
+    },
+    options: {
+        maintainAspectRatio: false,
+        legend: {
+            position: 'bottom',
+         },
+        responsive: true,
+        tooltips: {
+        enabled: true,
+        mode: 'single',
+        callbacks: {
+          label: function(tooltipItem, data) { 
+              // data value
+              var d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]
+              // data label
+              var l = data.labels[tooltipItem.index]
+              // add percentage at the end of data value
+              return l + ' : ' + d + '%';
+          }
+        }
+      },
+    }    
+});
 
 function hexToRgb(hex) {
       // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -610,16 +646,17 @@ $('.features-equal-height').matchHeight();
       <div id="style-1" class="modal-body" style="overflow: auto;">
 
         <div>
-          <p>5% (50 000 000) of the total amount of VTH tokens will be available for the Bounty campaigns pool. These VTH tokens will be distributed to the contributors and participants of the bounty program in the form of Ventureum Genesis Tokens (VGTH). VGTH will be redeemable for Class B VTH tokens after the conclusion of Contribution Round 1.
+          <p>5% (50 000 000) of the total amount of VTH tokens will be available for the Bounty campaigns pool.
           </p>
           <span>The tokens will be distributed as follows:</span>
           <ul>
-            <li>Feedback and critiques of the whitepaper, and contribution of source code (30%, 15 000 000 VGTH)</li>
-            <li>Blogs, forums and media publications (20%, 10 000 000 VGTH)</li>
-            <li>Translation (15%, 7 500 000 VGTH)</li>
-            <li>Bitcointalk.org signature campaign (15%, 7 500 000 VGTH)</li>
-            <li>Facebook bounty (10%, 5 000 000 VGTH)</li>
-            <li>Twitter bounty (10%, 5 000 000 VGTH)</li>
+            <li>Ventureum 1.0 public testing (60%, 30 000 000 VTH)</li>
+            <li>Feedback and critiques of the whitepaper, and contribution of source code (12%, 6 000 000 VTH)</li>
+            <li>Blogs, forums and media publications (8%, 4 000 000 VTH)</li>
+            <li>Translation (6%, 3 000 000 VTH)</li>
+            <li>Bitcointalk.org signature campaign (6%, 3 000 000 VTH)</li>
+            <li>Facebook bounty (4%, 2 000 000 VTH)</li>
+            <li>Twitter bounty (4%, 2 000 000 VTH)</li>
           </ul>
         </div>
 
@@ -631,7 +668,7 @@ $('.features-equal-height').matchHeight();
           <ul>
             <li>
               <p> 
-                The bounty program starts on October 9th, 2017, and ends on the last day of the Contribution Round 1 token sale. The Contribution Round 1 is scheduled to take place in November 2017. The exact dates will be announced on Ventureum official website (https://ventureum.io) and social media.
+                The bounty program ends on the last day of the Contribution Round 1 token sale. The exact dates will be announced on Ventureum official website (https://www.ventureum.io) and social media.
               </p>
             </li>
             <li>
@@ -641,12 +678,12 @@ $('.features-equal-height').matchHeight();
             </li>
             <li>
               <p> 
-                5% (50 000 000) of the total amount of VTH tokens in the form of VGTH tokens are allocated to the bounty campaigns pool. One participant can participate only with one account. In case that we note any double-registrations, duplicate accounts (except the initial one) will be permanently disqualified from the campaign.
+                5% (50 000 000) of the total amount of VTH tokens are allocated to the bounty campaigns pool. One participant can participate only with one account. In case that we note any double-registrations, duplicate accounts (except the initial one) will be permanently disqualified from the campaign.
               </p>
             </li>
             <li>
               <p> 
-                As a reward for the bounty activities, you receive VGTH tokens. The tokens are allocated gradually to your Ethereum wallet within 30 days after the conclusion of Contribution Round 1 token sale. VGTH tokens are redeemable for Class B VTH tokens.
+                As a reward for the bounty activities, you receive Class B VTH tokens. The tokens are allocated gradually to your Ethereum wallet within 30 days after the conclusion of Contribution Round 1 token sale. 
               </p>
             </li>
             <li>
@@ -667,11 +704,42 @@ $('.features-equal-height').matchHeight();
           </ul>
         </div>
 
+        <div> 
+          <h2> Ventureum 1.0 Public Testing </h2>
+          <ul>
+            <li>
+              <p> 
+                60% of bounty tokens (30 000 000 VTH) are allocated for this part of contribution.
+              </p>
+            </li>
+            <li>
+              <p> 
+                The Ventureum team invites the public to participate in the Ventureum 1.0 Public Testing Program.
+              </p>
+            </li>
+            <li>
+              <p> 
+                The internally tested Ventureum protocol 1.0 will be deployed on the Ropsten test network. A token sale for a virtual project, i.e., XYZ project will be conducted. The ETH proceeds of the token sale will be deposited into the Ventureum protocol, and the Milestone-driven Funds Management workflow will be applied to XYZ project. Participants use XYZ project tokens and virtual VTH tokens to vote for a milestone and request refunds. 
+              </p>
+            </li>
+            <li>
+              <p> 
+                Participants will be rewarded with real VTH tokens on the Ethereum main network.
+              </p>
+            </li>
+            <li>
+              <p> 
+                The detailed rules will be published later.
+              </p>
+            </li>
+          </ul>
+        </div>
+
         <hr>
 
         <div>
           <h2> Feedback and critiques of the whitepaper, and contribution of source code </h2>
-          <span>30% of bounty tokens (15 000 000 VGTH) are allocated for this part of contribution.</span>
+          <span>12% of bounty tokens (6 000 000 VTH) are allocated for this part of contribution.</span>
           <ul>
             <li> 
               <p> The Ventureum core dev team is fully aware of that there is no perfect product design and our Ventureum platform is no exception. Though we have committed a tremendous amount of time to revise and improve our product design and the whitepaper, we still can’t guarantee that our current product design is bug-free. Thus, we welcome feedback and critiques on our product design and the whitepaper.  
@@ -688,19 +756,19 @@ $('.features-equal-height').matchHeight();
                   </tr>
                   <tr>
                     <td>Critical</td>
-                    <td>20 000 VGTH</td>
+                    <td>20 000 VTH</td>
                   </tr>
                   <tr>
                     <td>Severe</td>
-                    <td>10 000 VGTH</td>
+                    <td>10 000 VTH</td>
                   </tr>
                   <tr>
                     <td>Medium</td>
-                    <td>4 000 VGTH</td>
+                    <td>4 000 VTH</td>
                   </tr>
                   <tr>
                     <td>Low</td>
-                    <td>2 000 VGTH</td>
+                    <td>2 000 VTH</td>
                   </tr>
                 </tbody>
               </table>
@@ -713,17 +781,17 @@ $('.features-equal-height').matchHeight();
             </li>
             <li> 
               <p> 
-                Source code contributions are also highly valued. The amount of contribution is measured by the estimated hours for finishing a task, or solving an issue, designated by the Ventureum team on GitHub. We set the compensation for 1 hour of work to be 2000 VGTH temporarily, and we will adjust the hourly compensation according to VTH market price later.
+                Source code contributions are also highly valued. The amount of contribution is measured by the estimated hours for finishing a task, or solving an issue, designated by the Ventureum team on GitHub. We set the compensation for 1 hour of work to be 2000 VTH temporarily, and we will adjust the hourly compensation according to VTH market price later.
               </p>
             </li>
             <li> 
               <p> 
-                If your contribution is significant, we will invite you to be a member of the Ventureum team and your reward will not be limited to VGTH tokens.
+                If your contribution is significant, we will invite you to be a member of the Ventureum team and your reward will not be limited to VTH tokens.
               </p>
             </li>
             <li> 
               <p> 
-                In case that the reward and compensation for contributors’ work exceeds the limit of 15 000 000 VGTH, the Ventureum team will allocate our own VTH tokens (15% of the total amount of VTH tokens) to the contributors. This portion of VTH tokens have a 6-month vesting period which starts at the end of Contribution Round 2.
+                In case that the reward and compensation for contributors’ work exceeds the limit of 6 000 000 VTH, the Ventureum team will allocate our own VTH tokens (10% of the total amount of VTH tokens) to the contributors. This portion of VTH tokens have a 6-month vesting period which starts at the end of Contribution Round 1.
               </p>
             </li>
             <li> 
@@ -744,7 +812,7 @@ $('.features-equal-height').matchHeight();
         <div>
           <h2>Blog and Media Publications Bounty</h2>
           <p>
-            The Ventureum team rewards authors, bloggers, journalists and video composers with VGTH tokens for publishing quality content about our project. 20% of bounty tokens (10 000 000 VGTH) are allocated for this bounty.
+            The Ventureum team rewards authors, bloggers, journalists and video composers with VTH tokens for publishing quality content about our project. 8% of bounty tokens (4 000 000 VTH) are allocated for this bounty.
           </p>
           <p>
             In this bounty, we accept only articles, blogs and videos.
@@ -821,8 +889,8 @@ $('.features-equal-height').matchHeight();
 
         <div>
           <h2>Translation</h2>
-          <p>The Ventureum team rewards contributors who translate the whitepaper, the Ventureum landing page and the official ANN page with VGTH tokens.</p>
-          <p>15% of bounty tokens (7 500 000 VGTH) are allocated for this campaign.</p>
+          <p>The Ventureum team rewards contributors who translate the whitepaper, the Ventureum landing page and the official ANN page with VTH tokens.</p>
+          <p>6% of bounty tokens (3 000 000 VTH) are allocated for this campaign.</p>
           <ul>
             <li>
               <p>
@@ -867,7 +935,7 @@ $('.features-equal-height').matchHeight();
 
         <div>
           <h2>Bitcointalk.org Signature Campaign</h2>
-          <p>15% of bounty tokens (7 500 000 VGTH) are allocated for this campaign.</p>
+          <p>6% of bounty tokens (3 000 000 VTH) are allocated for this campaign.</p>
           <ul>
             <li>
               <p> 
@@ -973,7 +1041,7 @@ $('.features-equal-height').matchHeight();
 
         <div>
         <h2>Facebook Bounty</h2>
-        <p>10% of bounty tokens (5 000 000 VGTH) are allocated for this campaign.</p>
+        <p>4% of bounty tokens (2 000 000 VTH) are allocated for this campaign.</p>
         <ul>
           <li>
             <p> 
@@ -1053,7 +1121,7 @@ $('.features-equal-height').matchHeight();
 
         <div>
           <h2>Twitter Bounty</h2>
-          <p>10% of bounty tokens (5 000 000 VGTH) are allocated for this campaign.</p>
+          <p>4% of bounty tokens (2 000 000 VTH) are allocated for this campaign.</p>
           <ul>
             <li>
               <p>
