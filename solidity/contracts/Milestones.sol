@@ -1,11 +1,11 @@
-pragma solidity ^0.4.20;
+pragma solidity ^0.4.18;
 
 import './SafeMath.sol';
 import './Ownable.sol';
 import './States.sol';
 import './ProjectMeta.sol';
 import './IRefundManager.sol';
-import './Ballot.sol';
+import './IBallot.sol';
 import './SafeMath.sol';
 
 contract Milestones is Ownable, States {
@@ -150,6 +150,7 @@ contract Milestones is Ownable, States {
         m[id].VP2Initiated = true;
         _VP2Info[id].TTC = TTC;
         _VP2Info[id].hash_obj = hash_obj;
+
         _VP2Info[id].deadline = getDeadline(m[id].parent).add(_VP2Info[id].TTC * 1 days);
     }
 
@@ -185,7 +186,7 @@ contract Milestones is Ownable, States {
             // we consider the current vertex (milestone node)
             // in the previous voting, investor who voted for a refund will
             // receive a refund
-            Ballot ballot = projectMeta.ballot();
+            IBallot ballot = projectMeta.ballot();
             if(!ballot.hasApproved(id, msg.sender, preState)) {
                 refund = vertex;
             }
@@ -219,59 +220,78 @@ contract Milestones is Ownable, States {
     function getMilestoneCount() public view returns (uint) {
         return m.length;
     }
-
-    // return the current deadline of the milestone
+    // return the (original deadline, current deadline) of the milestone
     // state variables will potentially be modified
-    function getDeadlineTx(uint8 id) public returns (uint) {
-        if(m[id].VP2Initiated) {
-            // only use the new deadline after VP2 has passed
-            Ballot ballot = projectMeta.ballot();
-            if(!ballot.getVotingResults(id, VP1) &&
-               ballot.getVotingResults(id, VP2)) {
-                // VP1 rejected, VP2 approved
-                // use the new deadline
-                return _VP2Info[id].deadline;
-            }
-        }
-
-        // use the original deadline
-        if(m[id].deadline == 0) {
-            if(stateTx(m[id].parent) == TERMINAL) {
-                m[id].deadline = getDeadlineTx(m[id].parent).add(m[id].TTC * 1 days);
-            }
-        }
-        return m[id].deadline;
-    }
-
-    // return the current deadline of the milestone
-    // state variables will not be modified
-    function getDeadline(uint8 id) public view returns (uint) {
-        if(m[id].VP2Initiated) {
-            // only use the new deadline after VP2 has passed
-            Ballot ballot = projectMeta.ballot();
-            if(!ballot.getVotingResults(id, VP1) &&
-               ballot.getVotingResults(id, VP2)) {
-                // VP1 rejected, VP2 approved
-                // use the new deadline
-                return _VP2Info[id].deadline;
-            }
-        }
-
-        // use the original deadline
+    function getBothDeadlinesTx(uint8 id) public returns (uint, uint) {
+        uint oldDeadline;
+        uint deadline;
+        // the original deadline
         if(m[id].deadline == 0) {
             if(state(m[id].parent) == TERMINAL) {
-                return  getDeadline(m[id].parent).add(m[id].TTC * 1 days);
+                deadline = getDeadline(m[id].parent).add(m[id].TTC * 1 days);
+                // set oldDeadline = actual deadline first
+                oldDeadline = deadline;
+                m[id].deadline = deadline;
             }
         }
-        return m[id].deadline;
+
+        if(m[id].VP2Initiated) {
+            // only use the new deadline after VP2 has passed
+            IBallot ballot = projectMeta.ballot();
+            if(!ballot.getVotingResults(id, VP1) &&
+               ballot.getVotingResults(id, VP2)) {
+                // VP1 rejected, VP2 approved
+                // use the new deadline for the actual deadline
+                deadline = _VP2Info[id].deadline;
+            }
+        }
+        return (oldDeadline, deadline);
     }
 
+    // return the (original deadline, current deadline) of the milestone
+    // state variables will not be modified
+    function getBothDeadlines(uint8 id) public view returns (uint, uint) {
+        uint oldDeadline;
+        uint deadline;
+        // the original deadline
+        if(m[id].deadline == 0) {
+            if(state(m[id].parent) == TERMINAL) {
+                deadline = getDeadline(m[id].parent).add(m[id].TTC * 1 days);
+                // set oldDeadline = actual deadline first
+                oldDeadline = deadline;
+            }
+        }
+
+        if(m[id].VP2Initiated) {
+            // only use the new deadline after VP2 has passed
+            IBallot ballot = projectMeta.ballot();
+            if(!ballot.getVotingResults(id, VP1) &&
+               ballot.getVotingResults(id, VP2)) {
+                // VP1 rejected, VP2 approved
+                // use the new deadline for the actual deadline
+                deadline = _VP2Info[id].deadline;
+            }
+        }
+        return (oldDeadline, deadline);
+    }
+
+    function getDeadlineTx(uint8 id) public returns (uint) {
+        var (oldDeadline, deadline) = getBothDeadlinesTx(id);
+        oldDeadline;
+        return deadline;
+    }
+
+    function getDeadline(uint8 id) public view returns (uint) {
+        var (oldDeadline, deadline) = getBothDeadlines(id);
+        oldDeadline;
+        return deadline;
+    }
 
     /**
      * returns (previous state, current state, next state) of a milestone
      * note that state() itself is not a transaction since state of the network is not changed
      */
-    function states(uint8 id, uint _deadline) public view returns (uint8, uint8, uint8) {
+    function states(uint8 id, uint _deadline, uint _oldDeadline) public view returns (uint8, uint8, uint8) {
         if(id == 0) {
             // root node
             if(_now() >= _deadline) {
@@ -287,14 +307,21 @@ contract Milestones is Ownable, States {
             return (INACTIVE, INACTIVE, INACTIVE);
         }
 
-        Ballot ballot = projectMeta.ballot();
+        IBallot ballot = projectMeta.ballot();
+
+        if (_oldDeadline <= _now()) {
+            if (ballot.getVotingResults(id, VP1)) {
+                // VP1 passed, switch to C
+                return (VP1, C, TERMINAL);
+            }
+        }
 
         if (_now() < _deadline.sub(1 weeks)) {
             if (!m[id].VP2Initiated) {
                 // IP before VP1
                 return (INACTIVE, IP, VP1);
             }
-            else if (_deadline <= _now()){
+            else if (_oldDeadline <= _now()){
                 // we are past the old _deadline
                 // VP2 passed, we are at VP1_AFTER_VP2
                 return (VP2, IP, VP1_AFTER_VP2);
@@ -303,7 +330,7 @@ contract Milestones is Ownable, States {
             if (!m[id].VP2Initiated) {
                 // VP2 has not been init, next state is undetermined
                 return (IP, VP1, UNDETERMINED);
-            } else if(_deadline <= _now()) {
+            } else if(_oldDeadline <= _now()) {
                 // we are past the old _deadline
                 // VP1 After VP2
                 return (IP, VP1_AFTER_VP2, UNDETERMINED);
@@ -370,7 +397,8 @@ contract Milestones is Ownable, States {
 
     // return the current state
     function state(uint8 id) public view returns (uint8) {
-        var (pre, curr, next) = states(id, getDeadline(id));
+        var (oldDeadline, deadline) = getBothDeadlines(id);
+        var (pre, curr, next) = states(id, oldDeadline, deadline);
 
         // suppress warning
         pre;
@@ -381,7 +409,8 @@ contract Milestones is Ownable, States {
 
     // return the previous state
     function preState(uint8 id) public view returns (uint8) {
-        var (pre, curr, next) = states(id, getDeadline(id));
+        var (oldDeadline, deadline) = getBothDeadlines(id);
+        var (pre, curr, next) = states(id, oldDeadline, deadline);
 
         // suppress warning
         curr;
@@ -392,7 +421,8 @@ contract Milestones is Ownable, States {
 
     // return the next states
     function nextState(uint8 id) public view returns (uint8) {
-        var (pre, curr, next) = states(id, getDeadline(id));
+        var (oldDeadline, deadline) = getBothDeadlines(id);
+        var (pre, curr, next) = states(id, oldDeadline, deadline);
 
         // suppress warning
         pre;
@@ -403,7 +433,8 @@ contract Milestones is Ownable, States {
 
     // return the current state
     function stateTx(uint8 id) public returns (uint8) {
-        var (pre, curr, next) = states(id, getDeadlineTx(id));
+        var (oldDeadline, deadline) = getBothDeadlinesTx(id);
+        var (pre, curr, next) = states(id, oldDeadline, deadline);
 
         // suppress warning
         pre;
@@ -414,7 +445,8 @@ contract Milestones is Ownable, States {
 
     // return the previous state
     function preStateTx(uint8 id) public returns (uint8) {
-        var (pre, curr, next) = states(id, getDeadlineTx(id));
+        var (oldDeadline, deadline) = getBothDeadlinesTx(id);
+        var (pre, curr, next) = states(id, oldDeadline, deadline);
 
         // suppress warning
         curr;
@@ -425,7 +457,8 @@ contract Milestones is Ownable, States {
 
     // return the next states
     function nextStateTx(uint8 id) public returns (uint8) {
-        var (pre, curr, next) = states(id, getDeadlineTx(id));
+        var (oldDeadline, deadline) = getBothDeadlinesTx(id);
+        var (pre, curr, next) = states(id, oldDeadline, deadline);
 
         // suppress warning
         pre;
