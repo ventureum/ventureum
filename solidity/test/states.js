@@ -95,7 +95,7 @@ contract('Milestone States', function(accounts) {
     it("state() depth 1 node, before the root node's deadline", async function() {
         await milestones.addMilestone("TEST", 10, "0x5", 0);
         var state = await milestones.state.call(1);
-        assert.equal(state.toNumber(), INACTIVE, "State should be INACTIVE");
+        assert.equal(state.toNumber(), INACTIVE, "State should be COMPLETE");
     });
 
     /**
