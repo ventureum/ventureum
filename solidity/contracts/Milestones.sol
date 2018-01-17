@@ -224,9 +224,10 @@ contract Milestones is Ownable, States {
     // state variables will potentially be modified
     function getBothDeadlinesTx(uint8 id) public returns (uint, uint) {
         uint oldDeadline;
-        uint deadline;
+        uint deadline = m[id].deadline;
+
         // the original deadline
-        if(m[id].deadline == 0) {
+        if(deadline == 0) {
             if(state(m[id].parent) == TERMINAL) {
                 deadline = getDeadline(m[id].parent).add(m[id].TTC * 1 days);
                 // set oldDeadline = actual deadline first
@@ -252,9 +253,10 @@ contract Milestones is Ownable, States {
     // state variables will not be modified
     function getBothDeadlines(uint8 id) public view returns (uint, uint) {
         uint oldDeadline;
-        uint deadline;
+        uint deadline = m[id].deadline;
+
         // the original deadline
-        if(m[id].deadline == 0) {
+        if(deadline == 0) {
             if(state(m[id].parent) == TERMINAL) {
                 deadline = getDeadline(m[id].parent).add(m[id].TTC * 1 days);
                 // set oldDeadline = actual deadline first
