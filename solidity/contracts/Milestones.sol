@@ -224,9 +224,10 @@ contract Milestones is Ownable, States {
     // state variables will potentially be modified
     function getBothDeadlinesTx(uint8 id) public returns (uint, uint) {
         uint oldDeadline;
-        uint deadline;
+        uint deadline = m[id].deadline;
+
         // the original deadline
-        if(m[id].deadline == 0) {
+        if(deadline == 0) {
             if(state(m[id].parent) == TERMINAL) {
                 deadline = getDeadline(m[id].parent).add(m[id].TTC * 1 days);
                 // set oldDeadline = actual deadline first
@@ -252,9 +253,10 @@ contract Milestones is Ownable, States {
     // state variables will not be modified
     function getBothDeadlines(uint8 id) public view returns (uint, uint) {
         uint oldDeadline;
-        uint deadline;
+        uint deadline = m[id].deadline;
+
         // the original deadline
-        if(m[id].deadline == 0) {
+        if(deadline == 0) {
             if(state(m[id].parent) == TERMINAL) {
                 deadline = getDeadline(m[id].parent).add(m[id].TTC * 1 days);
                 // set oldDeadline = actual deadline first
@@ -291,7 +293,7 @@ contract Milestones is Ownable, States {
      * returns (previous state, current state, next state) of a milestone
      * note that state() itself is not a transaction since state of the network is not changed
      */
-    function states(uint8 id, uint _deadline, uint _oldDeadline) public view returns (uint8, uint8, uint8) {
+    function states(uint8 id, uint _oldDeadline, uint _deadline) public view returns (uint8, uint8, uint8) {
         if(id == 0) {
             // root node
             if(_now() >= _deadline) {

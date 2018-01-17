@@ -4,8 +4,9 @@ import './Ownable.sol';
 import './ProjectMeta.sol';
 import './States.sol';
 import './SafeMath.sol';
+import './IBallot.sol';
 
-contract Ballot is Ownable, States{
+contract Ballot is IBallot, Ownable, States{
 
     using SafeMath for uint;
 

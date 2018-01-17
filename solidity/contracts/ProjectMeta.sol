@@ -6,6 +6,7 @@ import './States.sol';
 import './IRefundManager.sol';
 import './ERC20.sol';
 import './Ballot.sol';
+import './IBallot.sol';
 import './Milestones.sol';
 
 contract ProjectMeta is Ownable, States {
@@ -18,7 +19,7 @@ contract ProjectMeta is Ownable, States {
     // milestones
      Milestones public milestones;
 
-    Ballot public ballot;
+    IBallot public ballot;
 
     // Class A project token contract
     ERC20 public token;
@@ -38,12 +39,9 @@ contract ProjectMeta is Ownable, States {
         milestones = Milestones(addr);
     }
 
-    /*
     function setBallot(address addr) external {
-        ballot = Ballot(addr);
+        ballot = IBallot(addr);
     }
-
-    */
 
     function setToken(address addr) external {
         token = ERC20(addr);

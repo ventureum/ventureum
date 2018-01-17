@@ -1,5 +1,6 @@
 var ProjectMeta = artifacts.require("ProjectMeta");
 var Milestones = artifacts.require("Milestones");
+var MockBallot = artifacts.require("MockBallot");
 var moment = require("moment");
 
 contract('Milestone States', function(accounts) {
@@ -16,9 +17,14 @@ contract('Milestone States', function(accounts) {
 
     var projectMeta;
     var milestones;
+    var mockBallot;
+
     beforeEach(async () => {
         projectMeta = await ProjectMeta.new();
         milestones = await Milestones.new();
+        mockBallot = await MockBallot.new();
+        await milestones.setProjectMeta(projectMeta.address);
+        await projectMeta.setBallot(mockBallot.address);
     });
 
     it("getDeadline() root node", async function() {
@@ -89,7 +95,7 @@ contract('Milestone States', function(accounts) {
     it("state() depth 1 node, before the root node's deadline", async function() {
         await milestones.addMilestone("TEST", 10, "0x5", 0);
         var state = await milestones.state.call(1);
-        assert.equal(state.toNumber(), INACTIVE, "State should be INACTIVE");
+        assert.equal(state.toNumber(), INACTIVE, "State should be COMPLETE");
     });
 
     /**
