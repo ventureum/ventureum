@@ -293,7 +293,7 @@ contract Milestones is Ownable, States {
      * returns (previous state, current state, next state) of a milestone
      * note that state() itself is not a transaction since state of the network is not changed
      */
-    function states(uint8 id, uint _deadline, uint _oldDeadline) public view returns (uint8, uint8, uint8) {
+    function states(uint8 id, uint _oldDeadline, uint _deadline) public view returns (uint8, uint8, uint8) {
         if(id == 0) {
             // root node
             if(_now() >= _deadline) {
