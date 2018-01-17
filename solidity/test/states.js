@@ -1,5 +1,6 @@
 var ProjectMeta = artifacts.require("ProjectMeta");
 var Milestones = artifacts.require("Milestones");
+var MockBallot = artifacts.require("MockBallot");
 var moment = require("moment");
 
 contract('Milestone States', function(accounts) {
@@ -16,9 +17,14 @@ contract('Milestone States', function(accounts) {
 
     var projectMeta;
     var milestones;
+    var mockBallot;
+
     beforeEach(async () => {
         projectMeta = await ProjectMeta.new();
         milestones = await Milestones.new();
+        mockBallot = await MockBallot.new();
+        await milestones.setProjectMeta(projectMeta.address);
+        await projectMeta.setBallot(mockBallot.address);
     });
 
     it("getDeadline() root node", async function() {
