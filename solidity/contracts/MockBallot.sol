@@ -10,9 +10,14 @@ contract MockBallot is IBallot, Ownable, States {
      using SafeMath for uint;
 
     mapping(uint8 => mapping(uint8 => bool)) public mockVotingResults;
+    mapping(uint8 => mapping(uint8 => uint)) public mockApprovalRating;
 
     function setVotingResults(uint8 id, uint8 votingPeriodID, bool val) external {
         mockVotingResults[id][votingPeriodID] = val;
+    }
+
+    function setApprovalRating(uint8 id, uint8 votingPeriodID, uint val) external {
+        mockApprovalRating[id][votingPeriodID] = val;
     }
 
     function stake(uint8 id, uint value) public {}
@@ -24,7 +29,7 @@ contract MockBallot is IBallot, Ownable, States {
     }
 
     function getApprovalRating(uint8 id, uint8 votingPeriodID) external view returns (uint){
-        return 0;
+        return mockApprovalRating[id][votingPeriodID];
     }
 
     function getVotingResults(uint8 id, uint8 votingPeriodID) external view returns (bool) {
