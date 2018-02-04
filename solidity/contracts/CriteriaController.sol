@@ -21,7 +21,7 @@ contract CriteriaController is ICriteriaController {
                 // accepted
                 return 1;
             }
-            IBearMarketIndicator indicator = projectMeta.bearMarketIndicator();
+            IBearMarketIndicator indicator =  IBearMarketIndicator(projectMeta.getAddress(keccak256("contract.name", "IBearMarketIndicator")));
             if (indicator.isBearMarket()) {
                 // postponed
                 return 0;
