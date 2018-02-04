@@ -1,58 +1,46 @@
 pragma solidity ^0.4.18;
 
-import './SafeMath.sol';
 import './Ownable.sol';
-import './States.sol';
-import './IRefundManager.sol';
-import './ERC20.sol';
-import './Ballot.sol';
-import './IBallot.sol';
-import './Milestones.sol';
 
-contract ProjectMeta is Ownable, States {
+contract ProjectMeta is Ownable {
 
     // project name
     string public name;
 
-    IRefundManager public refundManager;
+    // Storage Types
+    mapping(bytes32 => uint256) private uIntStorage;
+    mapping(bytes32 => address) private addressStorage;
 
-    // milestones
-     Milestones public milestones;
-
-    IBallot public ballot;
-
-    // Class A project token contract
-    ERC20 public token;
-
-    // Class A token average crowdsale price in wei
-    uint public price;
-
-    function ProjectMeta(string _name) public {
-        name = _name;
+    /**
+     * @param _key The key for the record
+     * commonly used to store contract address
+     * example usage: setAddress(keccak256("contract.name", contractName), contractAddress)
+     */
+    function setAddress(bytes32 _key, address _value) external onlyOwner {
+        addressStorage[_key] = _value;
     }
 
-    function setRefundManager(address addr) external {
-        refundManager = IRefundManager(addr);
+    /**
+     * @param _key The key for the record
+     */
+    function setUint(bytes32 _key, uint _value) external onlyOwner {
+        uIntStorage[_key] = _value;
     }
 
-    function setMilestones(address addr) external {
-        milestones = Milestones(addr);
+    /**
+     * @param _key The key for the record
+     */
+    function getAddress(bytes32 _key) external view returns (address) {
+        return addressStorage[_key];
     }
 
-    function setBallot(address addr) external {
-        ballot = IBallot(addr);
+    /**
+     * @param _key The key for the record
+     */
+    function getUint(bytes32 _key) external view returns (uint) {
+        return uIntStorage[_key];
     }
 
-    function setToken(address addr) external {
-        token = ERC20(addr);
-    }
+    
 
-    function setTokenPrice(uint _price) external {
-        price = _price;
-    }
-
-    // token value in wei
-    function tokenToWei(uint tokens) external view returns (uint) {
-        return tokens * price;
-    }
 }
