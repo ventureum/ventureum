@@ -155,13 +155,14 @@ contract Milestones is Ownable, States {
         return m[id].deadline;
     }
 
-    function state(uint id) returns (uint) {
+    function state(uint id) public view returns (uint) {
+        require(valid(id));
 
         uint nowVal = _now();
 
         if (id == 0) {
             // root node
-            if(nowVal >= _deadline.add(1 weeks)) {
+            if(nowVal >= m[id].deadline.add(1 weeks)) {
                 // already passed the deadline, root node is in TERMINAL
                 return TERMINAL;
             } else {
@@ -195,7 +196,7 @@ contract Milestones is Ownable, States {
                     return RP;
                 }
             } else {
-                return TERMINAL
+                return TERMINAL;
             }
         }
     }
