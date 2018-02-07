@@ -7,7 +7,7 @@ interface ICriteriaController {
      * @param id The ID of a milestone
      * @return 0: postponed, 1: accepted, 2: rejected
      */
-    function getDecision(uint8 id) public returns (uint);
+    function getDecision(uint8 id) public view returns (uint);
 
     /**
      * Add a criterion

@@ -8,12 +8,12 @@ interface ICriterion {
      * @param id The ID of a milestone
      * @return true: satisfied, false: unsatisfied
      */
-    function satisfied(uint8 id) public returns (bool);
+    function satisfied(uint8 id) public view returns (bool);
 
     /**
      * Returns the type of the criterion
      *
      * @return uint8 specifying the type
      */
-    function t() public returns (uint8);
+    function t() public view returns (uint8);
 }
