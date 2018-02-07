@@ -11,7 +11,7 @@ contract CriteriaController is ICriteriaController {
 
     mapping(uint8 => ICriterion[]) criteria;
 
-    function getDecision(uint8 id) public returns (uint) {
+    function getDecision(uint8 id) public view returns (uint) {
         // must have at least one criterion
         require(criteria[id].length > 0);
 
