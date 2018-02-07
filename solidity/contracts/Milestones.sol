@@ -53,7 +53,6 @@ contract Milestones is Ownable, States {
     function Milestones() public {
         Milestone memory milestone;
         milestone.name = "ROOT";
-        milestone.TTC = 0;
         milestone.hashObj = 0;
         milestone.parent = 0;
 
@@ -118,7 +117,7 @@ contract Milestones is Ownable, States {
     function withdrawRefund(uint8 id) external inState(id, RP) {
         require(valid(id));
 
-        IRefundManager refundManager = projectMeta.refundManager();
+        IRefundManager refundManager = IRefundManager(projectMeta.getAddress(keccak256("contract.name", "IRefundManager")));
 
         uint refund = refundManager.refundAmount(id, msg.sender);
 
@@ -155,7 +154,7 @@ contract Milestones is Ownable, States {
         return m[id].deadline;
     }
 
-    function state(uint id) public view returns (uint) {
+    function state(uint8 id) public view returns (uint) {
         require(valid(id));
 
         uint nowVal = _now();
@@ -181,9 +180,9 @@ contract Milestones is Ownable, States {
                 return PENDING;
             } else if (m[id].deadline <= nowVal && nowVal < m[id].deadline.add(1 weeks)) {
                 // decision is made
-                ICriteriaController criteriaController = projectMeta.getCriteriaController();
+                ICriteriaController criteriaController =  ICriteriaController(projectMeta.getAddress(keccak256("contract.name", "ICriteriaController")));
 
-                uint8 decision = criteriaController.getDecison();
+                uint decision = criteriaController.getDecision(id);
 
                 if (decision == 0) {
                     // undetermined
