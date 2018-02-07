@@ -7,5 +7,5 @@ interface IBearMarketIndicator {
      * @return boolea indicating whether we are in
      * a bear market
      */
-    function isBearMarket() public returns (bool);
+    function isBearMarket() public view returns (bool);
 }
