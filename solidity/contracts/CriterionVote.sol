@@ -30,7 +30,7 @@ contract CriterionVote is ICriterion, CriterionType {
     }
 
     function satisfied(uint8 id) public view returns (bool) {
-        return disapproval[id] >= stakingController.totalStakingAmount(id) - disapproval[id];
+        return disapproval[id] <= stakingController.totalStakingAmount(id) - disapproval[id];
     }
 
     function t() public view returns (uint8) {
