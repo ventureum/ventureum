@@ -19,10 +19,6 @@ contract Milestones is Ownable, States {
         // milestone name
         string name;
 
-        // objectives hash
-        // Usage(js): let _hash_obj = '0x' + web3.sha3(text);
-        bytes32 hashObj;
-
         // parent milestone
         uint8 parent;
 
@@ -53,7 +49,6 @@ contract Milestones is Ownable, States {
     function Milestones() public {
         Milestone memory milestone;
         milestone.name = "ROOT";
-        milestone.hashObj = 0;
         milestone.parent = 0;
 
         // we set the root node's deadline to the current timestamp plus 1 week,
@@ -69,12 +64,11 @@ contract Milestones is Ownable, States {
         projectMeta = ProjectMeta(addr);
     }
 
-    function addMilestone(string name, uint deadline, bytes32 hashObj, uint8 parent) external {
+    function addMilestone(string name, uint deadline, uint8 parent) external {
         require(valid(parent));
         Milestone memory milestone;
         milestone.name = name;
         milestone.deadline = deadline;
-        milestone.hashObj = hashObj;
         milestone.parent = parent;
 
         if (m.length > 0) {
@@ -90,40 +84,13 @@ contract Milestones is Ownable, States {
         return m[id].parent;
     }
 
-    // verify objectives hash
-    function verifyObjectives(uint8 id, bytes32 hashObj) public view returns (bool) {
-        require(valid(id));
-        return (m[id].hashObj == hashObj);
-    }
-
     // deposit ETH raised from a crowdsale by the project founder to this milestone
-    function depositETHByProjectFounder(uint8 id) external payable onlyOwner inState(id, INACTIVE) {
+    function depositETH(uint8 id, uint val) external payable inState(id, INACTIVE) {
         require(valid(id));
+        require(projectMeta.accessibleBy(keccak256("Milestones.depositETH"), msg.sender));
 
         // update this vetex
-        m[id].weiLocked = m[id].weiLocked.add(msg.value);
-    }
-
-    // withdraw ETH by the project founder from this milestone after the 
-    // decision of releasing milestone payment is approved by the majority of
-    // investors
-    function withdrawETHByProjectFounder(uint8 id, address beneficiary) external onlyOwner inState(id, C) {
-        require(valid(id));
-         uint weiToSend = m[id].weiLocked;
-         m[id].weiLocked = 0;
-         beneficiary.transfer(weiToSend);
-    }
-
-    function withdrawRefund(uint8 id) external inState(id, RP) {
-        require(valid(id));
-
-        IRefundManager refundManager = IRefundManager(projectMeta.getAddress(keccak256("contract.name", "IRefundManager")));
-
-        uint refund = refundManager.refundAmount(id, msg.sender);
-
-        // transfer refund to the investor
-        refundManager.clear(id, msg.sender);
-        msg.sender.transfer(refund);
+        m[id].weiLocked = m[id].weiLocked.add(val);
     }
 
     // returns true only if all milestones are in a terminal state
