@@ -10,6 +10,7 @@ contract ProjectMeta is Ownable {
     // Storage Types
     mapping(bytes32 => uint256) private uIntStorage;
     mapping(bytes32 => address) private addressStorage;
+    mapping(bytes32 => mapping(address => bool)) _accessibleBy;
 
     /**
      * @param _key The key for the record
@@ -30,6 +31,13 @@ contract ProjectMeta is Ownable {
     /**
      * @param _key The key for the record
      */
+    function setAccessibleBy(bytes32 _key, address addr) external onlyOwner {
+        _accessibleBy[_key][addr] = true;
+    }
+
+    /**
+     * @param _key The key for the record
+     */
     function getAddress(bytes32 _key) external view returns (address) {
         return addressStorage[_key];
     }
@@ -41,6 +49,10 @@ contract ProjectMeta is Ownable {
         return uIntStorage[_key];
     }
 
-    
-
+    /**
+     * @param _key The key for the record
+     */
+    function accessibleBy(bytes32 _key, address addr) external view returns (bool) {
+        return _accessibleBy[_key][addr];
+    }
 }
