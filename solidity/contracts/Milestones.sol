@@ -28,6 +28,25 @@ contract Milestones is Ownable, States {
         // number of weis locked in this milestone
         uint weiLocked;
 
+        /**
+         * Two options are provided for distributing funds
+         *
+         * 1. Exact numbef of weis required for a milestone
+         *    State variable: weiRequired
+         *
+         * 2. Percentage of (total weis raised - sum of weis required by (1))
+         *    that will be locked
+         *    State variable: percentage
+         *
+         * If weiRequired = 0, then (2) applies, otherwise (1) applies
+         */
+
+        // exact number of weis that will be locked 
+        uint weiRequired;
+
+        // percentage of total weis raised that will be locked
+        uint percentage;
+
         // whether the current milestone has been merged to the next one
         bool mergedToNext;
     }
