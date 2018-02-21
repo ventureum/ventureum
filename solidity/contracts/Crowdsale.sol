@@ -51,18 +51,12 @@ contract Crowdsale {
     cap = _cap;
   }
 
-
-  // fallback function can be used to buy tokens
-  function () public payable {
-    buyTokens(msg.sender);
-  }
-
   // low level token purchase function
-  function buyTokens(address beneficiary) public payable {
+  function registerPurchase(address beneficiary, uint val) public payable {
     require(beneficiary != address(0));
-    require(validPurchase());
+    require(validPurchase(val));
 
-    uint256 weiAmount = msg.value;
+    uint256 weiAmount = val;
 
     // calculate token amount to be created
     uint256 tokens = weiAmount.mul(rate);
@@ -87,10 +81,10 @@ contract Crowdsale {
   }
 
   // @return true if the transaction can buy tokens
-  function validPurchase() internal constant returns (bool) {
+  function validPurchase(uint val) internal constant returns (bool) {
     bool withinPeriod = now >= startTime && now <= endTime;
-    bool nonZeroPurchase = msg.value != 0;
-    bool withinCap = weiRaised.add(msg.value) <= cap;
+    bool nonZeroPurchase = val != 0;
+    bool withinCap = weiRaised.add(val) <= cap;
     return withinPeriod && nonZeroPurchase && withinCap;
   }
 
