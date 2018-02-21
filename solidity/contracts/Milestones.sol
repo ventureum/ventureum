@@ -132,6 +132,22 @@ contract Milestones is Ownable, States {
         return m[id].weiLocked;
     }
 
+    function setWeiLocked(uint8 id, uint val) public {
+        require(valid(id));
+        require(projectMeta.accessibleBy(keccak256("Milestones.setWeiRequired"), msg.sender));
+        m[id].weiRequired = val;
+    }
+
+    function getWeiRequired(uint8 id) public view returns (uint) { 
+        require(valid(id));
+        return m[id].weiRequired;
+    }
+
+    function getPercentage(uint8 id) public view returns (uint) { 
+        require(valid(id));
+        return m[id].percentage;
+    }
+
     function getMilestoneCount() public view returns (uint) {
         return m.length;
     }
