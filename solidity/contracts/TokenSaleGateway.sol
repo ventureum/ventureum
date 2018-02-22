@@ -38,6 +38,7 @@ contract TokenSaleGateway {
     }
 
     function nextStage() internal {
+        require(stage != Stages.Finished);
         stage = Stages(uint(stage) + 1);
     }
 
