@@ -193,16 +193,18 @@ contract Milestones is Ownable, States {
                 ICriteriaController criteriaController =  ICriteriaController(projectMeta.getAddress(keccak256("contract.name", "ICriteriaController")));
 
                 uint decision = criteriaController.getDecision(id);
-                finalDecision[id] = decision;
 
                 if (decision == 0) {
                     // undetermined
+                    finalDecision[id] = POSTPONED;
                     return POSTPONED;
                 } else if (decision == 1) {
                     // accepted
+                    finalDecision[id] = C;
                     return C;
                 } else if (decision == 2) {
                     // rejected
+                    finalDecision[id] = RP;
                     return RP;
                 }
             } else {
