@@ -56,6 +56,9 @@ contract Milestones is Ownable, States {
     // 0.4.18 does not support public array of nested struct, flattened
     Milestone[] public m;
 
+    // record decision for a milestone to save gas
+    mapping(uint8 => uint8) finalDecision;
+
     // DEBUG OPTIONS
     bool DEBUG = true;
     uint DEBUG_now = 0;
@@ -181,10 +184,16 @@ contract Milestones is Ownable, States {
             } else if (m[id].deadline.sub(1 weeks) <= nowVal && nowVal < m[id].deadline) {
                 return PENDING;
             } else if (m[id].deadline <= nowVal && nowVal < m[id].deadline.add(1 weeks)) {
+
+                if(finalDecision[id] > 0) {
+                    // decision has been made, no need to compute again
+                    return finalDecision[id];
+                }
                 // decision is made
                 ICriteriaController criteriaController =  ICriteriaController(projectMeta.getAddress(keccak256("contract.name", "ICriteriaController")));
 
                 uint decision = criteriaController.getDecision(id);
+                finalDecision[id] = decision;
 
                 if (decision == 0) {
                     // undetermined
