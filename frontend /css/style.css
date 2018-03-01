@@ -302,7 +302,7 @@ body, footer {
     height:600px;
   }
   .platform-card #style-1 .img-responsive {
-    width:50%;
+    width:100%;
   } 
 }
 
