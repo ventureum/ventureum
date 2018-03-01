@@ -81,10 +81,6 @@
             <a href="#platform" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Workflow</a>
           </li>
           <li>
-            <a href="#preview" class="hidden-xs">Preview</a>
-            <a href="#preview" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Preview</a>
-          </li>
-          <li>
             <a href="#tokens" class="hidden-xs">Tokens</a>
             <a href="#tokens" class="visible-xs" data-toggle="collapse" data-target=".navbar-collapse">Tokens</a>
           </li>
@@ -121,7 +117,7 @@
             
             <h1 id = "intro-lg"> Ventureum </h1>
 
-            <h4 id = "intro-sm"> A Milestone-driven Community-governed Crowdfunding Protocol for Blockchain Projects </h4>
+            <h4 id = "intro-sm"> A Milestone-driven Community-governed Crowdfunding Self-Regulating Protocol </h4>
             <div class="col-md-4 col-md-offset-4">
               <div class="row">
                 <a href="https://www.ventureum.io/whitepaper/whitepaper.pdf" target="_blank" type="button" class="btn btn-primary btn-outline btn-intro">Whitepaper</a>
@@ -189,7 +185,7 @@
     </div>
     <div class="animate-box">
       <div class="row">
-        <div class="col-md-12 center">
+        <div class="col-md-6 col-md-offset-3 center">
             <img class="img-responsive" src="img/network.png" alt=""/>
         </div>
       </div>
@@ -202,7 +198,7 @@
     <div class="platform-title">
       <h1 style="color:#9c27b0; margin-bottom:5%";>HOW VENTUREUM WORKS</h1>
     </div>
-    <div class="platform-card shadow shadow-hover animate-box">
+    <div class="platform-card shadow shadow-hover animate-box" style="margin-bottom: 4%">
       <div class="row">
         <div class="col-md-12">
           <div id="style-1" class="center-block">
@@ -214,88 +210,18 @@
   </div>
 </section>
 
-<section id="preview" class="vertical-center"> 
-  <div class="container">
-    <div class="preview-title">
-      <h1 style="color:#9c27b0; margin-bottom:5%";>A PREVIEW OF VENTUREUM PROTOCOL</h1>
-    </div>
-    <div class="preview-card shadow shadow-hover animate-box">
-      <div class="row">
-        <div class="col-md-4">
-          <h3 id="preview-slide-title" style="color:#9c27b0; margin-top:30px; margin-left:20px">First Page Description</h3>
-          <p id="preview-slide-text" style="margin-top:30px; margin-left:20px; color:#616161; height: 350px;"></p>
-          <!-- Indicators -->
-          <ol id="myCarousel-indicators" class="carousel-indicators">
-            <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-            <li data-target="#myCarousel" data-slide-to="1" ></li>
-            <li data-target="#myCarousel" data-slide-to="2" "></li>
-            <li data-target="#myCarousel" data-slide-to="3" ></li>
-            <li data-target="#myCarousel" data-slide-to="4" ></li>
-            <li data-target="#myCarousel" data-slide-to="5" ></li>
-            <li data-target="#myCarousel" data-slide-to="6" ></li>
-          </ol>
-        </div>
-        <div class="col-md-8">
-          <div class="preview-slider-pic" >
-            <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="5000">
-              
-              <!-- Wrapper for slides -->
-              <div class="carousel-inner">
-                <div class="item active">
-                  <img src="img/token_sale.jpg">
-                </div>
-
-                <div class="item">
-                  <img src="img/vth_staking.jpg">
-                </div>
-
-                <div class="item">
-                  <img src="img/milestones.jpg">
-                </div>
-
-                <div class="item">
-                  <img src="img/staking.jpg">
-                </div>
-
-                <div class="item">
-                  <img src="img/voting_period_1.jpg">
-                </div>
-
-                <div class="item">
-                  <img src="img/voting_period_1_objectives.jpg">
-                </div>
-
-                <div class="item">
-                  <img src="img/refund_period.jpg">
-                </div> 
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> <!-- row -->
-      <div class="row" style="margin-bottom: 20px; margin-right:40px">
-        <div class="col-sm-2 pull-right">
-          <button id="carousel-btn-next" type="button" class="btn btn-primary btn-outline-purple btn-block" href="#myCarousel" data-slide="next" onclick="preview_slide_next()">Next</button>
-        </div>
-        <div class="col-sm-2 pull-right">
-          <button type="button" class="btn btn-primary btn-outline-purple btn-block" href="#myCarousel" data-slide="prev" onclick="preview_slide_prev()">Previous</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <section id="tokens" class="vertical-center" style = "background:#4c087c;"> 
   <div class="container">
     <div class="tokens-title">
       <h1 style="color:white; margin-bottom:2%";>VTH TOKENS</h1>
-      <p style="color:white; font-size: 15px; margin-bottom:1%;";>Ventureum Network Token (VTH) activates ETH refund quota for its holders in the Milestone-driven Funds Management module. </p>
+      <p style="color:white; font-size: 15px; margin-bottom:1%;";>Ventureum Network Token (VTH) Holders Act as Decentralized Regulators </p>
       <p style="color:white; font-size: 15px; margin-bottom:1%;";>Refund quota represents the maximum amount of ETH refund one can receive in a project. </p>
       <p style="color:white; font-size: 15px; margin-bottom:5%;";>1 Billion VTH will be issued. We will ensure that Ventureum 1.0 is fully tested before running a token sale.</p>
     </div>
     <div class="tokens-card shadow shadow-hover animate-box">
       <div class="row center-block">
-        <canvas id="token-allocation-chart" style="margin-top: 2%; margin-bottom: 2%; max-height: 500px;"></canvas>
+          <canvas id="token-allocation-chart" style="margin-top: 2%; margin-bottom: 2%; max-height: 500px;">
+          </canvas>
      </div> 
    </div>
  </div>
@@ -440,55 +366,6 @@ $(document).ready(function(){
 $(".btn").mouseup(function(){
     $(this).blur();
 })
-
-var preview_slide_text_content = [
-    "<b>Overview</b> gives investors detailed description of a project’s objectives, technical background, roadmap, founder team members, etc. Investors are also able to comment on the project. If the project is during a contribution period, investors can contribute to the project, and view the amount of investment (ETH) pledged, the soft cap and hard cap of the crowdsale, and contribution period deadline.",
-    "Investors purchase Ventureum Network Tokens (VTH) for Refund Quota. In a milestone, to receive a refund up to X ETH, investors need to transfer at least 1% * X ETH worth of VTH to that milestone.",
-    "<b>Milestones</b> navigates investors into the project’s milestone-driven funds management mechanism, the essential innovation on Ventureum that gives investors unprecedented protection for their investments. Each milestone node is labeled with a title and an icon to represent its state, e.g., <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_1.png\"> implies milestone objectives are met, <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_2.png\"> means the node <b>Smart Contract A</b> is in a <b>Voting Period</b>, <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_3.png\"> reminds investors to stake project tokens for a pending vote, and <img style=\"width:20px;height:20px\" src=\"img/milestone_icon_4.png\"> means investors voted for a refund for the node <b>Smart Contract B</b>.",
-    "Investors are required to stake project tokens for a pending vote to be eligible to vote. An investor’s voting weight for a given vote is proportional to the amount of project tokens staked.",
-    "For a milestone node in the <b>Voting Period</b> state, investors with voting eligibility can vote <b>Approve</b> or <b>Reject</b> to determine if the funds locked in the milestone are released to project founders. Investors who vote <b>Reject</b> will be provided an option to receive a refund, regardless of the collective decision. The real-time <b>Approval rate</b> and <b>Participation rate</b> are also displayed.",
-    "A detailed <b>Objectives</b> pane is viewable for each milestone node.",
-    "A milestone enters the <b>Refund Period</b> if majority of investors voted <b>Reject</b>, and the voting was final. To calculate the amount of ETH refund an investor is entitled to withdraw, both the staked project tokens and the refund quota are considered. After withdrawing a refund, the staked project tokens are burned.",
-];
-
-var preview_slide_text_title = [
-  "Project Overview",
-  "Activating ETH Refund Quota",
-  "Milestones",
-  "Staking",
-  "Voting Period 1",
-  "Voting Period 1 Objectives",
-  "Refund Period stage",
-];
-
-preview_slide_text_id = 0;
-
-// update slide text onload
-preview_slide_text_update();
-
-function preview_slide_text_update(){
-  $('#myCarousel-indicators li').removeClass('active');
-  $('#myCarousel-indicators li:nth-child(' + (preview_slide_text_id + 1) + ')').addClass('active');
-  document.getElementById("preview-slide-text").innerHTML = preview_slide_text_content[preview_slide_text_id];
-  document.getElementById("preview-slide-title").innerHTML = preview_slide_text_title[preview_slide_text_id];
-}
-
-function preview_slide_next() {
-  $('#myCarousel').carousel('pause');
-}
-
-function preview_slide_prev() {
-  $('#myCarousel').carousel('pause');
-}
-
-$("#myCarousel").on('slide.bs.carousel', function(e) {
-    preview_slide_text_id = $(e.relatedTarget).index();
-    preview_slide_text_update();
-})
-
-$('.carousel-indicators li').click(function(e){
-  $('#myCarousel').carousel('pause');
-});
 
 // enlarge image on click
 $(function() {
