@@ -662,6 +662,32 @@ a.member-profile {
 }
 
 
+/* Investors */
+
+@media only screen and (max-width: 767px) {
+  .investors-title {
+    text-align:center;
+  }
+  .investors-title h1{
+    font-size: 30px;
+  }
+  .investors-title p{
+    max-width: 100%;
+  }
+  #investors .container row {
+    margin-bottom: 10%;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .investors-title {
+    text-align:left;
+  }
+  .investors-title p{
+    max-width: 45%;
+  }
+}
+
 
 /* Social Networks Meta */
 #community li {display: inline-block; padding: 0 6px; font-size: 18px;}
