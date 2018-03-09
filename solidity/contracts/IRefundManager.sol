@@ -3,9 +3,9 @@ pragma solidity ^0.4.18;
 // Refund Manager Interface
 contract IRefundManager {
 
-    // return the exact refund amount in wei of an investor
-    function refundAmount(uint8 id, address investor) external returns (uint);
+    // submit a refund request and transfer tokens to this contract
+    function refundRequest(uint8 id) external;
 
-    // clear refund info for an investor
-    function clear(uint8 id, address investor) external;
+    // withdraw refunds after submitting a refund
+    function withdraw(uint8 id);
 }
