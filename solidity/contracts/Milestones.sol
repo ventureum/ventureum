@@ -1,4 +1,4 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.23;
 
 import './SafeMath.sol';
 import './Ownable.sol';
@@ -53,7 +53,7 @@ contract Milestones is Ownable, States {
 
     // milestones
     // the root node has an index of zero
-    // 0.4.18 does not support public array of nested struct, flattened
+    // 0.4.23 does not support public array of nested struct, flattened
     Milestone[] public m;
 
     // record decision for a milestone to save gas
