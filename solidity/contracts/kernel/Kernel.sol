@@ -41,7 +41,7 @@ contract Kernel is IKernel, Ownable {
     function connect(address contractAddr, bytes32[] _handlerList) external onlyOwner {
         verifyHandler(_handlerList);
         IBase(contractAddr).connect();
-        for(uint i = 0; i < handlerList.length; i++) {
+        for(uint i = 0; i < _handlerList.length; i++) {
             IBase(contractAddr).setHandler(_handlerList[i], handlers[_handlerList[i]]);
         }
     }
