@@ -14,6 +14,8 @@ contract ProjectControllerModule is Module {
         Complete
     }
 
+    constructor (address kernelAddr) Module(kernelAddr) public {}
+
     State public state;
     // namespace => owner address
     mapping(bytes32 => address) owners;

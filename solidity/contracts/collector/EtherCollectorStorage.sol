@@ -9,6 +9,8 @@ contract EtherCollectorStorage is Module {
     // Storage Types
     mapping(bytes32 => uint256) private uIntStorage;
 
+    constructor (address kernelAddr) Module(kernelAddr) public {}
+
     /**
      * @param _key The key for the record
      */

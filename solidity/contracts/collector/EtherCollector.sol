@@ -15,6 +15,8 @@ contract EtherCollector is Module {
     // Storage contract
     EtherCollectorStorage public store;
 
+    constructor (address kernelAddr) Module(kernelAddr) public {}
+
     /*
       Bind with a storage contract
 

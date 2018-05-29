@@ -16,6 +16,7 @@
     "babel-register": "^6.26.0",
     "dotenv": "^5.0.1",
     "openzeppelin-solidity": "^1.9.0",
-    "truffle-hdwallet-provider": "0.0.5"
+    "truffle-hdwallet-provider": "0.0.4",
+    "vetx-token": "^1.0.0"
   }
 }
