@@ -14,6 +14,16 @@ contract ContractAddressHandler is IContractAddressHandler, Handler, Ownable {
     // contract address => CI
     mapping (address => bytes32) public reverseLookUp;
 
+    constructor (address kernelAddr) Handler(kernelAddr) public {}
+
+    function contracts(bytes32 _CI) public returns (address) {
+        return contracts[_CI];
+    }
+
+    function reverseLookUp(address addr) public returns (bytes32) {
+        return reverseLookUp[addr];
+    }
+
     /*
       Register a contract
 

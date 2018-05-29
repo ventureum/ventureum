@@ -5,4 +5,6 @@ import '../kernel/Base.sol';
 
 contract Handler is IHandler, Base {
     
+    constructor (address kernelAddr) Base(kernelAddr) public {}
+    
 }

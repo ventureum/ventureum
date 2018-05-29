@@ -12,6 +12,11 @@ contract Kernel is IKernel, Ownable {
 
     bytes32[] public handlerList;
 
+    function handlers(bytes32 CI) external returns (address) {
+        return handlers[CI];
+    }
+    
+
     function registerHandler(bytes32 CI, address handlerAddr) external onlyOwner {
         require(handlers[CI] == address(0x0));
         handlers[CI] = handlerAddr;

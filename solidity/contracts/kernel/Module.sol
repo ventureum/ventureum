@@ -7,6 +7,8 @@ import '../kernel/Base.sol';
 
 contract Module is Base, Ownable {
 
+    constructor(address kernelAddr) Base(kernelAddr) public {}
+
     address public storeAddr;
 
     IACLHandler public aclHandler;

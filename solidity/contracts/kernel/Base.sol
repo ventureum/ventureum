@@ -43,6 +43,26 @@ contract Base is IBase {
     function isConnected() public returns (bool) {
         return status == Status.Connected;
     }
+
+    function handlers(bytes32 _CI) external returns (address) {
+        return handlers[_CI];
+    }
+
+
+    function kernel() external returns (address) {
+        return kernel;
+    }
+
+
+    function status() external returns (uint) {
+        return uint(status);
+    }
+
+
+    function CI() external returns (bytes32) {
+        return CI;
+    }
+
     /*
       Check if a function call is valid, Use super to concatenate validations
      */

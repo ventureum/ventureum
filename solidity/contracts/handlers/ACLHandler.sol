@@ -16,6 +16,8 @@ contract ACLHandler is IACLHandler, Handler, Ownable {
 
     bytes32 constant public ANY = bytes32(uint(-1));
 
+    constructor (address kernelAddr) Handler(kernelAddr) public {}
+
     /*
       Check if an action is authorized
 
