@@ -6,6 +6,7 @@ contract ProjectControllerModule is Module {
 
 
     enum State {
+        NotExist,
         AppSubmitted,
         AppAccepted,
         TokenSale,
@@ -31,8 +32,8 @@ contract ProjectControllerModule is Module {
         reverseLookUp[owner] = namespace;
     }
 
-    function moveToNextState() external connected {
-        require(state != State.Complete);
-        state = State(uint(state) + 1);
+    function setNextState(uint _state) external connected {
+        require(uint(state) <= _state);
+        state = State(_state);
     }
 }
