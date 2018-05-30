@@ -4,7 +4,6 @@ import "../kernel/Module.sol";
 
 contract ProjectControllerModule is Module {
 
-    bytes32 constant CI = keccak256("ProjectControllerModule");
 
     enum State {
         AppSubmitted,
@@ -14,7 +13,9 @@ contract ProjectControllerModule is Module {
         Complete
     }
 
-    constructor (address kernelAddr) Module(kernelAddr) public {}
+    constructor (address kernelAddr) Module(kernelAddr) public {
+        CI = keccak256("ProjectControllerModule");
+    }
 
     State public state;
     // namespace => owner address
