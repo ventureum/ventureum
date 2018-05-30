@@ -6,15 +6,15 @@ import "./IContractAddressHandler.sol";
 
 contract ContractAddressHandler is IContractAddressHandler, Handler, Ownable {
 
-    bytes32 constant CI = keccak256("ContractAddressHandler");
-
     // CI => contract address
     mapping (bytes32 => address) public contracts;
 
     // contract address => CI
     mapping (address => bytes32) public reverseLookUp;
 
-    constructor (address kernelAddr) Handler(kernelAddr) public {}
+    constructor (address kernelAddr) Handler(kernelAddr) public {
+        CI = keccak256("ContractAddressHandler");
+    }
 
     function contracts(bytes32 _CI) public returns (address) {
         return contracts[_CI];

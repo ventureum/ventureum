@@ -40,26 +40,26 @@ contract Base is IBase {
         _;
     }
 
-    function isConnected() public returns (bool) {
+    function isConnected() public view returns (bool) {
         return status == Status.Connected;
     }
 
-    function handlers(bytes32 _CI) external returns (address) {
+    function handlers(bytes32 _CI) external view returns (address) {
         return handlers[_CI];
     }
 
 
-    function kernel() external returns (address) {
+    function kernel() external view returns (address) {
         return kernel;
     }
 
 
-    function status() external returns (uint) {
+    function status() external view returns (uint) {
         return uint(status);
     }
 
 
-    function CI() external returns (bytes32) {
+    function CI() external view returns (bytes32) {
         return CI;
     }
 
