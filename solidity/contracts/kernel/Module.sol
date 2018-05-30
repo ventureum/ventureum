@@ -22,7 +22,7 @@ contract Module is Base, Ownable {
 
     // functions called by Kernel
 
-    function setHandler(bytes32 CI, address handlerAddr) public connected kernelOnly {
+    function setHandler(bytes32 CI, address handlerAddr) public kernelOnly {
         super.setHandler(CI, handlerAddr);
 
         if (CI == keccak256("ACLHandler")) {

@@ -88,7 +88,7 @@ contract Base is IBase {
         status = Status.Disconnected;
     }
 
-    function setHandler(bytes32 _CI, address handlerAddr) public connected kernelOnly {
+    function setHandler(bytes32 _CI, address handlerAddr) public kernelOnly {
         handlers[_CI] = handlerAddr;
     }
 }
