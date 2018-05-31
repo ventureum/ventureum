@@ -8,8 +8,6 @@ contract EtherCollector is Module {
 
     using SafeMath for uint;
 
-    uint public balance;
-
     bytes32 constant balanceHash = keccak256("balance");
     // Storage contract
     EtherCollectorStorage public store;
@@ -35,7 +33,7 @@ contract EtherCollector is Module {
      */
     function deposit() external payable connected {
         uint bal = store.getUint(balanceHash);
-        bal = balance.add(msg.value);
+        bal = bal.add(msg.value);
         store.setUint(balanceHash, bal);
     }
 
@@ -47,7 +45,8 @@ contract EtherCollector is Module {
      */
     function withdraw(address beneficiary, uint val) external connected {
         uint bal = store.getUint(balanceHash);
-        bal = balance.sub(val);
+        require(val <= bal);
+        bal = bal.sub(val);
         store.setUint(balanceHash, bal);
 
         beneficiary.transfer(val);
