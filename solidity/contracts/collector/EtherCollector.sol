@@ -11,11 +11,12 @@ contract EtherCollector is Module {
     uint public balance;
 
     bytes32 constant balanceHash = keccak256("balance");
-    bytes32 constant CI = keccak256("EtherCollector");
     // Storage contract
     EtherCollectorStorage public store;
 
-    constructor (address kernelAddr) Module(kernelAddr) public {}
+    constructor (address kernelAddr) Module(kernelAddr) public {
+        CI = keccak256("EtherCollector");
+    }
 
     /*
       Bind with a storage contract
