@@ -20,10 +20,10 @@ contract ProjectControllerModule is Module {
 
     State public state;
     // namespace => owner address
-    mapping(bytes32 => address) owners;
+    mapping(bytes32 => address) public owners;
 
     // owner address => namespace
-    mapping(address => bytes32) reverseLookUp;
+    mapping(address => bytes32) public reverseLookUp;
 
     function registerOwner(bytes32 namespace, address owner) external connected {
         require(owners[namespace] == address(0x0));
