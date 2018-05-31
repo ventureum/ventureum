@@ -7,12 +7,12 @@ import '../kernel/Base.sol';
 
 contract Module is Base, Ownable {
 
-    constructor(address kernelAddr) Base(kernelAddr) public {}
-
     address public storeAddr;
 
     IACLHandler public aclHandler;
     IContractAddressHandler public contractAddressHandler;
+
+    constructor(address kernelAddr) Base(kernelAddr) public {}
 
     function validate() internal {
         super.validate();

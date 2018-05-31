@@ -9,14 +9,14 @@ contract ACLHandler is IACLHandler, Handler, Ownable {
     event LogPermit(bytes32 indexed src, bytes32 indexed dst, bytes32 indexed sig);
     event LogForbid(bytes32 indexed src, bytes32 indexed dst, bytes32 indexed sig);
 
-    bytes32 constant CI = keccak256("ACLHandler");
-
     // Access control list acl[CI][CI][SIG]
     mapping (bytes32 => mapping (bytes32 => mapping (bytes32 => bool))) acl;
 
     bytes32 constant public ANY = bytes32(uint(-1));
 
-    constructor (address kernelAddr) Handler(kernelAddr) public {}
+    constructor (address kernelAddr) Handler(kernelAddr) public {
+      CI = keccak256("ACLHandler");
+    }
 
     /*
       Check if an action is authorized
