@@ -31,13 +31,5 @@ module.exports = function(deployer) {
         deployer.deploy(EtherCollectorStorage, UNIT_DEPLOY_ADDRESS);
         deployer.deploy(ProjectControllerModule, UNIT_DEPLOY_ADDRESS);
     }
-    function testDeploy() {
-        deployer.deploy(SafeMath);
-        deployer.deploy(Kernel).then(() => {
-            return deployer.deploy(ProjectControllerModule, Kernel.address);
-        });
-        //TODO
-    }
-
     unitDeploy();
 };
