@@ -4,12 +4,12 @@ import '../kernel/Module.sol';
 
 contract EtherCollectorStorage is Module {
 
-    bytes32 constant CI = keccak256("EtherCollectorStorage");
-
     // Storage Types
     mapping(bytes32 => uint256) private uIntStorage;
 
-    constructor (address kernelAddr) Module(kernelAddr) public {}
+    constructor (address kernelAddr) Module(kernelAddr) public {
+        CI = keccak256("EtherCollectorStorage");
+    }
 
     /**
      * @param _key The key for the record
