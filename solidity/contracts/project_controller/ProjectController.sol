@@ -18,6 +18,7 @@ contract ProjectController is Module {
         bytes32 projectControllerCI,
         bytes32 projectControllerStorageCI,
         address indexed store);
+    event ProjectTokenSet(address indexed sender, bytes32 namespace, address tokenAddress);
 
     /*
       1. Can only add state in order but before LENGTH
@@ -75,6 +76,32 @@ contract ProjectController is Module {
         emit ProjectRegistered(msg.sender, namespace, owner, tokenAddress);
     }
 
+    /* TODO(InVincible2016): Overload registerProject when test framework suppport overloading
+    /**
+    * Register a project
+    *
+    * @param namespace namespace of a project
+    * @param owner the owner address for the project
+    *
+    function registerProject(bytes32 namespace, address owner)
+        external
+        connected
+    {
+        bool existing;
+        (existing,) = isExisting(namespace);
+        require(!existing);
+
+        projectControllerStore.setAddress(keccak256(namespace, OWNER), owner);
+        projectControllerStore.setUint(
+            keccak256(namespace, PROJECT_STATE),
+            uint256(ProjectState.AppSubmitted)
+        );
+        projectControllerStore.setBytes32(keccak256(owner, NAMESPACE), namespace);
+
+        emit ProjectRegistered(msg.sender, namespace, owner, ZERO_ADDRESS);
+    }
+    */
+
     /**
     * Unregister a project
     *
@@ -114,10 +141,22 @@ contract ProjectController is Module {
 
         emit ProjectStateSet(msg.sender, namespace, projectState);
     }
+    /**
+    * @notice Set token address of a project
+    * @param tokenAddress the token address for the project
+    */
+    function setTokenAddress(bytes32 namespace, address tokenAddress) external connected {
+        bool existing;
+        address owner;
+        (existing, owner) = isExisting(namespace);
+        require(existing);
 
+        projectControllerStore.setAddress(keccak256(namespace, TOKEN_ADDRESS), tokenAddress);
+
+        emit ProjectTokenSet(msg.sender, namespace, tokenAddress);
+    }
     /**
     * Bind with a storage contract
-    * Create a new storage contract if _store == 0x0
     *
     * @param store the address of a storage contract
     */

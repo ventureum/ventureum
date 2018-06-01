@@ -5,6 +5,7 @@ import "./DLL.sol";
 import "./AttributeStore.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+
 /**
 @title Partial-Lock-Commit-Reveal Voting scheme with ERC20 tokens 
 @author Team: Aspyn Palatnick, Cem Ozer, Yorke Rhodes

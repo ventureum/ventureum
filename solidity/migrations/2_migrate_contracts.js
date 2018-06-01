@@ -31,6 +31,7 @@ module.exports = function(deployer) {
 
         deployer.deploy(EtherCollector, UNIT_DEPLOY_ADDRESS);
         deployer.deploy(EtherCollectorStorage, UNIT_DEPLOY_ADDRESS);
+
         deployer.deploy(ProjectController, UNIT_DEPLOY_ADDRESS);
         deployer.deploy(ProjectControllerStorage, UNIT_DEPLOY_ADDRESS);
     }
