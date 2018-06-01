@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 interface IBase {
     function CI() external view returns (bytes32);

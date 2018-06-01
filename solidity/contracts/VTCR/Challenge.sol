@@ -1,4 +1,4 @@
-pragma solidity^0.4.23;
+pragma solidity^0.4.24;
 
 import "./PLCRVoting.sol";
 import "vetx-token/contracts/VetXToken.sol";
