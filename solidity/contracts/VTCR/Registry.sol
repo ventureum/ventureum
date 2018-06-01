@@ -7,6 +7,8 @@ import "./PLCRVoting.sol";
 import "./DLLBytes32.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "../kernel/Module.sol";
+import "../project_controller/ProjectController.sol";
+
 
 contract Registry is Module {
 
@@ -57,52 +59,56 @@ contract Registry is Module {
     VetXToken public token;
     PLCRVoting public voting;
     Parameterizer public parameterizer;
-
-    // Store project owner's address
-    mapping(address => bool) public isProjectFounder;
+    ProjectController public projectController;
 
     // Store the amount of fund can be withdrawn by Ventureum team 
     uint private availableFundForVentureum;
+
+    bytes32 constant BYTES_ZERO = 0x0;
+    address constant ADDRESS_ZERO = 0x0;
+
     // ------------
     // CONSTRUCTOR
     // ------------
-
     /**
        @dev Contructor
-       @notice                 Sets the addresses for token, voting, and parameterizer
-       @param _kernelAddr      Address of the kernel
-       @param _tokenAddr       Address of the native ERC20 token (ADT)
-       @param _plcrAddr        Address of a PLCR voting contract for the provided token
-       @param _paramsAddr      Address of a Parameterizer contract for the provided PLCR voting contract
+       @notice Sets the addresses for token, voting, and parameterizer
+       @param _kernelAddr Address of the kernel
+       @param _tokenAddr Address of the native ERC20 token (ADT)
+       @param _plcrAddr Address of a PLCR voting contract for the provided token
+       @param _paramsAddr Address of a Parameterizer contract for the 
+           provided PLCR voting contract
     */
     constructor(
         address _kernelAddr,
         address _tokenAddr,
         address _plcrAddr,
-        address _paramsAddr
+        address _paramsAddr,
+        address _projectControllerAddr
     )
-    public 
-    Module(_kernelAddr)
+        public
+        Module(_kernelAddr)
     {
         CI = keccak256("Registry");
         token = VetXToken(_tokenAddr);
         voting = PLCRVoting(_plcrAddr);
         parameterizer = Parameterizer(_paramsAddr);
+        projectController = ProjectController(_projectControllerAddr);
     }
 
     // --------------------
     // PUBLISHER INTERFACE
     // --------------------
-
     /**
-       @notice             Allows a user to start an application.
-       @notice             Takes tokens from user and sets apply stage end time.
-       @param _project     The project of a potential listing a user is applying to add to the registry
-       @param _amount      The number of ERC20 tokens a user is willing to potentially stake
+       @notice Allows a user to start an application.
+       @notice Takes tokens from user and sets apply stage end time.
+       @param _project The project of a potential listing a user 
+           is applying to add to the registry
+       @param _amount The number of ERC20 tokens a user is willing to potentially stake
     */
     function apply(string _project, uint _amount) external {
-        require(!isWhitelisted(_project));
         require(!appWasMade(_project));
+        require(!isWhitelisted(_project));
         require(_amount >= parameterizer.get("minDeposit"));
 
         // Transfers tokens from user to Registry contract
@@ -123,19 +129,20 @@ contract Registry is Module {
         listing.unstakedDeposit = _amount.sub(_amount.div(2));
         listing.projectName = _project;
 
-        // insert to front
-        projectHashList.insert(bytes32(0x0), projectHash, projectHashList.getNext(bytes32(0x0)));
+        // Create a new project in ProjectController
+        projectController.registerProject(projectHash, msg.sender);
+        projectController.setState(projectHash, uint(ProjectController.ProjectState.AppSubmitted));
 
-        // Add address to project owner list
-        isProjectFounder[msg.sender] = true;
+        // insert to front
+        projectHashList.insert(BYTES_ZERO, projectHash, projectHashList.getNext(BYTES_ZERO));
 
         emit _Application(msg.sender, _project, _amount);
     }
 
     /**
-       @notice             Allows the owner of a listing to remove the listing from the whitelist
-       @notice             Returns all tokens to the owner of the listing
-       @param _project      The project of a user's listing
+       @notice Allows the owner of a listing to remove the listing from the whitelist
+       @notice Returns all tokens to the owner of the listing
+       @param _project The project of a user's listing
     */
     function exit(string _project) external {
         Listing storage listing = listings[keccak256(_project)];
@@ -156,14 +163,17 @@ contract Registry is Module {
     // -----------------------
     // TOKEN HOLDER INTERFACE
     // -----------------------
-
     /**
-       @notice             Starts a poll for a project which is either
-       @notice             in the apply stage or already in the whitelist.
-       @dev                Tokens are taken from the challenger and the applicant's deposit is locked.
-       @param _project      The project of an applicant's potential listing
+       @notice Starts a poll for a project which is either
+       @notice in the apply stage or already in the whitelist.
+       @dev Tokens are taken from 
+           the challenger and the applicant's deposit is locked.
+       @param _project The project of an applicant's potential listing
     */
     function challenge(string _project) external returns (uint challengeID) {
+        // Project must be in apply stage or already on the whitelist
+        require(appWasMade(_project) || listing.whitelisted);
+        
         bytes32 projectHash = keccak256(_project);
         Listing storage listing = listings[projectHash];
 
@@ -175,10 +185,11 @@ contract Registry is Module {
         // Takes tokens from challenger
         require(token.transferFrom(msg.sender, this, _deposit));
 
-        // Project must be in apply stage or already on the whitelist
-        require(appWasMade(_project) || listing.whitelisted);
         // Prevent multiple challenges
-        require(!challenges[listing.challengeID].isInitialized() || challenges[listing.challengeID].isResolved());
+        require(
+            !challenges[listing.challengeID].isInitialized() || 
+            challenges[listing.challengeID].isResolved()
+        );
 
         // Starts poll
         uint pollID = voting.startPoll(
@@ -201,18 +212,15 @@ contract Registry is Module {
         // Updates listing to store most recent challenge
         listings[projectHash].challengeID = pollID;
 
-        // Locks tokens for listing during challenge
-        // listings[projectHash].unstakedDeposit = listings[projectHash].unstakedDeposit.sub(_deposit);
-
         emit _Challenge(msg.sender, _project, _deposit, pollID);
         return pollID;
     }
 
     /**
-       @notice             Called by a voter to claim his/her reward for each completed vote.
-       @dev                Someone must call updateStatus() before this can be called.
+       @notice Called by a voter to claim his/her reward for each completed vote.
+       @dev Someone must call updateStatus() before this can be called.
        @param _challengeID The pollID of the challenge a reward is being claimed for
-       @param _salt        The salt of a voter's commit hash in the given poll
+       @param _salt The salt of a voter's commit hash in the given poll
     */
     function claimReward(uint _challengeID, uint _salt) public {
         uint reward = challenges[_challengeID].claimReward(msg.sender, _salt);
@@ -221,9 +229,9 @@ contract Registry is Module {
     }
 
     /**
-       @notice             Updates a project's status from 'application' to 'listing'
-       @notice             or resolves a challenge if one exists.
-       @param _project      The project whose status is being updated
+       @notice Updates a project's status from 'application' to 'listing'
+           or resolves a challenge if one exists.
+       @param _project The project whose status is being updated
     */
     function updateStatus(string _project) public {
         if (canBeWhitelisted(_project)) {
@@ -239,8 +247,8 @@ contract Registry is Module {
     // --------
 
     /**
-       @dev                Determines whether the project of an application can be whitelisted.
-       @param _project      The project whose status should be examined
+       @dev Determines whether the project of an application can be whitelisted.
+       @param _project The project whose status should be examined
     */
     function canBeWhitelisted(string _project) public view returns (bool) {
         bytes32 projectHash = keccak256(_project);
@@ -266,7 +274,7 @@ contract Registry is Module {
     function isWhitelisted(string _project) public view returns (bool whitelisted) {
         return listings[keccak256(_project)].whitelisted;
     }
-
+    
     // @dev returns true if apply was called for this project
     function appWasMade(string _project) public view returns (bool exists) {
         return listings[keccak256(_project)].applicationExpiry > 0;
@@ -279,9 +287,10 @@ contract Registry is Module {
     }
 
     /**
-       @notice             Determines whether voting has concluded in a challenge for a given project.
-       @dev                Throws if no challenge exists.
-       @param _project      A project with an unresolved challenge
+       @notice Determines whether voting has 
+           concluded in a challenge for a given project.
+       @dev Throws if no challenge exists.
+       @param _project A project name with an unresolved challenge
     */
     function challengeCanBeResolved(string _project) public view returns (bool) {
         Challenge.Data storage _challenge = challenges[listings[keccak256(_project)].challengeID];
@@ -289,7 +298,7 @@ contract Registry is Module {
     }
 
     /**
-       @notice             Determines the number of tokens awarded to the winning party in a challenge.
+       @notice Determines the number of tokens awarded to the winning party in a challenge.
        @param _challengeID The challengeID to determine a reward for
     */
     function challengeWinnerReward(uint _challengeID) public view returns (uint) {
@@ -302,11 +311,11 @@ contract Registry is Module {
     }
 
     /**
-       @dev                Calculates the provided voter's token reward for the given poll.
-       @param _voter       The address of the voter whose reward balance is to be returned
+       @dev Calculates the provided voter's token reward for the given poll.
+       @param _voter The address of the voter whose reward balance is to be returned
        @param _challengeID The ID of the challenge the voter's reward is being calculated for
-       @param _salt        The salt of the voter's commit hash in the given poll
-       @return             The uint indicating the voter's reward (in nano-ADT)
+       @param _salt The salt of the voter's commit hash in the given poll
+       @return The uint indicating the voter's reward (in nano-ADT)
     */
     function voterReward(address _voter, uint _challengeID, uint _salt)
         public view returns (uint) {
@@ -314,12 +323,13 @@ contract Registry is Module {
     }
 
     /**
-       @dev                Determines whether the provided voter has claimed tokens in a challenge
-       @param _challengeID The ID of the challenge to determine whether a voter has claimed tokens for
-       @param _voter       The address of the voter whose claim status is to be determined for the
-       provided challenge.
-       @return             Bool indicating whether the voter has claimed tokens in the provided
-       challenge
+       @dev Determines whether the provided voter has claimed tokens in a challenge
+       @param _challengeID The ID of the challenge to 
+           determine whether a voter has claimed tokens for
+       @param _voter The address of the voter whose claim status is to be determined for the
+           provided challenge.
+       @return Bool indicating whether the voter has claimed tokens in the provided
+           challenge
     */
     function tokenClaims(uint _challengeID, address _voter)
         public view returns (bool) {
@@ -335,8 +345,8 @@ contract Registry is Module {
     // ----------------
 
     /**
-       @dev Determines the winner in a challenge. Rewards the winner tokens and either whitelists or
-       de-whitelists the project.
+       @dev Determines the winner in a challenge. Rewards the winner tokens and either 
+           whitelists or de-whitelists the project.
        @param _project A project with a challenge that is to be resolved.
     */
     function resolveChallenge(string _project) private {
@@ -348,7 +358,8 @@ contract Registry is Module {
         // which is: (winner's full stake) + (dispensationPct * loser's stake)
         uint winnerReward = _challenge.challengeWinnerReward();
 
-        _challenge.winningTokens = _challenge.voting.getTotalNumberOfTokensForWinningOption(_challenge.challengeID);
+        _challenge.winningTokens = _challenge.voting.getTotalNumberOfTokensForWinningOption(
+            _challenge.challengeID);
         _challenge.resolved = true;
 
         // Case: challenge failed
@@ -374,7 +385,7 @@ contract Registry is Module {
 
     /**
        @dev Called by updateStatus() if the applicationExpiry date passed without a
-       challenge being made
+           challenge being made
        @dev Called by resolveChallenge() if an application/listing beat a challenge.
        @param _project The project of an application/listing to be whitelisted
     */
@@ -382,6 +393,9 @@ contract Registry is Module {
         bytes32 projectHash = keccak256(_project);
         listings[projectHash].whitelisted = true;
         
+        // Update project state in projectController
+        projectController.setState(projectHash, uint(ProjectController.ProjectState.AppAccepted));
+
         // transfer unstakedDeposit to listing owner after being whitelisted
         require(token.transfer(listings[projectHash].owner, listings[projectHash].unstakedDeposit));
     }
@@ -395,11 +409,11 @@ contract Registry is Module {
 
         delete listings[projectHash].applicationExpiry;
 
+        // remove project from projectController
+        projectController.unregisterProject(projectHash);
+
         // remove project hash from DLL
         projectHashList.remove(projectHash);
-
-        // Remove address from project owner address list
-        isProjectFounder[msg.sender] = false;
     }
 
     /**
