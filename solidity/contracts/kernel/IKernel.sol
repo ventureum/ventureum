@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24;
 
 interface IKernel {
     function handlers(bytes32 CI) external returns (address);
