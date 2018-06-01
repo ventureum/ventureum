@@ -1,2 +1,4 @@
 .idea/
 .DS_Store
+solidity/coverage.json
+solidity/coverage/
