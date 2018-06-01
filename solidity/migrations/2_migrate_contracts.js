@@ -10,7 +10,9 @@ var ContractAddressHandler = artifacts.require("./handlers/ContractAddressHandle
 
 var EtherCollector = artifacts.require("./collector/EtherCollector.sol");
 var EtherCollectorStorage = artifacts.require("./collector/EtherCollectorStorage.sol");
-var ProjectControllerModule = artifacts.require("./projectController/ProjectControllerModule.sol");
+
+var ProjectController = artifacts.require("./project_controller/ProjectController.sol");
+var ProjectControllerStorage = artifacts.require("./project_controller/ProjectControllerStorage.sol");
 
 const UNIT_DEPLOY_ADDRESS = "0xa0";
 
@@ -29,7 +31,8 @@ module.exports = function(deployer) {
 
         deployer.deploy(EtherCollector, UNIT_DEPLOY_ADDRESS);
         deployer.deploy(EtherCollectorStorage, UNIT_DEPLOY_ADDRESS);
-        deployer.deploy(ProjectControllerModule, UNIT_DEPLOY_ADDRESS);
+        deployer.deploy(ProjectController, UNIT_DEPLOY_ADDRESS);
+        deployer.deploy(ProjectControllerStorage, UNIT_DEPLOY_ADDRESS);
     }
     unitDeploy();
 };

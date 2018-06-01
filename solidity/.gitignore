@@ -8,3 +8,4 @@ package-lock.json
 .soliumrc.json
 node_modules/
 build/
+run_test.sh
