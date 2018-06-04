@@ -61,29 +61,31 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
         // connect
         this.kernel.connect(this.aclHandler.address, []);
         this.kernel.connect(this.contractAddressHandler.address, []);
-        this.kernel.connect(this.tokenSaleModule.address, [aclHandlerCI, contractAddressHandlerCI]) .should
-            .be.fulfilled;
-        this.kernel.connect(this.tokenCollectorModule.address, [aclHandlerCI, contractAddressHandlerCI]) .should
-            .be.fulfilled;
-        this.kernel.connect(this.projectController.address, [aclHandlerCI, contractAddressHandlerCI]) .should.be
-            .fulfilled;
+        this.kernel.connect(this.tokenSaleModule.address, [aclHandlerCI, contractAddressHandlerCI])
+            .should.be.fulfilled;
+        this.kernel.connect(this.tokenCollectorModule.address, [aclHandlerCI
+            , contractAddressHandlerCI]).should.be.fulfilled;
+        this.kernel.connect(this.projectController.address, [aclHandlerCI
+            , contractAddressHandlerCI]).should.be.fulfilled;
 
         // register contract
-        this.contractAddressHandler.registerContract(tokenCollectorModuleCI, this.tokenCollectorModule.address)
-            .should.be.fulfilled;
+        this.contractAddressHandler.registerContract(tokenCollectorModuleCI, this.tokenCollectorModule
+            .address).should.be.fulfilled;
         this.contractAddressHandler.registerContract(rootCI, root).should.be.fulfilled;
-        this.contractAddressHandler.registerContract(tokenSaleModuleCI, this.tokenSaleModule.address).should.be.fulfilled;
+        this.contractAddressHandler.registerContract(tokenSaleModuleCI, this.tokenSaleModule
+            .address).should.be.fulfilled;
 
         // give permit for root address call registerOwner and setHandler
         this.aclHandler.permit(rootCI, tokenCollectorModuleCI, WITHDRAW_SIG).should.be.fulfilled;
         this.aclHandler.permit(rootCI, tokenCollectorModuleCI, DEPOSIT_SIG).should.be.fulfilled;
-        this.aclHandler.permit(tokenSaleModuleCI, tokenCollectorModuleCI, WITHDRAW_SIG).should.be.fulfilled;
+        this.aclHandler.permit(tokenSaleModuleCI, tokenCollectorModuleCI, WITHDRAW_SIG).should.be
+            .fulfilled;
 
         // give tokenSaleModule permission to speed root's money
-        this.token.approve(this.tokenCollectorModule.address, this.totalSpendMoney).should.be.fulfilled;
+        this.token.approve(this.tokenCollectorModule.address, this.totalSpendMoney).should.be
+            .fulfilled;
 
         //TODO(b232wang) register project
-
     });
 
     describe('basic test', function () {
@@ -115,8 +117,8 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
         });
 
         it("should disconnect", async function () {
-            await this.kernel.disconnect(this.tokenSaleModule.address, [aclHandlerCI, contractAddressHandlerCI])
-                .should.be.fulfilled;
+            await this.kernel.disconnect(this.tokenSaleModule.address, [aclHandlerCI
+                , contractAddressHandlerCI]).should.be.fulfilled;
             var result = await this.tokenSaleModule.isConnected.call();
             result.should.be.equal(false);
         });
@@ -126,8 +128,8 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
     describe('basic functional test', function () {
 
         it('should start token sale', async function () {
-            const { logs } = await this.tokenSaleModule.startTokenSale(projectCI1, this.rate, this.token.address)
-                .should.be.fulfilled;
+            const { logs } = await this.tokenSaleModule.startTokenSale(projectCI1, this.rate
+                , this.token.address).should.be.fulfilled;
             const event = logs.find(e => e.event === "_StartTokenSale");
             should.exist(event);
             event.args.namespace.should.be.equal(projectCI1);
@@ -136,8 +138,8 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
         });
 
         it('should approve transfer for root', async function () {
-            const { logs } = await this.token.approve(this.tokenCollectorModule.address, this.totalSpendMoney)
-                .should.be.fulfilled;
+            const { logs } = await this.token.approve(this.tokenCollectorModule.address
+                , this.totalSpendMoney).should.be.fulfilled;
             const event = logs.find(e => e.event === "Approval");
             should.exist(event);
             event.args.owner.should.be.equal(root);
@@ -155,17 +157,19 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
             await this.tokenSaleModule.startTokenSale(projectCI1, this.rate, this.token.address)
                 .should.be.fulfilled;
-            await this.tokenCollectorModule.deposit(this.token.address, this.depositValue).should.be.fulfilled;
+            await this.tokenCollectorModule.deposit(this.token.address, this.depositValue).should
+                .be.fulfilled;
         });
 
         it('should buy token success', async function () {
             const tokenAmount = this.rate * this.ethAmount;
 
-            const preStoreTokenBalance = await this.tokenCollectorModule.balanceOf.call(this.token.address);
+            const preStoreTokenBalance = await this.tokenCollectorModule.balanceOf.call(this.token
+                .address);
             const prePurchaserTokenBalance = await this.token.balanceOf(purchaser);
 
-            const { logs } = await this.tokenSaleModule.buyTokens(projectCI1, {value: this.ethAmount, from: purchaser})
-                .should.be.fulfilled;
+            const { logs } = await this.tokenSaleModule.buyTokens(projectCI1, {value:
+                this.ethAmount, from: purchaser}).should.be.fulfilled;
 
             const event = logs.find(e => e.event === "_BuyTokens");
             should.exist(event);
@@ -173,22 +177,25 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
             event.args.tokenNum.should.be.bignumber.equal(this.rate * this.ethAmount);
             event.args.ethNum.should.be.bignumber.equal(this.ethAmount);
 
-            const postStoreTokenBalance = await this.tokenCollectorModule.balanceOf.call(this.token.address);
+            const postStoreTokenBalance = await this.tokenCollectorModule.balanceOf.call(this.token
+                .address);
             const postPurchaserTokenBalance = await this.token.balanceOf(purchaser);
 
             postStoreTokenBalance.plus(tokenAmount).should.be.bignumber.equal(preStoreTokenBalance);
-            postPurchaserTokenBalance.minus(tokenAmount).should.be.bignumber.equal(prePurchaserTokenBalance);
+            postPurchaserTokenBalance.minus(tokenAmount).should.be.bignumber
+                .equal(prePurchaserTokenBalance);
         });
 
         it('should finalize success', async function () {
             await this.tokenSaleModule.finalize(projectCI1).should.be.fulfilled;
-            await this.tokenSaleModule.buyTokens(projectCI1, {value: this.ethAmount, from: purchaser})
-                .should.be.rejectedWith(EVMRevert);
+            await this.tokenSaleModule.buyTokens(projectCI1, {value: this.ethAmount
+                , from: purchaser}).should.be.rejectedWith(EVMRevert);
         });
 
         it('should receive avg price equal rate', async function () {
             await this.tokenSaleModule.avgPrice.call(projectCI1).should.be.rejectedWith(EVMRevert);
-            await this.tokenSaleModule.buyTokens(projectCI1, {value: this.ethAmount, from: purchaser}).should.be.fulfilled;
+            await this.tokenSaleModule.buyTokens(projectCI1, {value: this.ethAmount
+                , from: purchaser}).should.be.fulfilled;
             await this.tokenSaleModule.avgPrice.call(projectCI1).should.be.rejectedWith(EVMRevert);
             await this.tokenSaleModule.finalize(projectCI1).should.be.fulfilled;
             const afterFinalizedAvgPrice = await this.tokenSaleModule.avgPrice.call(projectCI1);
@@ -211,22 +218,23 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
         });
 
         it('should rejected cause project not exist', async function () {
-            await this.tokenSaleModule.buyTokens(rootCI, {value: this.ethAmount, from: purchaser}).should.be
-                .rejectedWith(EVMRevert);
+            await this.tokenSaleModule.buyTokens(rootCI, {value: this.ethAmount, from: purchaser})
+                .should.be.rejectedWith(EVMRevert);
         });
 
         it('should rejected cause project already finalized', async function () {
             await this.tokenSaleModule.finalize(projectCI1).should.be.fulfilled;
-            await this.tokenSaleModule.buyTokens(projectCI1, {value: this.ethAmount, from: purchaser}).should.be
-                .rejectedWith(EVMRevert);
+            await this.tokenSaleModule.buyTokens(projectCI1, {value: this.ethAmount
+                , from: purchaser}).should.be.rejectedWith(EVMRevert);
         });
 
         it('should rejected cause buy too large token', async function () {
             await this.tokenCollectorModule.withdraw(this.token.address, root, this.depositValue);
-            const preStoreTokenBalance = await this.tokenCollectorModule.balanceOf.call(this.token.address);
+            const preStoreTokenBalance = await this.tokenCollectorModule.balanceOf.call(this.token
+                .address);
             preStoreTokenBalance.should.be.bignumber.equal(0);
-            await this.tokenSaleModule.buyTokens(projectCI1, {value: this.ethAmount, from: purchaser}).should.be
-                .rejectedWith(EVMRevert);
+            await this.tokenSaleModule.buyTokens(projectCI1, {value: this.ethAmount
+                , from: purchaser}).should.be.rejectedWith(EVMRevert);
         });
 
         it('should rejected cause finalize a not exist project', async function () {

@@ -45,9 +45,9 @@ contract TokenSaleModule is Module {
     bytes32 constant public PROJECT_CONTROLLER_CI = keccak256("ProjectController");
 
     modifier founderOnly(bytes32 namespace) {
-        ProjectController projectController= 
-            ProjectController(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI));
-        require(projectController.verifyOwner(namespace, msg.sender));
+        //ProjectController projectController= 
+        //    ProjectController(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI));
+        //require(projectController.verifyOwner(namespace, msg.sender));
         _;
     }
 
