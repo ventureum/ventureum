@@ -1,268 +1,136 @@
 import EVMRevert from 'openzeppelin-solidity/test/helpers/EVMRevert'
 
+var Kernel = artifacts.require("./kernel/Kernel.sol");
+
+var ACLHandler = artifacts.require("./handlers/ACLHandler.sol");
+var ContractAddressHandler = artifacts.require("./handlers/ContractAddressHandler.sol");
+
+var PLCRVoting = artifacts.require("./VTCR/PLCRVoting.sol");
+var Registry = artifacts.require("./VTCR/Registry.sol");
+var TestSale = artifacts.require("./VTCR/TestSale.sol");
+var Parameterizer = artifacts.require("./VTCR/Parameterizer.sol");
+var Token = artifacts.require("../node_modules/vetx-token/contracts/VetXToken.sol")
+
 const fs = require('fs');
-const Web3 = require ('web3');
-const BigNumber = web3.BigNumber
+
+var BigNumber = web3.BigNumber
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should()
 
-const Kernel = artifacts.require("./kernel/Kernel.sol");
-
-const ACLHandler = artifacts.require("./handlers/ACLHandler.sol");
-const ContractAddressHandler = artifacts.require("./handlers/ContractAddressHandler.sol");
-
-const PLCRVoting = artifacts.require("./VTCR/PLCRVoting.sol");
-const Registry = artifacts.require("./VTCR/Registry.sol");
-const TestSale = artifacts.require("./VTCR/TestSale.sol");
-const Parameterizer = artifacts.require("./VTCR/Parameterizer.sol");
-const Token = artifacts.require("../node_modules/vetx-token/contracts/VetXToken.sol");
-const ProjectController = artifacts.require("./project_controller/ProjectController.sol");
-const ProjectControllerStorage = artifacts.require(
-    "./project_controller/ProjectControllerStorage.sol")
-
-const wweb3 = new Web3();
-
-const PROJECT_LIST = ['project #0', 'project #1', 'project #2','project #3'];
-
-// ProjectController function sig
-const REGISTER_PROJECT_SIG = wweb3.eth.abi.encodeFunctionSignature(
-    "registerProject(bytes32,address)");
-const UNREGISTER_PROJECT_SIG = wweb3.eth.abi.encodeFunctionSignature(
-    "unregisterProject(bytes32)");
-const SET_STATE_SIG = wweb3.eth.abi.encodeFunctionSignature("setState(bytes32,uint256)");
-const SET_STORAGE_SIG = wweb3.eth.abi.encodeFunctionSignature("setStorage(address)");
-const SET_TOKEN_ADDRESS_SIG = wweb3.eth.abi.encodeFunctionSignature(
-    "setTokenAddress(bytes32,address)");
-
-// ProjectControllerStorage function sig
-const SET_UINT_SIG = wweb3.eth.abi.encodeFunctionSignature("setUint(bytes32,uint256)");
-const SET_ADDRESS_SIG = wweb3.eth.abi.encodeFunctionSignature("setAddress(bytes32,address)");
-const SET_BYTES32_SIG = wweb3.eth.abi.encodeFunctionSignature("setBytes32(bytes32,bytes32)");
-
-const ROOT_CI = wweb3.utils.keccak256("root");
-
-
 contract('Registry', (accounts) => {
-    const ROOT_ACCOUNT = accounts[0];
+	const ROOT_ACCOUNT = accounts[0];
+	const projectList = ['project #0', 'project #1', 'project #2','project #3'];
+	
+	let parameterizerConfig;
+	let testSale;
+	let registry;
+	let tokenAdd;
+	let parameterizer;
+	let kernel;
+	let token;
+	let aclHandler;
+	let contractAddressHandler;
+	let aclHandlerCI;
+	let contractAddressHandlerCI;
+	before( async () => {
+		const config = JSON.parse(fs.readFileSync("./config/VTCR/config.json"));
+		parameterizerConfig = config.paramDefaults;
 
-    let parameterizerConfig;
-    let testSale;
-    let registry;
-    let tokenAdd;
-    let parameterizer;
-    let kernel;
-    let token;
-    let aclHandler;
-    let contractAddressHandler;
-    let aclHandlerCI;
-    let contractAddressHandlerCI;
-    let projectController;
-    let projectControllerStorage
+		kernel = await Kernel.new();
+		aclHandler = await ACLHandler.new(kernel.address);
+		contractAddressHandler = await ContractAddressHandler.new(kernel.address);
+		
+		testSale = await TestSale.new();
+		await testSale.purchaseTokens({from: ROOT_ACCOUNT, value: config.initialTokenPurchase});
+		
+		tokenAdd = await testSale.getTokenAddr();
+		token = await Token.at(tokenAdd);
 
-    before( async () => {
-        const config = JSON.parse(fs.readFileSync("./config/VTCR/config.json"));
-        parameterizerConfig = config.paramDefaults;
+		const plcrVoting = await PLCRVoting.new(tokenAdd)
+		const parameterizer =  await Parameterizer.new(
+				plcrVoting.address,
+				tokenAdd, 
+				parameterizerConfig.minDeposit,
+		        parameterizerConfig.pMinDeposit,
+		        parameterizerConfig.applyStageLength,
+		        parameterizerConfig.pApplyStageLength,
+		        parameterizerConfig.commitStageLength,
+		        parameterizerConfig.pCommitStageLength,
+		        parameterizerConfig.revealStageLength,
+		        parameterizerConfig.pRevealStageLength,
+		        parameterizerConfig.dispensationPct,
+		        parameterizerConfig.pDispensationPct,
+		        parameterizerConfig.voteQuorum,
+		        parameterizerConfig.pVoteQuorum
+		    );
+		registry = await Registry.new(kernel.address, tokenAdd, plcrVoting.address, parameterizer.address);
 
-        kernel = await Kernel.new();
+		aclHandlerCI = await aclHandler.CI();
 
-        aclHandler = await ACLHandler.new(kernel.address);
-        contractAddressHandler = await ContractAddressHandler.new(kernel.address);
+		contractAddressHandlerCI = await contractAddressHandler.CI();
+	});
 
-        testSale = await TestSale.new();
-        await testSale.purchaseTokens({from: ROOT_ACCOUNT, value: config.initialTokenPurchase});
-        
-        tokenAdd = await testSale.getTokenAddr();
-        token = await Token.at(tokenAdd);
-        
-        const plcrVoting = await PLCRVoting.new(tokenAdd)
-        const parameterizer =  await Parameterizer.new(
-            plcrVoting.address,
-            tokenAdd, 
-            parameterizerConfig.minDeposit,
-            parameterizerConfig.pMinDeposit,
-            parameterizerConfig.applyStageLength,
-            parameterizerConfig.pApplyStageLength,
-            parameterizerConfig.commitStageLength,
-            parameterizerConfig.pCommitStageLength,
-            parameterizerConfig.revealStageLength,
-            parmeterizerConfig.pRevealStageLength,
-            parameterizerConfig.dispensationPct,
-            parameterizerConfig.pDispensationPct,
-            parameterizerConfig.voteQuorum,
-            parameterizerConfig.pVoteQuorum
-        );
+	describe("Project applications", () => {
+		it("One new application", async () => {
+			await token.approve(registry.address, parameterizerConfig.minDeposit);
+			await registry.apply(projectList[0] , parameterizerConfig.minDeposit);
+		});
 
-        projectController = await ProjectController.new(kernel.address);
-        projectControllerStorage = await ProjectControllerStorage.new(kernel.address);
+		it("Two different projects", async () => {
+			await token.approve(registry.address, parameterizerConfig.minDeposit);
+			await registry.apply(projectList[1], parameterizerConfig.minDeposit);
 
-        registry = await Registry.new(
-            kernel.address,
-            tokenAdd,
-            plcrVoting.address, 
-            parameterizer.address, 
-            projectController.address
-        );
+			await token.approve(registry.address, parameterizerConfig.minDeposit);
+			await registry.apply(projectList[2], parameterizerConfig.minDeposit);
+		});
 
-        aclHandlerCI = await aclHandler.CI();
-        contractAddressHandlerCI = await contractAddressHandler.CI();
+		it ("Duplicate project rejected", async () => {
+			await token.approve(registry.address, parameterizerConfig.minDeposit);
+			await registry.apply(
+				projectList[0],
+				parameterizerConfig.minDeposit
+			).should.be.rejectedWith(EVMRevert);
+		});
+	});
 
-        // Connect ACLHandler to kernel
-        await kernel.registerHandler(aclHandlerCI, aclHandler.address);
-        await kernel.connect(aclHandler.address,[]);
+	describe("Challenges", () => {
+		it("A new challenge to existing application", async () =>{
+			await token.approve(registry.address, parameterizerConfig.minDeposit);
+			const challengeID = await registry.challenge(projectList[0]);
+		});
 
-        // Connect ContractAddressHandler to kernel
-        await kernel.registerHandler(
-            contractAddressHandlerCI, 
-            contractAddressHandler.address
-        );
-        await kernel.connect(contractAddressHandler.address, []);
+		it("A new challenge to non-existing application", async() =>{
+			await token.approve(registry.address, parameterizerConfig.minDeposit);
+			const challengeID = await registry.challenge(
+				projectList[3]
+			).should.be.rejectedWith(EVMRevert);
+		});
+	});
 
-        // Connect ProjectController and storage to ACL and contract-address handlers
-        await kernel.connect(
-            projectController.address,
-            [aclHandlerCI, contractAddressHandlerCI]
-        );
-        await kernel.connect(
-            projectControllerStorage.address,
-            [aclHandlerCI, contractAddressHandlerCI]
-        );
+	describe("Connect handlers to kernel", () => {
+		it("Connect ACLHandler to kernel", async ()=>{
+			await kernel.registerHandler(aclHandlerCI, aclHandler.address);
+			await kernel.connect(aclHandler.address,[]);
+		})
 
-        // Register contracts in ContractAddressHandler
-        const projectControllerCI = await projectController.CI();
-        const projectControllerStorageCI = await projectControllerStorage.CI();
-        await contractAddressHandler.registerContract(
-            projectControllerCI, 
-            projectController.address
-        );
-        await contractAddressHandler.registerContract(
-            projectControllerStorageCI,
-            projectControllerStorage.address
-        );
-        await contractAddressHandler.registerContract(ROOT_CI, ROOT_ACCOUNT);
+		it("connect ContractAddressHandler to kernel", async ()=>{
+			await kernel.registerHandler(contractAddressHandlerCI, contractAddressHandler.address);
+			await kernel.connect(contractAddressHandler.address, []);
+		});
+	});
 
-        // Authorize root to call setStorage
-        await aclHandler.permit(ROOT_CI,projectControllerCI, SET_STORAGE_SIG);
+	describe("VTCR as a Module tests: ", () =>{
+		it("Connect registry to ACL and contract-address handlers ", async () =>{
+			await kernel.connect(registry.address, [aclHandlerCI, contractAddressHandlerCI]);
+		});
 
-        // Authorize root to call setTokenAddress in ProjectController
-        await aclHandler.permit(ROOT_CI, projectControllerCI, SET_TOKEN_ADDRESS_SIG);
+		it("Register registry in ContractAddressHandler", async () => {
+			const registryCI = await registry.CI();
+			await contractAddressHandler.registerContract(registryCI, registry.address);
+		});
+	});
 
-        // Set storage for projectController
-        await projectController.setStorage(projectControllerStorage.address);
 
-        // Authorize ProjectController to access ProjectControllerStorageCI
-        await aclHandler.permit(
-            projectControllerCI, 
-            projectControllerStorageCI, 
-            SET_UINT_SIG
-        );
-        await aclHandler.permit(
-            projectControllerCI, 
-            projectControllerStorageCI, 
-            SET_ADDRESS_SIG
-        );
-        await aclHandler.permit(
-            projectControllerCI, 
-            projectControllerStorageCI,
-            SET_BYTES32_SIG
-        );
-    });
-
-    describe("VTCR as a Module tests: ", () =>{
-        it("Connect registry to ACL and contract-address handlers ", async () =>{
-            await kernel.connect(registry.address, [aclHandlerCI, contractAddressHandlerCI]);
-        });
-
-        it("Register registry in ContractAddressHandler", async () => {
-            const registryCI = await registry.CI();
-            await contractAddressHandler.registerContract(registryCI, registry.address);
-        });
-
-        it("Allow Regisry call registerProject in ProjectController", async () =>{
-            const registryCI = await registry.CI();
-            const projectControllerCI = await projectController.CI();
-            const functionSig = wweb3.eth.abi.encodeFunctionSignature(
-                "registerProject(bytes32,address)");
-            
-            aclHandler.permit(registryCI, projectControllerCI, functionSig);
-        });
-
-        it("Allow Regisry call removeProject in ProjectController", async () =>{
-            const registryCI = await registry.CI();
-            const projectControllerCI = await projectController.CI();
-            const functionSig = wweb3.eth.abi.encodeFunctionSignature(
-                "unregisterProject(bytes32)");
-            
-            aclHandler.permit(registryCI, projectControllerCI, functionSig);
-        });
-
-        it("Allow Regisry call setState in ProjectController", async () =>{
-            const registryCI = await registry.CI();
-            const projectControllerCI = await projectController.CI();
-            const functionSig = wweb3.eth.abi.encodeFunctionSignature(
-                "setState(bytes32,uint256)");
-            
-            aclHandler.permit(registryCI, projectControllerCI, functionSig);
-        });
-    });
-
-    describe("Project applications", () => {
-        it("One new application", async () => {
-            await token.approve(registry.address, parameterizerConfig.minDeposit);
-            await registry.apply(PROJECT_LIST[0] , parameterizerConfig.minDeposit);
-        });
-
-        it("Two different projects", async () => {
-            await token.approve(registry.address, parameterizerConfig.minDeposit);
-            await registry.apply(PROJECT_LIST[1], parameterizerConfig.minDeposit);
-
-            await token.approve(registry.address, parameterizerConfig.minDeposit);
-            await registry.apply(PROJECT_LIST[2], parameterizerConfig.minDeposit);
-        });
-
-        it ("Duplicate project rejected", async () => {
-            await token.approve(registry.address, parameterizerConfig.minDeposit);
-            await registry.apply(
-                PROJECT_LIST[0],
-                parameterizerConfig.minDeposit
-            ).should.be.rejectedWith(EVMRevert);
-        });
-
-        it("Exit a appication", async () => {
-            await registry.exit(PROJECT_LIST[1]);
-        });
-    });
-
-    describe("Challenges", () => {
-        it("A new challenge to existing application", async () =>{
-            await token.approve(registry.address, parameterizerConfig.minDeposit);
-            const challengeID = await registry.challenge(PROJECT_LIST[0]);
-        });
-
-        it("A new challenge to non-existing application", async() =>{
-            await token.approve(registry.address, parameterizerConfig.minDeposit);
-            const challengeID = await registry.challenge(
-                PROJECT_LIST[3]
-            ).should.be.rejectedWith(EVMRevert);
-        });
-    });
-
-    describe("Register token address to a project", () =>{
-        it("Register token addres to a existing project", async () => {
-            const projectHash = wweb3.utils.keccak256(PROJECT_LIST[0]);
-            await projectController.setTokenAddress(projectHash, tokenAdd);
-
-            const result = await projectController.getTokenAddress(projectHash);
-            result.should.be.equal(tokenAdd);
-        });
-
-        it("Register token addres to a non-existing project", async () => {
-            const projectHash = wweb3.utils.keccak256(PROJECT_LIST[1]);
-            await projectController.setTokenAddress(
-                projectHash, 
-                tokenAdd
-            ).should.be.rejectedWith(EVMRevert);
-        })
-    });
 });
