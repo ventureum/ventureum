@@ -5,7 +5,6 @@ import "vetx-token/contracts/VetXToken.sol";
 import "./Challenge.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-
 contract Parameterizer {
 
     // ------
