@@ -8,7 +8,6 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 contract TokenSaleModule is Module {
-
     using SafeMath for uint;
 
     // events
@@ -45,9 +44,9 @@ contract TokenSaleModule is Module {
     bytes32 constant public PROJECT_CONTROLLER_CI = keccak256("ProjectController");
 
     modifier founderOnly(bytes32 namespace) {
-        //ProjectController projectController= 
-        //    ProjectController(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI));
-        //require(projectController.verifyOwner(namespace, msg.sender));
+        ProjectController projectController= 
+            ProjectController(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI));
+        require(projectController.verifyOwner(namespace, msg.sender));
         _;
     }
 
@@ -62,7 +61,10 @@ contract TokenSaleModule is Module {
      * @param rate (uint) of token sale
      * @param token address of the project token
      */
-    function startTokenSale(bytes32 namespace, uint rate, address token) external founderOnly(namespace) {
+    function startTokenSale(bytes32 namespace, uint rate, address token) 
+        external
+        founderOnly(namespace)
+    {
         require(!tokenInfoExist(namespace));
 
         TokenInfo memory info = TokenInfo({
