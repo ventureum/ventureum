@@ -14,7 +14,7 @@ contract Module is Base, Ownable {
 
     constructor(address kernelAddr) Base(kernelAddr) public {}
 
-    function validate() internal {
+    function validate() internal view {
         super.validate();
         bytes32 srcCI = contractAddressHandler.reverseLookUp(msg.sender);
         require(aclHandler.isAuthorized(srcCI, CI, msg.sig));

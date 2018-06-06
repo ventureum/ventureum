@@ -64,27 +64,35 @@ contract MilestoneLogic is Module {
     function addMilestone(bytes32 namespace, uint length, bytes32[] objs) external {
         require(length >= 60 days);
 
-        uint numberMilestones = milestoneStore.getUint(keccak256(namespace, NUMBER_MILESTONES));
+        uint numberMilestones = milestoneStore.getUint(
+            keccak256(abi.encodePacked(namespace, NUMBER_MILESTONES)));
 
         uint firstMilestoneState;
         if (numberMilestones > 0) {
-            firstMilestoneState = milestoneStore.getUint(keccak256(namespace, uint(0), STATE));
+            firstMilestoneState = milestoneStore.getUint(
+                keccak256(abi.encodePacked(namespace, uint(0), STATE)));
         }
         require(numberMilestones == 0 || firstMilestoneState == uint(MilestoneState.INACTIVE));
 
         uint lastEndTime = numberMilestones == 0 ? now :
-            milestoneStore.getUint(keccak256(namespace, numberMilestones.sub(1), END_TIME));
+            milestoneStore.getUint(
+                keccak256(abi.encodePacked(namespace, numberMilestones.sub(1), END_TIME)));
 
         uint id = numberMilestones;
         bool existing;
         (existing,) = isExisting(namespace, id);
         require(!existing);
 
-        milestoneStore.setUint(keccak256(namespace, id, ID), id);
-        milestoneStore.setUint(keccak256(namespace, id, START_TIME), lastEndTime);
-        milestoneStore.setUint(keccak256(namespace, id, END_TIME), lastEndTime.add(length));
-        milestoneStore.setUint(keccak256(namespace, id, STATE), uint(MilestoneState.INACTIVE));
-        milestoneStore.setArray(keccak256(namespace, id, OBJS), objs);
+        milestoneStore.setUint(
+            keccak256(abi.encodePacked(namespace, id, ID)), id);
+        milestoneStore.setUint(
+            keccak256(abi.encodePacked(namespace, id, START_TIME)), lastEndTime);
+        milestoneStore.setUint(
+            keccak256(abi.encodePacked(namespace, id, END_TIME)), lastEndTime.add(length));
+        milestoneStore.setUint(
+            keccak256(abi.encodePacked(namespace, id, STATE)), uint(MilestoneState.INACTIVE));
+        milestoneStore.setArray(
+            keccak256(abi.encodePacked(namespace, id, OBJS)), objs);
     }
 
     /**
@@ -104,8 +112,10 @@ contract MilestoneLogic is Module {
         require(existing);
         require(id == 0 || finalize(namespace, id.sub(1)));
 
-        milestoneStore.setUint(keccak256(namespace, id, STATE), uint(MilestoneState.IP));
-        milestoneStore.setUint(keccak256(namespace, id, WEI_LOCKED), weiLocked);
+        milestoneStore.setUint(
+            keccak256(abi.encodePacked(namespace, id, STATE)), uint(MilestoneState.IP));
+        milestoneStore.setUint(
+            keccak256(abi.encodePacked(namespace, id, WEI_LOCKED)), weiLocked);
     }
 
     /**
@@ -124,10 +134,12 @@ contract MilestoneLogic is Module {
         (existing, endTime) = isExisting(namespace, id);
         require(existing);
 
-        uint startTime = milestoneStore.getUint(keccak256(namespace, id, START_TIME));
+        uint startTime = milestoneStore.getUint(
+            keccak256(abi.encodePacked(namespace, id, START_TIME)));
         require(now >= startTime && now <= endTime.sub(30 days));
 
-        milestoneStore.setUint(keccak256(namespace, id, STATE), uint(MilestoneState.RS));
+        milestoneStore.setUint(
+            keccak256(abi.encodePacked(namespace, id, STATE)), uint(MilestoneState.RS));
 
         // TODO(david.shao): add the following code after RegulatingRatingModule is added
         //      regulatingRatingModule.start(namespace, id, objs, now, endTime.sub(30 days))
@@ -148,7 +160,8 @@ contract MilestoneLogic is Module {
         require(existing);
         require(now >= endTime.sub(1 weeks) && now < endTime);
 
-        milestoneStore.setUint(keccak256(namespace, id, STATE), uint(MilestoneState.RP));
+        milestoneStore.setUint(
+            keccak256(abi.encodePacked(namespace, id, STATE)), uint(MilestoneState.RP));
     }
 
     /**
@@ -161,7 +174,8 @@ contract MilestoneLogic is Module {
         bool existing;
         (existing, ) = isExisting(namespace, id);
         require(existing);
-        return milestoneStore.getUint(keccak256(namespace, id, STATE));
+        return milestoneStore.getUint(
+            keccak256(abi.encodePacked(namespace, id, STATE)));
     }
 
     /**
@@ -188,7 +202,9 @@ contract MilestoneLogic is Module {
         (existing, endTime) = isExisting(namespace, id);
         require(existing);
         if (now >= endTime) {
-            milestoneStore.setUint(keccak256(namespace, id, STATE), uint(MilestoneState.COMPLETION));
+            milestoneStore.setUint(
+                keccak256(abi.encodePacked(namespace, id, STATE)),
+                uint(MilestoneState.COMPLETION));
             return true;
         }
         return false;
@@ -201,7 +217,8 @@ contract MilestoneLogic is Module {
     * @param id id of a milestone of the project
     */
     function isExisting(bytes32 namespace, uint id) internal view returns (bool, uint) {
-        uint endTime = milestoneStore.getUint(keccak256(namespace, id, END_TIME));
+        uint endTime = milestoneStore.getUint(
+            keccak256(abi.encodePacked(namespace, id, END_TIME)));
         return endTime != 0 ? (true, endTime) : (false, 0);
     }
 }

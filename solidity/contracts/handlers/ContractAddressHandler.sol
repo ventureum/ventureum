@@ -16,11 +16,11 @@ contract ContractAddressHandler is IContractAddressHandler, Handler, Ownable {
         CI = keccak256("ContractAddressHandler");
     }
 
-    function contracts(bytes32 _CI) public returns (address) {
+    function contracts(bytes32 _CI) public view returns (address) {
         return contracts[_CI];
     }
 
-    function reverseLookUp(address addr) public returns (bytes32) {
+    function reverseLookUp(address addr) public view returns (bytes32) {
         return reverseLookUp[addr];
     }
 

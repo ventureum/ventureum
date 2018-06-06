@@ -66,7 +66,7 @@ contract Base is IBase {
     /*
       Check if a function call is valid, Use super to concatenate validations
      */
-    function validate() internal {
+    function validate() internal view{
         require(isConnected());
     }
 
