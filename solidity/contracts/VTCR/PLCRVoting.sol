@@ -50,7 +50,8 @@ contract PLCRVoting {
     VetXToken public token;
 
     /**
-    @dev Initializes voteQuorum, commitDuration, revealDuration, and pollNonce in addition to token contract and trusted mapping
+    @dev Initializes voteQuorum, commitDuration, revealDuration, and 
+        pollNonce in addition to token contract and trusted mapping
     @param _tokenAddr The address whe(setq debug-on-error t)re the ERC20 token contract is deployed
     */
     constructor(address _tokenAddr) public {
@@ -106,12 +107,20 @@ contract PLCRVoting {
     @param _pollID Integer identifier associated with target poll
     @param _secretHash Commit keccak256 hash of voter's choice and salt (tightly packed in this order)
     @param _numTokens The number of tokens to be committed towards the target poll
-    @param _prevPollID The ID of the poll that the user has voted the maximum number of tokens in which is still less than or equal to numTokens 
+    @param _prevPollID The ID of the poll that the user has voted the maximum number 
+        of tokens in which is still less than or equal to numTokens 
     */
-    function commitVote(uint _pollID, bytes32 _secretHash, uint _numTokens, uint _prevPollID) external {
+    function commitVote(
+        uint _pollID, 
+        bytes32 _secretHash, 
+        uint _numTokens, 
+        uint _prevPollID
+    ) 
+        external 
+    {
         require(commitStageActive(_pollID));
         require(voteTokenBalance[msg.sender] >= _numTokens); // prevent user from overspending
-        require(_pollID != 0);                // prevent user from committing to zero node placeholder
+        require(_pollID != 0);  // prevent user from committing to zero node placeholder
 
         // TODO: Move all insert validation into the DLL lib
         // Check if _prevPollID exists
@@ -141,7 +150,16 @@ contract PLCRVoting {
     @param _numTokens The number of tokens to be committed towards the poll (used for sorting)
     @return valid Boolean indication of if the specified position maintains the sort
     */
-    function validPosition(uint _prevID, uint _nextID, address _voter, uint _numTokens) public view returns (bool valid) {
+    function validPosition(
+        uint _prevID, 
+        uint _nextID, 
+        address _voter, 
+        uint _numTokens
+    ) 
+        public 
+        view 
+        returns (bool valid) 
+    {
         bool prevValid = (_numTokens >= getNumTokens(_voter, _prevID));
         // if next is zero node, _numTokens does not need to be greater
         bool nextValid = (_numTokens <= getNumTokens(_voter, _nextID) || _nextID == 0); 
@@ -149,7 +167,8 @@ contract PLCRVoting {
     }
 
     /**
-    @notice Reveals vote with choice and secret salt used in generating commitHash to attribute committed tokens
+    @notice Reveals vote with choice and secret salt used in generating 
+        commitHash to attribute committed tokens
     @param _pollID Integer identifier associated with target poll
     @param _voteOption Vote choice used to generate commitHash for associated poll
     @param _salt Secret number used to generate commitHash for associated poll
@@ -160,7 +179,10 @@ contract PLCRVoting {
         // prevent user from revealing multiple times
         require(!hasBeenRevealed(msg.sender, _pollID));
         // compare resultant hash from inputs to original commitHash
-        require(keccak256(_voteOption, _salt) == getCommitHash(msg.sender, _pollID)); 
+        require(
+            keccak256(abi.encodePacked(_voteOption, _salt)) == 
+            getCommitHash(msg.sender, _pollID)
+        );
 
         uint numTokens = getNumTokens(msg.sender, _pollID); 
 
@@ -179,12 +201,20 @@ contract PLCRVoting {
     @param _salt Arbitrarily chosen integer used to generate secretHash
     @return correctVotes Number of tokens voted for winning option
     */
-    function getNumPassingTokens(address _voter, uint _pollID, uint _salt) public view returns (uint correctVotes) {
+    function getNumPassingTokens(
+        address _voter, 
+        uint _pollID, 
+        uint _salt
+    ) 
+        public 
+        view 
+        returns (uint correctVotes) 
+    {
         require(pollEnded(_pollID));
         require(hasBeenRevealed(_voter, _pollID));
 
         uint winningChoice = isPassed(_pollID) ? 1 : 0;
-        bytes32 winnerHash = keccak256(winningChoice, _salt);
+        bytes32 winnerHash = keccak256(abi.encodePacked(winningChoice, _salt));
         bytes32 commitHash = getCommitHash(_voter, _pollID);
 
         return (winnerHash == commitHash) ? getNumTokens(_voter, _pollID) : 0;
@@ -200,7 +230,14 @@ contract PLCRVoting {
     @param _commitDuration Length of desired commit period in seconds
     @param _revealDuration Length of desired reveal period in seconds
     */
-    function startPoll(uint _voteQuorum, uint _commitDuration, uint _revealDuration) public returns (uint pollID) {
+    function startPoll(
+        uint _voteQuorum,
+        uint _commitDuration, 
+        uint _revealDuration
+    ) 
+        public 
+        returns (uint pollID) 
+    {
         pollNonce = pollNonce.add(1);
 
         pollMap[pollNonce] = Poll({
@@ -224,7 +261,8 @@ contract PLCRVoting {
         require(pollEnded(_pollID));
 
         Poll memory poll = pollMap[_pollID];
-        return poll.votesFor.mul(100) >= poll.voteQuorum.mul(poll.votesFor.add(poll.votesAgainst));
+        return poll.votesFor.mul(100) >= 
+            poll.voteQuorum.mul(poll.votesFor.add(poll.votesAgainst));
     }
 
     // ----------------
@@ -236,7 +274,13 @@ contract PLCRVoting {
     @param _pollID Integer identifier associated with target poll
     @return Total number of votes committed to the winning option for specified poll
     */
-    function getTotalNumberOfTokensForWinningOption(uint _pollID) public view returns (uint numTokens) {
+    function getTotalNumberOfTokensForWinningOption(
+        uint _pollID
+    ) 
+        public 
+        view 
+        returns (uint numTokens) 
+    {
         require(pollEnded(_pollID));
 
         if (isPassed(_pollID))
@@ -322,7 +366,14 @@ contract PLCRVoting {
     @param _pollID Integer identifier associated with target poll
     @return Bytes32 hash property attached to target poll 
     */
-    function getCommitHash(address _voter, uint _pollID) public view returns (bytes32 commitHash) { 
+    function getCommitHash(
+        address _voter, 
+        uint _pollID
+    ) 
+        public 
+        view 
+        returns (bytes32 commitHash) 
+    { 
         return bytes32(store.getAttribute(attrUUID(_voter, _pollID), "commitHash"));    
     } 
 
@@ -395,6 +446,6 @@ contract PLCRVoting {
     @return UUID Hash which is deterministic from _user and _pollID
     */
     function attrUUID(address _user, uint _pollID) public pure returns (bytes32 UUID) {
-        return keccak256(_user, _pollID);
+        return keccak256(abi.encodePacked(_user, _pollID));
     }
 }

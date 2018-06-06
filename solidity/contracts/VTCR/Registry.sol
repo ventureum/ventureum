@@ -117,7 +117,7 @@ contract Registry is Module {
         // 50% of deposit becomes available to Ventureum team
         availableFundForVentureum = availableFundForVentureum.add(_amount.div(2));
 
-        bytes32 projectHash = keccak256(_project);
+        bytes32 projectHash = keccak256(bytes(_project));
 
         // Sets owner
         Listing storage listing = listings[projectHash];
@@ -145,13 +145,16 @@ contract Registry is Module {
        @param _project The project of a user's listing
     */
     function exit(string _project) external {
-        Listing storage listing = listings[keccak256(_project)];
+        Listing storage listing = listings[keccak256(bytes(_project))];
 
         require(msg.sender == listing.owner);
         require(!isWhitelisted(_project));
         
         // Cannot exit during ongoing challenge
-        require(!challenges[listing.challengeID].isInitialized() || challenges[listing.challengeID].isResolved());
+        require(
+            !challenges[listing.challengeID].isInitialized() || 
+            challenges[listing.challengeID].isResolved()
+        );
 
         // refund staked deposit.
         require(token.transfer(listing.owner, listing.unstakedDeposit));
@@ -174,7 +177,7 @@ contract Registry is Module {
         // Project must be in apply stage or already on the whitelist
         require(appWasMade(_project) || listing.whitelisted);
         
-        bytes32 projectHash = keccak256(_project);
+        bytes32 projectHash = keccak256(bytes(_project));
         Listing storage listing = listings[projectHash];
 
         require(now < listing.applicationExpiry, "Cannot challenge after application stage");
@@ -251,7 +254,7 @@ contract Registry is Module {
        @param _project The project whose status should be examined
     */
     function canBeWhitelisted(string _project) public view returns (bool) {
-        bytes32 projectHash = keccak256(_project);
+        bytes32 projectHash = keccak256(bytes(_project));
         uint challengeID = listings[projectHash].challengeID;
 
         // Ensures that the application was made,
@@ -272,17 +275,18 @@ contract Registry is Module {
 
     /// @dev returns true if project is whitelisted
     function isWhitelisted(string _project) public view returns (bool whitelisted) {
-        return listings[keccak256(_project)].whitelisted;
+        return listings[keccak256(bytes(_project))].whitelisted;
     }
     
     // @dev returns true if apply was called for this project
     function appWasMade(string _project) public view returns (bool exists) {
-        return listings[keccak256(_project)].applicationExpiry > 0;
+        return listings[keccak256(bytes(_project))].applicationExpiry > 0;
     }
 
     // @dev returns true if the application/listing has an unresolved challenge
     function challengeExists(string _project) public view returns (bool) {
-        Challenge.Data storage _challenge = challenges[listings[keccak256(_project)].challengeID];
+        Challenge.Data storage _challenge = 
+            challenges[listings[keccak256(bytes(_project))].challengeID];
         return _challenge.isInitialized() && !_challenge.isResolved();
     }
 
@@ -293,7 +297,8 @@ contract Registry is Module {
        @param _project A project name with an unresolved challenge
     */
     function challengeCanBeResolved(string _project) public view returns (bool) {
-        Challenge.Data storage _challenge = challenges[listings[keccak256(_project)].challengeID];
+        Challenge.Data storage _challenge = 
+            challenges[listings[keccak256(bytes(_project))].challengeID];
         return _challenge.isInitialized() && _challenge.canBeResolved();
     }
 
@@ -350,7 +355,7 @@ contract Registry is Module {
        @param _project A project with a challenge that is to be resolved.
     */
     function resolveChallenge(string _project) private {
-        bytes32 projectHash = keccak256(_project);
+        bytes32 projectHash = keccak256(bytes(_project));
         Listing storage listing = listings[projectHash];
         Challenge.Data storage _challenge = challenges[listing.challengeID];
 
@@ -390,14 +395,19 @@ contract Registry is Module {
        @param _project The project of an application/listing to be whitelisted
     */
     function whitelistApplication(string _project) private {
-        bytes32 projectHash = keccak256(_project);
+        bytes32 projectHash = keccak256(bytes(_project));
         listings[projectHash].whitelisted = true;
         
         // Update project state in projectController
         projectController.setState(projectHash, uint(ProjectController.ProjectState.AppAccepted));
 
         // transfer unstakedDeposit to listing owner after being whitelisted
-        require(token.transfer(listings[projectHash].owner, listings[projectHash].unstakedDeposit));
+        require(
+            token.transfer(
+                listings[projectHash].owner, 
+                listings[projectHash].unstakedDeposit
+            )
+        );
     }
 
     /**
@@ -405,7 +415,7 @@ contract Registry is Module {
        @param _project the project to be removed
     */
     function resetListing(string _project) private {
-        bytes32 projectHash = keccak256(_project);
+        bytes32 projectHash = keccak256(bytes(_project));
 
         delete listings[projectHash].applicationExpiry;
 

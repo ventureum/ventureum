@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import '../kernel/Module.sol';
+import "../kernel/Module.sol";
 
 contract ProjectControllerStorage is Module {
     // Storage Types

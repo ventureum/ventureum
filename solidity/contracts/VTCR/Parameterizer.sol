@@ -116,7 +116,7 @@ contract Parameterizer {
   */
     function proposeReparameterization(string _name, uint _value) public returns (bytes32) {
         uint deposit = get("pMinDeposit");
-        bytes32 propID = keccak256(_name, _value);
+        bytes32 propID = keccak256(abi.encodePacked(_name, _value));
 
         require(!propExists(propID)); // Forbid duplicate proposals
         require(get(_name) != _value); // Forbid NOOP reparameterizations
@@ -168,14 +168,17 @@ contract Parameterizer {
             winningTokens: 0
         });
 
-        proposals[_propID].challengeID = pollID;       // update listing to store most recent challenge
+        // update listing to store most recent challenge
+        proposals[_propID].challengeID = pollID;
 
         emit _NewChallenge(msg.sender, _propID, pollID);
         return pollID;
     }
 
   /**
-  @notice for the provided proposal ID, set it, resolve its challenge, or delete it depending on whether it can be set, has a challenge which can be resolved, or if its "process by" date has passed
+  @notice for the provided proposal ID, set it, resolve its challenge, 
+    or delete it depending on whether it can be set, has a challenge which can be resolved, 
+    or if its "process by" date has passed
   @param _propID the proposal ID to make a determination and state transition for
   */
     function processProposal(bytes32 _propID) public {
@@ -223,7 +226,8 @@ contract Parameterizer {
 
     /**
     @notice Determines whether a proposal passed its application stage without a challenge
-    @param _propID The proposal ID for which to determine whether its application stage passed without a challenge
+    @param _propID The proposal ID for which to determine whether its 
+        application stage passed without a challenge
     */
     function canBeSet(bytes32 _propID) public view returns (bool) {
         ParamProposal memory prop = proposals[_propID];
@@ -261,7 +265,7 @@ contract Parameterizer {
     @param _name the key whose value is to be determined
     */
     function get(string _name) public view returns (uint value) {
-        return params[keccak256(_name)];
+        return params[keccak256(bytes(_name))];
     }
 
     // ----------------
@@ -269,7 +273,8 @@ contract Parameterizer {
     // ----------------
 
     /**
-    @dev resolves a challenge for the provided _propID. It must be checked in advance whether the _propID has a challenge on it
+    @dev resolves a challenge for the provided _propID. 
+        It must be checked in advance whether the _propID has a challenge on it
     @param _propID the proposal ID whose challenge is to be resolved.
     */
     function resolveChallenge(bytes32 _propID) private {
@@ -300,6 +305,6 @@ contract Parameterizer {
     @param _value the value to set the param to be set
     */
     function set(string _name, uint _value) private {
-        params[keccak256(_name)] = _value;
+        params[keccak256(bytes(_name))] = _value;
     }
 }
