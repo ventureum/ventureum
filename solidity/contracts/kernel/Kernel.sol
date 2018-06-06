@@ -35,7 +35,7 @@ contract Kernel is IKernel, Ownable {
         }
     }
 
-    function verifyHandler(bytes32[] _handlerList) internal {
+    function verifyHandler(bytes32[] _handlerList) internal view {
         for(uint i = 0; i < _handlerList.length; i++) {
             address handlerAddr = handlers[_handlerList[i]];
             require(handlerAddr != address(0x0));
