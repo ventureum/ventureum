@@ -22,12 +22,27 @@
     "chai-bignumber": "^2.0.2",
     "dotenv": "^5.0.1",
     "openzeppelin-solidity": "^1.9.0",
-    "vetx-token": "^1.0.0"
+    "vetx-token": "^1.0.0",
+    "web3": "^1.0.0-beta.34"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
     "truffle-hdwallet-provider": "0.0.4"
+  },
+  "standard": {
+    "globals": [
+      "it",
+      "contract",
+      "before",
+      "beforeEach",
+      "after",
+      "afterEach",
+      "assert",
+      "artifacts",
+      "web3",
+      "describe"
+    ]
   }
 }

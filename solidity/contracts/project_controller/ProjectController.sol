@@ -17,7 +17,9 @@ contract ProjectController is Module {
         address indexed sender,
         bytes32 projectControllerCI,
         bytes32 projectControllerStorageCI,
-        address indexed store);
+        address indexed store
+    );
+    event ProjectTokenSet(address indexed sender, bytes32 namespace, address tokenAddress);
 
     /*
       1. Can only add state in order but before LENGTH
@@ -64,16 +66,57 @@ contract ProjectController is Module {
         (existing,) = isExisting(namespace);
         require(!existing);
 
-        projectControllerStore.setAddress(keccak256(namespace, OWNER), owner);
-        projectControllerStore.setAddress(keccak256(namespace, TOKEN_ADDRESS), tokenAddress);
+        projectControllerStore.setAddress(
+            keccak256(abi.encodePacked(namespace, OWNER)), 
+            owner
+        );
+        projectControllerStore.setAddress(
+            keccak256(abi.encodePacked(namespace, TOKEN_ADDRESS)), 
+            tokenAddress
+        );
         projectControllerStore.setUint(
-            keccak256(namespace, PROJECT_STATE),
+            keccak256(abi.encodePacked(namespace, PROJECT_STATE)),
             uint256(ProjectState.AppSubmitted)
         );
-        projectControllerStore.setBytes32(keccak256(owner, NAMESPACE), namespace);
+        projectControllerStore.setBytes32(
+            keccak256(abi.encodePacked(owner, NAMESPACE)), 
+            namespace
+        );
 
         emit ProjectRegistered(msg.sender, namespace, owner, tokenAddress);
     }
+
+    /* TODO(InVincible2016): Overload registerProject when test framework suppport overloading
+    /**
+    * Register a project
+    *
+    * @param namespace namespace of a project
+    * @param owner the owner address for the project
+    *
+    function registerProject(bytes32 namespace, address owner)
+        external
+        connected
+    {
+        bool existing;
+        (existing,) = isExisting(namespace);
+        require(!existing);
+
+        projectControllerStore.setAddress(
+            keccak256(abi.encodePacked(namespace, OWNER)),
+            owner
+        );
+        projectControllerStore.setUint(
+            keccak256(abi.encodePacked(namespace, PROJECT_STATE)),
+            uint256(ProjectState.AppSubmitted)
+        );
+        projectControllerStore.setBytes32(
+            keccak256(abi.encodePacked(owner, NAMESPACE)), 
+            namespace
+        );
+
+        emit ProjectRegistered(msg.sender, namespace, owner, ZERO_ADDRESS);
+    }
+    */
 
     /**
     * Unregister a project
@@ -86,13 +129,22 @@ contract ProjectController is Module {
         (existing, owner) = isExisting(namespace);
         require(existing);
 
-        projectControllerStore.setAddress(keccak256(namespace, OWNER), ZERO_ADDRESS);
-        projectControllerStore.setAddress(keccak256(namespace, TOKEN_ADDRESS), ZERO_ADDRESS);
+        projectControllerStore.setAddress(
+            keccak256(abi.encodePacked(namespace, OWNER)), 
+            ZERO_ADDRESS
+        );
+        projectControllerStore.setAddress(
+            keccak256(abi.encodePacked(namespace, TOKEN_ADDRESS)), 
+            ZERO_ADDRESS
+        );
         projectControllerStore.setUint(
-            keccak256(namespace, PROJECT_STATE),
+            keccak256(abi.encodePacked(namespace, PROJECT_STATE)),
             uint256(ProjectState.NotExist)
         );
-        projectControllerStore.setBytes32(keccak256(owner, NAMESPACE), ZERO_BYTES32);
+        projectControllerStore.setBytes32(
+            keccak256(abi.encodePacked(owner, NAMESPACE)), 
+            ZERO_BYTES32
+        );
 
         emit ProjectUnregistered(msg.sender, namespace);
     }
@@ -110,14 +162,32 @@ contract ProjectController is Module {
         require(existing);
         require(projectState >= 0 && projectState <= uint(ProjectState.LENGTH));
 
-        projectControllerStore.setUint(keccak256(namespace, PROJECT_STATE), uint256(projectState));
+        projectControllerStore.setUint(
+            keccak256(abi.encodePacked(namespace, PROJECT_STATE)), 
+            uint256(projectState)
+        );
 
         emit ProjectStateSet(msg.sender, namespace, projectState);
     }
+    /**
+    * @notice Set token address of a project
+    * @param tokenAddress the token address for the project
+    */
+    function setTokenAddress(bytes32 namespace, address tokenAddress) external connected {
+        bool existing;
+        address owner;
+        (existing, owner) = isExisting(namespace);
+        require(existing);
 
+        projectControllerStore.setAddress(
+            keccak256(abi.encodePacked(namespace, TOKEN_ADDRESS)), 
+            tokenAddress
+        );
+
+        emit ProjectTokenSet(msg.sender, namespace, tokenAddress);
+    }
     /**
     * Bind with a storage contract
-    * Create a new storage contract if _store == 0x0
     *
     * @param store the address of a storage contract
     */
@@ -134,7 +204,7 @@ contract ProjectController is Module {
     * @param owner address for an owner
     */
     function getNamespace(address owner) public view returns (bytes32) {
-        return projectControllerStore.getBytes32(keccak256(owner, NAMESPACE));
+        return projectControllerStore.getBytes32(keccak256(abi.encodePacked(owner, NAMESPACE)));
     }
 
     /**
@@ -147,7 +217,9 @@ contract ProjectController is Module {
         (existing,) = isExisting(namespace);
         require(existing);
 
-        return projectControllerStore.getAddress(keccak256(namespace, TOKEN_ADDRESS));
+        return projectControllerStore.getAddress(
+            keccak256(abi.encodePacked(namespace, TOKEN_ADDRESS))
+        );
     }
 
     /**
@@ -160,7 +232,8 @@ contract ProjectController is Module {
         (existing,) = isExisting(namespace);
         require(existing);
 
-        return uint(projectControllerStore.getUint(keccak256(namespace, PROJECT_STATE)));
+        return uint(projectControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, PROJECT_STATE))));
     }
 
     /**
@@ -171,7 +244,10 @@ contract ProjectController is Module {
     */
     function verifyOwner(bytes32 namespace, address owner) public view returns (bool) {
         require(owner != ZERO_ADDRESS);
-        return projectControllerStore.getAddress(keccak256(namespace, OWNER)) == owner;
+
+        address expectedOwner = projectControllerStore.getAddress(
+            keccak256(abi.encodePacked(namespace, OWNER)));
+        return expectedOwner == owner;
     }
 
     /**
@@ -180,7 +256,8 @@ contract ProjectController is Module {
     * @param namespace namespace of a project
     */
     function isExisting(bytes32 namespace) internal view returns (bool, address) {
-        address owner = projectControllerStore.getAddress(keccak256(namespace, OWNER));
+        address owner = projectControllerStore.getAddress(
+            keccak256(abi.encodePacked(namespace, OWNER)));
         return owner != ZERO_ADDRESS ? (true, owner) : (false, ZERO_ADDRESS);
     }
 }
