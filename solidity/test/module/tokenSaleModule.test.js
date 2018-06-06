@@ -13,6 +13,7 @@ const should = require('chai')
 const TokenSaleModule = artifacts.require('modules/TokenSaleModule');
 const TokenCollectorModule = artifacts.require('modules/TokenCollectorModule');
 const ProjectController = artifacts.require('project_controller/ProjectController');
+const ProjectControllerStorage = artifacts.require('project_controller/ProjectControllerStorage');
 const Token = artifacts.require('mocks/Token');
 const ACLHandler  = artifacts.require('handler/ACLHandler');
 const ContractAddressHandler = artifacts.require('handler/ContractAddressHandler');
@@ -20,21 +21,29 @@ const Kernel = artifacts.require('kernel/Kernel');
 
 // CIs
 const ACL_HANDLER_CI = Web3.utils.keccak256("ACLHandler");
+const CONTRACT_ADDRESS_HANDLER_CI = Web3.utils.keccak256("ContractAddressHandler");
 const TOKEN_SALE_MODULE_CI = Web3.utils.keccak256("TokenSaleModule");
 const TOKEN_COLLECTOR_MODULE_CI = Web3.utils.keccak256("TokenCollectorModule");
 const PROJECT_CONTROLLER_CI = Web3.utils.keccak256("ProjectController");
+const PROJECT_CONTROLLER_STORAGE_CI = Web3.utils.keccak256("ProjectControllerStorage");
 
 const PROJECT_CI1 = Web3.utils.keccak256("PROJECT_CI1");
 const PROJECT_CI2 = Web3.utils.keccak256("PROJECT_CI2");
 
-const CONTRACT_ADDRESS_HANDLER_CI = Web3.utils.keccak256("ContractAddressHandler");
 const ROOT_CI = Web3.utils.keccak256("root");
+const FOUNDER_CI = Web3.utils.keccak256("founder");
 
 const WITHDRAW_SIG = wweb3.eth.abi.encodeFunctionSignature("withdraw(address,address,uint256)");
 const DEPOSIT_SIG = wweb3.eth.abi.encodeFunctionSignature("deposit(address,uint256)");
+const REGISTER_SIG =
+    wweb3.eth.abi.encodeFunctionSignature("registerProject(bytes32,address,address)");
+const SET_STORAGE_SIG = wweb3.eth.abi.encodeFunctionSignature("setStorage(address)");
+const SET_UINT_SIG = wweb3.eth.abi.encodeFunctionSignature("setUint(bytes32,uint256)");
+const SET_ADDRESS_SIG = wweb3.eth.abi.encodeFunctionSignature("setAddress(bytes32,address)");
+const SET_BYTES32_SIG = wweb3.eth.abi.encodeFunctionSignature("setBytes32(bytes32,bytes32)");
 
 
-contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, testAccount2]) {
+contract('TokenSaleModuleTest', function ([root, _, purchaser, founder]) {
     before(async function () {
         this.totalSpendMoney = 1000000;
         this.depositValue = 10000;
@@ -45,11 +54,12 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
         this.aclHandler = await ACLHandler.new(this.kernel.address);
         this.contractAddressHandler = await ContractAddressHandler.new(this.kernel.address);
 
-        this.projectController = await ProjectController.new(this.kernel.address);
 
         //deploy modules
         this.tokenCollectorModule = await TokenCollectorModule.new(this.kernel.address);
         this.tokenSaleModule = await TokenSaleModule.new(this.kernel.address);
+        this.projectController = await ProjectController.new(this.kernel.address);
+        this.projectControllerStorage = await ProjectControllerStorage.new(this.kernel.address);
 
         // register Handler
         this.kernel.registerHandler(ACL_HANDLER_CI, this.aclHandler.address);
@@ -69,6 +79,9 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
         this.kernel.connect(
             this.projectController.address,
             [ACL_HANDLER_CI, CONTRACT_ADDRESS_HANDLER_CI]).should.be.fulfilled;
+        this.kernel.connect(
+            this.projectControllerStorage.address,
+            [ACL_HANDLER_CI, CONTRACT_ADDRESS_HANDLER_CI]).should.be.fulfilled;
 
         // register contract
         this.contractAddressHandler.registerContract(
@@ -78,6 +91,12 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
         this.contractAddressHandler.registerContract(
             TOKEN_SALE_MODULE_CI,
             this.tokenSaleModule.address).should.be.fulfilled;
+        this.contractAddressHandler.registerContract(
+            PROJECT_CONTROLLER_CI,
+            this.projectController.address).should.be.fulfilled;
+        this.contractAddressHandler.registerContract(
+            PROJECT_CONTROLLER_STORAGE_CI,
+            this.projectControllerStorage.address).should.be.fulfilled;
 
         // give permit for root address call registerOwner and setHandler
         this.aclHandler.permit(ROOT_CI, TOKEN_COLLECTOR_MODULE_CI, WITHDRAW_SIG)
@@ -86,12 +105,29 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
             .should.be.fulfilled;
         this.aclHandler.permit(TOKEN_SALE_MODULE_CI, TOKEN_COLLECTOR_MODULE_CI, WITHDRAW_SIG)
             .should.be.fulfilled;
+        this.aclHandler.permit(ROOT_CI, PROJECT_CONTROLLER_CI, REGISTER_SIG)
+            .should.be.fulfilled;
+        this.aclHandler.permit(ROOT_CI, PROJECT_CONTROLLER_CI, SET_STORAGE_SIG)
+            .should.be.fulfilled;
+
+        this.aclHandler.permit(
+            PROJECT_CONTROLLER_CI,
+            PROJECT_CONTROLLER_STORAGE_CI,
+            SET_UINT_SIG).should.be.fulfilled;
+        this.aclHandler.permit(
+            PROJECT_CONTROLLER_CI,
+            PROJECT_CONTROLLER_STORAGE_CI,
+            SET_ADDRESS_SIG).should.be.fulfilled;
+        this.aclHandler.permit(PROJECT_CONTROLLER_CI,
+            PROJECT_CONTROLLER_STORAGE_CI,
+            SET_BYTES32_SIG).should.be.fulfilled;
 
         // give tokenSaleModule permission to speed root's money
         this.token.approve(this.tokenCollectorModule.address, this.totalSpendMoney)
             .should.be.fulfilled;
 
-        //TODO(b232wang): register project
+        this.projectController.setStorage(this.projectControllerStorage.address)
+            .should.be.fulfilled;
     });
 
     describe('basic test', function () {
@@ -125,6 +161,9 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
     describe('basic functional test', function () {
         it('should start token sale', async function () {
+            this.projectController.registerProject(PROJECT_CI1, root, this.token.address)
+                .should.be.fulfilled;
+
             const { logs } = await this.tokenSaleModule.startTokenSale(
                 PROJECT_CI1,
                 this.rate,
@@ -149,6 +188,9 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
         it('should finalize success', async function () {
             const testCI1 = Web3.utils.keccak256("testCI1");
+            this.projectController.registerProject(testCI1, root, this.token.address)
+                .should.be.fulfilled;
+
             await this.tokenSaleModule.startTokenSale(testCI1, this.rate, this.token.address)
                 .should.be.fulfilled;
             await this.tokenSaleModule.finalize(testCI1).should.be.fulfilled;
@@ -158,6 +200,9 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
         it('should rejected cause project already finalized', async function () {
             const testCI2 = Web3.utils.keccak256("testCI2");
+            this.projectController.registerProject(testCI2, root, this.token.address)
+                .should.be.fulfilled;
+
             await this.tokenSaleModule.startTokenSale(testCI2, this.rate, this.token.address)
                 .should.be.fulfilled;
             await this.tokenSaleModule.finalize(testCI2).should.be.fulfilled;
@@ -167,6 +212,9 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
         it('should rejected cause finalize a finalized project', async function () {
             const testCI3 = Web3.utils.keccak256("testCI3");
+            this.projectController.registerProject(testCI3, root, this.token.address)
+                .should.be.fulfilled;
+
             await this.tokenSaleModule.startTokenSale(testCI3, this.rate, this.token.address)
                 .should.be.fulfilled;
             await this.tokenSaleModule.finalize(testCI3).should.be.fulfilled;
@@ -183,6 +231,8 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
         it('should buy token success', async function () {
             const PROJECT_CI = Web3.utils.keccak256("advanced1");
+            this.projectController.registerProject(PROJECT_CI, root, this.token.address)
+                .should.be.fulfilled;
 
             await this.tokenSaleModule.startTokenSale(PROJECT_CI, this.rate, this.token.address)
                 .should.be.fulfilled;
@@ -214,6 +264,8 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
         it('should receive avg price equal rate', async function () {
             const PROJECT_CI = Web3.utils.keccak256("advanced2");
+            this.projectController.registerProject(PROJECT_CI, root, this.token.address)
+                .should.be.fulfilled;
 
             await this.tokenSaleModule.startTokenSale(PROJECT_CI, this.rate, this.token.address)
                 .should.be.fulfilled;
@@ -234,6 +286,8 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
         it('should receive avg price equal zero', async function () {
             const PROJECT_CI = Web3.utils.keccak256("advanced3");
+            this.projectController.registerProject(PROJECT_CI, root, this.token.address)
+                .should.be.fulfilled;
 
             await this.tokenSaleModule.startTokenSale(PROJECT_CI, this.rate, this.token.address)
                 .should.be.fulfilled;
@@ -245,6 +299,8 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
         it('should rejected cause project already exist', async function () {
             const PROJECT_CI = Web3.utils.keccak256("advanced4");
+            this.projectController.registerProject(PROJECT_CI, root, this.token.address)
+                .should.be.fulfilled;
 
             await this.tokenSaleModule.startTokenSale(PROJECT_CI, this.rate, this.token.address)
                 .should.be.fulfilled;
@@ -255,6 +311,8 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
         it('should rejected cause project not exist', async function () {
             const PROJECT_CI = Web3.utils.keccak256("advanced5");
+            this.projectController.registerProject(PROJECT_CI, root, this.token.address)
+                .should.be.fulfilled;
 
             await this.tokenSaleModule.startTokenSale(PROJECT_CI, this.rate, this.token.address)
                 .should.be.fulfilled;
@@ -266,6 +324,8 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
         it('should rejected cause buy too large token', async function () {
             const PROJECT_CI = Web3.utils.keccak256("advanced6");
+            this.projectController.registerProject(PROJECT_CI, root, this.token.address)
+                .should.be.fulfilled;
 
             await this.tokenSaleModule.startTokenSale(PROJECT_CI, this.rate, this.token.address)
                 .should.be.fulfilled;
@@ -283,11 +343,22 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, testAccount1, tes
 
         it('should rejected cause finalize a not exist project', async function () {
             const PROJECT_CI = Web3.utils.keccak256("advanced7");
+            this.projectController.registerProject(PROJECT_CI, root, this.token.address)
+                .should.be.fulfilled;
 
             await this.tokenSaleModule.startTokenSale(PROJECT_CI, this.rate, this.token.address)
                 .should.be.fulfilled;
 
             await this.tokenSaleModule.finalize(ROOT_CI).should.be.rejectedWith(EVMRevert);
+        });
+
+        it('should rejected cause CAH do not have project controller', async function () {
+            await this.contractAddressHandler.unregisterContract(PROJECT_CONTROLLER_CI)
+                .should.be.fulfilled;
+            await this.tokenSaleModule.finalize(ROOT_CI).should.be.rejectedWith(EVMRevert);
+            await this.contractAddressHandler.registerContract(
+                PROJECT_CONTROLLER_CI,
+                this.projectController.address).should.be.fulfilled;
         });
     });
 });
