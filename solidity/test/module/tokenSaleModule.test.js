@@ -351,5 +351,14 @@ contract('TokenSaleModuleTest', function ([root, _, purchaser, founder]) {
 
             await this.tokenSaleModule.finalize(ROOT_CI).should.be.rejectedWith(EVMRevert);
         });
+
+        it('should rejected cause CAH do not have project controller', async function () {
+            await this.contractAddressHandler.unregisterContract(PROJECT_CONTROLLER_CI)
+                .should.be.fulfilled;
+            await this.tokenSaleModule.finalize(ROOT_CI).should.be.rejectedWith(EVMRevert);
+            await this.contractAddressHandler.registerContract(
+                PROJECT_CONTROLLER_CI,
+                this.projectController.address).should.be.fulfilled;
+        });
     });
 });
