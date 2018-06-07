@@ -7,8 +7,6 @@ import "../Module.sol";
 
 contract TokenCollector is Module {
 
-    address constant NULL = address(0x0);
-
     constructor (address kernelAddr) Module(kernelAddr) public {
         CI = keccak256("TokenCollector");
     }

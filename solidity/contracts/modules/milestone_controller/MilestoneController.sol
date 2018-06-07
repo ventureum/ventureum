@@ -167,6 +167,20 @@ contract MilestoneController is Module {
     }
 
     /**
+    * Returns the current wei amount locked in the milestone.
+    *
+    * @param namespace namespace of a project
+    * @param id id of a milestone of the project
+    */
+    function milestoneWeiLocked(bytes32 namespace, uint id) external view returns (uint) {
+        bool existing;
+        (existing, ) = isExisting(namespace, id);
+        require(existing);
+        return milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, id, WEI_LOCKED)));
+    }
+
+    /**
     * Returns the current state, convert enum to uint
     *
     * @param namespace namespace of a project

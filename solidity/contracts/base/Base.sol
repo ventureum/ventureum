@@ -11,6 +11,8 @@ contract Base is IBase {
         Disconnected
     }
 
+    address constant NULL = address(0x0);
+
     bytes32 public CI;
 
     // status of the contract
