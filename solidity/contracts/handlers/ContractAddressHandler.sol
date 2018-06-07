@@ -1,8 +1,10 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+
 import "./Handler.sol";
 import "./IContractAddressHandler.sol";
+import "../modules/managers/IManager.sol";
 
 contract ContractAddressHandler is IContractAddressHandler, Handler, Ownable {
 
@@ -51,5 +53,27 @@ contract ContractAddressHandler is IContractAddressHandler, Handler, Ownable {
         // TODO notify
     }
 
+    function verifyController(bytes32[] _controllerList) internal view {
+        for(uint i = 0; i < _controllerList.length; i++) {
+            address controllerAddr = contracts[_controllerList[i]];
+            require(controllerAddr != address(0x0));
+            require(IHandler(controllerAddr).isConnected());
+        }
+    }
 
+    function connect(address contractAddr, bytes32[] _controllerList) external onlyOwner {
+        verifyController(_controllerList);
+        require(IManager(contractAddr).isConnected());
+        for(uint i = 0; i < _controllerList.length; i++) {
+            IManager(contractAddr).setController(_controllerList[i], contracts[_controllerList[i]]);
+        }
+    }
+
+    function disconnect(address contractAddr, bytes32[] _controllerList) external onlyOwner {
+        verifyController(_controllerList);
+        require(IManager(contractAddr).isConnected());
+        for(uint i = 0; i < _controllerList.length; i++) {
+            IManager(contractAddr).setController(_controllerList[i], address(0x0));
+        }
+    }
 }

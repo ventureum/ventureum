@@ -1,9 +1,11 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+
 import "./IKernel.sol";
-import "./IBase.sol";
+import "../base/IBase.sol";
 import "../handlers/IHandler.sol";
+
 
 contract Kernel is IKernel, Ownable {
 

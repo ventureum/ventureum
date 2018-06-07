@@ -1,7 +1,8 @@
 pragma solidity ^0.4.24;
 
-import './IHandler.sol';
-import '../kernel/Base.sol';
+import "./IHandler.sol";
+import "../base/Base.sol";
+
 
 contract Handler is IHandler, Base {
     

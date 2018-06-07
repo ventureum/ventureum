@@ -1,18 +1,28 @@
-var SafeMath = artifacts.require("./SafeMath.sol");
+const SafeMath = artifacts.require("./SafeMath.sol");
 
-var Kernel = artifacts.require("./kernel/Kernel.sol");
-var Base = artifacts.require("./kernel/Base.sol");
-var Module = artifacts.require("./kernel/Module.sol");
+const Kernel = artifacts.require("./kernel/Kernel.sol");
+const Base = artifacts.require("./base/Base.sol");
+const Handler = artifacts.require("./handlers/Handler.sol");
 
-var Handler = artifacts.require("./handlers/Handler.sol");
-var ACLHandler = artifacts.require("./handlers/ACLHandler.sol");
-var ContractAddressHandler = artifacts.require("./handlers/ContractAddressHandler.sol");
+// handlers
+const ACLHandler = artifacts.require("./handlers/ACLHandler.sol");
+const ContractAddressHandler = artifacts.require(
+    "./handlers/ContractAddressHandler.sol");
 
-var EtherCollector = artifacts.require("./collector/EtherCollector.sol");
-var EtherCollectorStorage = artifacts.require("./collector/EtherCollectorStorage.sol");
+// modules
+const Module = artifacts.require("./modules/Module.sol");
+const Storage = artifacts.require("./modules/storage/Storage.sol");
+const Manager = artifacts.require("./modules/managers/Manager.sol");
 
-var ProjectController = artifacts.require("./project_controller/ProjectController.sol");
-var ProjectControllerStorage = artifacts.require("./project_controller/ProjectControllerStorage.sol");
+const EtherCollector = artifacts.require(
+    "./modules/collector/EtherCollector.sol");
+const EtherCollectorStorage = artifacts.require(
+    "./modules/collector/EtherCollectorStorage.sol");
+
+const ProjectController = artifacts.require(
+    "./modules/project_controller/ProjectController.sol");
+const ProjectControllerStorage = artifacts.require(
+    "./modules/project_controller/ProjectControllerStorage.sol");
 
 const UNIT_DEPLOY_ADDRESS = "0xa0";
 
@@ -23,11 +33,14 @@ module.exports = function(deployer) {
 
         deployer.deploy(Kernel);
         deployer.deploy(Base, UNIT_DEPLOY_ADDRESS);
-        deployer.deploy(Module, UNIT_DEPLOY_ADDRESS);
 
         deployer.deploy(Handler, UNIT_DEPLOY_ADDRESS);
         deployer.deploy(ACLHandler, UNIT_DEPLOY_ADDRESS);
         deployer.deploy(ContractAddressHandler, UNIT_DEPLOY_ADDRESS);
+
+        deployer.deploy(Module, UNIT_DEPLOY_ADDRESS);
+        deployer.deploy(Storage, UNIT_DEPLOY_ADDRESS);
+        deployer.deploy(Manager, UNIT_DEPLOY_ADDRESS);
 
         deployer.deploy(EtherCollector, UNIT_DEPLOY_ADDRESS);
         deployer.deploy(EtherCollectorStorage, UNIT_DEPLOY_ADDRESS);

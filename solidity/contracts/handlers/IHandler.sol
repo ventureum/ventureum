@@ -1,7 +1,5 @@
 pragma solidity ^0.4.24;
 
-import '../kernel/IBase.sol';
+import '../base/IBase.sol';
 
-contract IHandler is IBase {
-
-}
+contract IHandler is IBase { }
