@@ -10,17 +10,17 @@ import "../token_sale/TokenSale.sol";
 
 
 contract Manager is IModule, Module {
-    ProjectController public projectController;
-    MilestoneController public milestoneController;
-    TokenSale public tokenSale;
-    TokenCollector public tokenCollector;
-    EtherCollector public etherCollector;
-
     bytes32 constant public PROJECT_CONTROLLER_CI = keccak256("ProjectController");
     bytes32 constant public MILESTONE_CONTROLLER_CI = keccak256("MilestoneController");
     bytes32 constant public TOKEN_SALE_CI = keccak256("TokenSale");
     bytes32 constant public TOKEN_COLLECTOR_CI = keccak256("TokenCollector");
     bytes32 constant public ETHER_COLLECTOR_CI = keccak256("EtherCollector");
+
+    ProjectController public projectController;
+    MilestoneController public milestoneController;
+    TokenSale public tokenSale;
+    TokenCollector public tokenCollector;
+    EtherCollector public etherCollector;
 
     modifier founderOnly(bytes32 namespace) {
         require(address(projectController) != address(0x0));
@@ -53,6 +53,15 @@ contract Manager is IModule, Module {
         if (CI == ETHER_COLLECTOR_CI) {
             etherCollector = EtherCollector(controllerAddr);
         }
+    }
+
+    /**
+    * Bind with a storage contract
+    *
+    * @param store the address of a storage contract
+    */
+    function setStorage(address store) public connected {
+        super.setStorage(store);
     }
 }
 
