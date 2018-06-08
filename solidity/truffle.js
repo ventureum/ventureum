@@ -3,10 +3,10 @@ require("babel-register")({
     ignore: /node_modules\/(?!openzeppelin-solidity\/test\/helpers)/
 })
 require("babel-polyfill");
+var Web3 = require("web3");
 
 const HDWalletProvider = require("truffle-hdwallet-provider");
 const fs = require("fs");
-
 let mnemonic = ""
 
 if (fs.existsSync("mnemonic.txt")) {
@@ -25,7 +25,7 @@ module.exports = {
             //provider: new HDWalletProvider(mnemonic, "http://localhost:8545",0,5) // <-- Comment this line when using solidity-coverage
         },
         testing: {
-            host: "127.0.0.1",
+            host: "localhost",
             port: 8545,
             network_id: "*", // Match any network id
             gas: 6000000,
