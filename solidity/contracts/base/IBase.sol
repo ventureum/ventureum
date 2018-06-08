@@ -9,5 +9,5 @@ interface IBase {
     function isConnected() external view returns (bool);
     function connect() external;
     function disconnect() external;
-    function setHandler(bytes32 _CI, address handlerAddr) public;
+    function setHandler(bytes32 _CI, address handlerAddr) external;
 }
