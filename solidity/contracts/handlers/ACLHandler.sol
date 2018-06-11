@@ -8,8 +8,8 @@ import "./IACLHandler.sol";
 
 contract ACLHandler is IACLHandler, Handler, Ownable {
 
-    event LogPermit(bytes32 indexed src, bytes32 indexed dst, bytes32 indexed sig);
-    event LogForbid(bytes32 indexed src, bytes32 indexed dst, bytes32 indexed sig);
+    event LogPermit(bytes32 indexed src, bytes32 indexed dst, bytes32[] sig);
+    event LogForbid(bytes32 indexed src, bytes32 indexed dst, bytes32[] sig);
 
     // Access control list acl[CI][CI][SIG]
     mapping (bytes32 => mapping (bytes32 => mapping (bytes32 => bool))) acl;
@@ -45,30 +45,32 @@ contract ACLHandler is IACLHandler, Handler, Ownable {
     }
 
     /*
-      Permit an action
+      Permit a list of actions
 
       @param srcCI source CI
       @param dstCI destination CI
-      @param sig function signature
+      @param sigs a list of function signatures
     */
-    function permit(bytes32 srcCI, bytes32 dstCI, bytes32 sig) public onlyOwner {
+    function permit(bytes32 srcCI, bytes32 dstCI, bytes32[] sigs) public onlyOwner {
         require(srcCI != 0x0 && dstCI != 0x0);
-
-        acl[srcCI][dstCI][sig] = true;
-        emit LogPermit(srcCI, dstCI, sig);
+        for(uint i = 0; i < sigs.length; i++) {
+            acl[srcCI][dstCI][sigs[i]] = true;
+        }
+        emit LogPermit(srcCI, dstCI, sigs);
     }
 
     /*
-      Forbid an action
+      Forbid a list of actions
 
       @param srcCI source CI
       @param dstCI destination CI
-      @param sig function signature
+      @param sigs a list of function signatures
     */
-    function forbid(bytes32 srcCI, bytes32 dstCI, bytes32 sig) public onlyOwner {
+    function forbid(bytes32 srcCI, bytes32 dstCI, bytes32[] sigs) public onlyOwner {
         require(srcCI != 0x0 && dstCI != 0x0);
-
-        acl[srcCI][dstCI][sig] = false;
-        emit LogForbid(srcCI, dstCI, sig);
+        for(uint i = 0; i < sigs.length; i++) {
+            acl[srcCI][dstCI][sigs[i]] = false;
+        }
+        emit LogForbid(srcCI, dstCI, sigs);
     }
 }

@@ -1,56 +1,51 @@
-import EVMRevert from 'openzeppelin-solidity/test/helpers/EVMRevert'
+import {
+  should,
+  wweb3,
+  Error,
+  Kernel,
+  ContractAddressHandler} from "../contants.js";
 
-const Web3 = require('web3');
-const wweb3 = new Web3();
-
-const should = require('chai')
-    .use(require('chai-as-promised'))
-    .should();
-
-const ContractAddressHandler = artifacts.require(
-    'handlers/ContractAddressHandler');
-const Kernel = artifacts.require('kernel/Kernel');
-
-// CIs
-const ROOT_CI = wweb3.utils.keccak256("root");
 const UNREGISTERED_CI = wweb3.utils.keccak256(
   "UnregisteredCI");
 
 
-contract('ContractAddressHandlerTest', function (
-    [root]) {
+contract('ContractAddressHandlerTest', function (accounts) {
+  const ROOT = accounts[0];
 
-    before(async function () {
-        this.kernel = await Kernel.new();
-        this.contractAddressHandler = await ContractAddressHandler.new(
-            this.kernel.address);
-        // register contract
-        this.contractAddressHandler.registerContract(
-            ROOT_CI, root).should.be.fulfilled;
-    });
+  let kernel;
+  let contractAddressHandler;
 
-    it('should reject cause already registered', async function () {
-        this.contractAddressHandler.registerContract(ROOT_CI, root)
-            .should.be.rejectedWith(EVMRevert);
-    });
+  before(async function () {
+    kernel = await Kernel.Self.new();
+    contractAddressHandler = await ContractAddressHandler.Self.new(
+      kernel.address);
 
-    it('should receive root address', async function () {
-        let address = await this.contractAddressHandler.contracts.call(ROOT_CI);
-        address.should.be.equal(root);
-    });
+    // register contract
+    await contractAddressHandler.registerContract(Kernel.RootCI, ROOT);
+  });
 
-    it('should reject cause unregistered contract', async function () {
-        this.contractAddressHandler.unregisterContract(UNREGISTERED_CI)
-            .should.be.rejectedWith(EVMRevert);
-    });
+  it('should reject cause already registered', async function () {
+    contractAddressHandler.registerContract(Kernel.RootCI, ROOT)
+    .should.be.rejectedWith(Error.EVMRevert);
+  });
 
-    it('should unregistered root', async function () {
-        let address = await this.contractAddressHandler.contracts.call(ROOT_CI);
-        address.should.be.equal(root);
+  it('should receive ROOT address', async function () {
+    let address = await contractAddressHandler.contracts.call(Kernel.RootCI);
+    address.should.be.equal(ROOT);
+  });
 
-        await this.contractAddressHandler.unregisterContract(ROOT_CI)
-          .should.be.fulfilled;
-        address = await this.contractAddressHandler.contracts.call(ROOT_CI);
-        address.should.not.be.equal(root);
-    });
+  it('should reject cause unregistered contract', async function () {
+    contractAddressHandler.unregisterContract(UNREGISTERED_CI)
+    .should.be.rejectedWith(Error.EVMRevert);
+  });
+
+  it('should unregistered ROOT', async function () {
+    let address = await contractAddressHandler.contracts.call(Kernel.RootCI);
+    address.should.be.equal(ROOT);
+
+    await contractAddressHandler.unregisterContract(Kernel.RootCI)
+      .should.be.fulfilled;
+    address = await contractAddressHandler.contracts.call(Kernel.RootCI);
+    address.should.not.be.equal(ROOT);
+  });
 });
