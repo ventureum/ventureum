@@ -7,7 +7,6 @@ import "./EtherCollectorStorage.sol";
 
 
 contract EtherCollector is Module {
-
     using SafeMath for uint;
 
     bytes32 constant balanceHash = keccak256("balance");
@@ -22,8 +21,6 @@ contract EtherCollector is Module {
       Bind with a storage contract
 
       @param _store the address of a storage contract
-
-      Create a new storage contract if _store == 0x0
      */
     function setStorage(address _store) public connected {
         super.setStorage(_store);
