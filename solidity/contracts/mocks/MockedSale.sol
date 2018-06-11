@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "vetx-token/contracts/VetXToken.sol";
 
 
-contract TestSale {
+contract MockedSale {
     VetXToken token; 
 
     constructor() public {
