@@ -3,140 +3,139 @@ import {
   Error,
   ACLHandler,
   ContractAddressHandler,
-  TokenCollector,
+  TokenCollector
 } from '../../constants'
-const shared = require("../../shared.js");
+const shared = require('../../shared.js')
 
-const NULL_ADDRESS = "0x0";
-const TOTAL_SPEND_MONEY = 1000000;
-const VALUE = 10000;
+const NULL_ADDRESS = '0x0'
+const TOTAL_SPEND_MONEY = 1000000
+const VALUE = 10000
 
-contract("TokenCollectorTest", function (accounts) {
-  const ROOT = accounts[0];
-  const TEST_ACCOUNT = accounts[2];
+contract('TokenCollectorTest', function (accounts) {
+  const ROOT = accounts[0]
+  const TEST_ACCOUNT = accounts[2]
 
-  let token;
-  let kernel;
-  let tokenCollector;
-  let aclHandler;
-  let contractAddressHandler;
+  let token
+  let kernel
+  let tokenCollector
+  let aclHandler
+  let contractAddressHandler
 
   before(async function () {
-    let context = await shared.run(accounts);
-    token = context.token;
-    kernel = context.kernel;
-    aclHandler = context.aclHandler;
-    contractAddressHandler = context.contractAddressHandler;
-    tokenCollector = context.tokenCollector;
-
+    let context = await shared.run(accounts)
+    token = context.token
+    kernel = context.kernel
+    aclHandler = context.aclHandler
+    contractAddressHandler = context.contractAddressHandler
+    tokenCollector = context.tokenCollector
 
     // give tokenCollector permission to speed ROOT"s money
     token.approve(
       tokenCollector.address,
-      TOTAL_SPEND_MONEY).should.be.fulfilled;
+      TOTAL_SPEND_MONEY).should.be.fulfilled
 
     // some basic test
     const val = await tokenCollector.balanceOf.call(
-      token.address);
-    val.should.be.bignumber.equal(0);
-  });
+      token.address)
+    val.should.be.bignumber.equal(0)
+  })
 
-  describe("basic test", function () {
-    it("should connected", async function () {
-      let result = await tokenCollector.isConnected.call();
-      result.should.be.equal(true);
-    });
+  describe('basic test', function () {
+    it('should connected', async function () {
+      let result = await tokenCollector.isConnected.call()
+      result.should.be.equal(true)
+    })
 
-    it("should register contract success", async function () {
-      let result = await tokenCollector.CI.call();
-      result.should.be.equal(TokenCollector.CI);
-    });
+    it('should register contract success', async function () {
+      let result = await tokenCollector.CI.call()
+      result.should.be.equal(TokenCollector.CI)
+    })
 
-    it("should receive correct handler", async function () {
+    it('should receive correct handler', async function () {
       let result = await tokenCollector.handlers.call(
-        ACLHandler.CI);
-      result.should.be.equal(aclHandler.address);
+        ACLHandler.CI)
+      result.should.be.equal(aclHandler.address)
       result = await tokenCollector.handlers.call(
-        ContractAddressHandler.CI);
-      result.should.be.equal(contractAddressHandler.address);
-    });
+        ContractAddressHandler.CI)
+      result.should.be.equal(contractAddressHandler.address)
+    })
 
-    it("should receive correct kernel", async function () {
-      let result = await tokenCollector.kernel.call();
-      result.should.be.equal(kernel.address);
-    });
+    it('should receive correct kernel', async function () {
+      let result = await tokenCollector.kernel.call()
+      result.should.be.equal(kernel.address)
+    })
 
-    it("should receive status connected", async function () {
-      let result = await tokenCollector.status.call();
-      result.should.be.bignumber.equal(1);
-    });
-  });
+    it('should receive status connected', async function () {
+      let result = await tokenCollector.status.call()
+      result.should.be.bignumber.equal(1)
+    })
+  })
 
-  describe("branch test", function () {
-    it("should rejected cause invalid token address", async function () {
+  describe('branch test', function () {
+    it('should rejected cause invalid token address', async function () {
       tokenCollector.balanceOf(NULL_ADDRESS)
-        .should.be.rejectedWith(Error.EVMRevert);
+        .should.be.rejectedWith(Error.EVMRevert)
       tokenCollector.withdraw(NULL_ADDRESS, ROOT, 0)
-        .should.be.rejectedWith(Error.EVMRevert);
+        .should.be.rejectedWith(Error.EVMRevert)
       tokenCollector.withdraw(
         token.address,
         NULL_ADDRESS,
-        0).should.be.rejectedWith(Error.EVMRevert);
+        0).should.be.rejectedWith(Error.EVMRevert)
       tokenCollector.deposit(NULL_ADDRESS, 0)
-        .should.be.rejectedWith(Error.EVMRevert);
-    });
+        .should.be.rejectedWith(Error.EVMRevert)
+    })
 
-    it("should rejected when withdraw value " +
-      "over balance", async function () {
+    it('should rejected when withdraw value ' +
+      'over balance', async function () {
       let balance = await tokenCollector.balanceOf.call(
-        token.address);
+        token.address)
       tokenCollector.withdraw(
         token.address,
         ROOT,
-        balance + 1).should.be.rejectedWith(Error.EVMRevert);
-    });
-  });
+        balance + 1).should.be.rejectedWith(Error.EVMRevert)
+    })
+  })
 
-  describe("basic functional test", function () {
-    it("should approve success", async function () {
+  describe('basic functional test', function () {
+    it('should approve success', async function () {
       const { logs } = await token.approve(
         tokenCollector.address,
-        TOTAL_SPEND_MONEY).should.be.fulfilled;
+        TOTAL_SPEND_MONEY).should.be.fulfilled
 
-      const event = logs.find(e => e.event === "Approval");
-      should.exist(event);
-      event.args.owner.should.be.equal(ROOT);
+      const event = logs.find(e => e.event === 'Approval')
+      should.exist(event)
+      event.args.owner.should.be.equal(ROOT)
       event.args.spender.should.be.equal(
-        tokenCollector.address);
-      event.args.value.should.be.bignumber.equal(TOTAL_SPEND_MONEY);
-    });
+        tokenCollector.address)
+      event.args.value.should.be.bignumber.equal(TOTAL_SPEND_MONEY)
+    })
 
-    it("should deposit success", async function () {
-      const pre = await token.balanceOf.call(ROOT);
+    it('should deposit success', async function () {
+      const pre = await token.balanceOf.call(ROOT)
       await tokenCollector.deposit(
-        token.address, VALUE).should.be.fulfilled;
-      const post = await token.balanceOf.call(ROOT);
-      pre.minus(post).should.be.bignumber.equal(VALUE);
-    });
+        token.address, VALUE).should.be.fulfilled
+      const post = await token.balanceOf.call(ROOT)
+      pre.minus(post).should.be.bignumber.equal(VALUE)
+    })
 
-    it("should withdraw success", async function () {
-      const withdrawAmount = 200;
+    it('should withdraw success', async function () {
+      const withdrawAmount = 200
 
-      const pre = await token.balanceOf.call(TEST_ACCOUNT);
+      const pre = await token.balanceOf.call(TEST_ACCOUNT)
       await tokenCollector.deposit(
-        token.address, VALUE).should.be.fulfilled;
+        token.address, VALUE).should.be.fulfilled
       const storeBalance = await tokenCollector.balanceOf.call(
-        token.address);
+        token.address)
 
       await tokenCollector.withdraw(
         token.address,
-        TEST_ACCOUNT, withdrawAmount) .should.be.fulfilled;
-      const post = await token.balanceOf.call(TEST_ACCOUNT);
-      post.minus(pre).should.be.bignumber.equal(withdrawAmount);
+        TEST_ACCOUNT, withdrawAmount).should.be.fulfilled
+      const post = await token.balanceOf.call(TEST_ACCOUNT)
+      post.minus(pre).should.be.bignumber.equal(withdrawAmount)
 
       const val = await tokenCollector.balanceOf.call(
-        token.address);
-      val.should.be.bignumber.equal(storeBalance - withdrawAmount);
-    });
-  });
-});
+        token.address)
+      val.should.be.bignumber.equal(storeBalance - withdrawAmount)
+    })
+  })
+})
