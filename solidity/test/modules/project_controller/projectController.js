@@ -5,7 +5,7 @@ import {
   ACLHandler,
   ContractAddressHandler,
   ProjectController,
-  ProjectControllerStorage} from "../../contants.js";
+  ProjectControllerStorage} from "../../constants.js";
 const shared = require("../../shared.js");
 
 // namespaces

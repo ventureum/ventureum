@@ -6,7 +6,7 @@ import {
   ACLHandler,
   ContractAddressHandler,
   MockedProjectController,
-  MockedProjectController2} from "../contants.js";
+  MockedProjectController2} from "../constants.js";
 const shared = require("../shared.js");
 
 // namespace

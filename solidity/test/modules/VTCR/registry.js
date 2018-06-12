@@ -8,7 +8,7 @@ import {
   Registry,
   MockedSale,
   ProjectController
-} from '../../contants'
+} from '../../constants'
 const shared = require("../../shared.js");
 
 const PLCRVoting = artifacts.require("./VTCR/PLCRVoting.sol");
@@ -40,10 +40,10 @@ contract("Registry", (accounts) => {
     aclHandler = context.aclHandler;
     contractAddressHandler = context.contractAddressHandler;
     projectController = context.projectController;
-    
+
     const config = JSON.parse(fs.readFileSync("./config/VTCR/config.json"));
     parameterizerConfig = config.paramDefaults;
-    
+
     mockedSale = await MockedSale.Self.new();
     await mockedSale.purchaseTokens(
       {from: ROOT_ACCOUNT, value: config.initialTokenPurchase});
@@ -68,7 +68,7 @@ contract("Registry", (accounts) => {
       parameterizerConfig.voteQuorum,
       parameterizerConfig.pVoteQuorum
     );
-    
+
     registry = await Registry.Self.new(
       kernel.address,
       tokenAdd,
@@ -80,20 +80,20 @@ contract("Registry", (accounts) => {
     await kernel.connect(
       registry.address,
       [ACLHandler.CI, ContractAddressHandler.CI]);
-    
+
     await contractAddressHandler.registerContract(
       Registry.CI, registry.address);
 
     await aclHandler.permit(
-      Registry.CI, 
-      ProjectController.CI, 
+      Registry.CI,
+      ProjectController.CI,
       [
-        ProjectController.Sig.RegisterProject, 
+        ProjectController.Sig.RegisterProject,
         ProjectController.Sig.UnregisterProject,
         ProjectController.Sig.SetState,
         ProjectController.Sig.SetTokenAddress
       ]);
-    
+
   });
 
   describe("Project applications", () => {

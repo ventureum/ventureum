@@ -1,4 +1,4 @@
-import {should, Web3, TimeSetter, Error, Kernel} from "../../contants.js";
+import {should, Web3, TimeSetter, Error, Kernel} from "../../constants.js";
 const shared = require("../../shared.js");
 
 const TOTAL_SPEND_MONEY = 1000000;

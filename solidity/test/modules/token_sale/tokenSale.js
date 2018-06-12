@@ -7,7 +7,7 @@ import {
   ContractAddressHandler,
   Kernel,
   ProjectController,
-} from '../../contants'
+} from '../../constants'
 const shared = require("../../shared.js");
 
 const TOTAL_SPEND_MONEY = 1000000;
@@ -29,7 +29,7 @@ contract("TokenSaleTest", function (accounts) {
   let projectController;
   let tokenCollector;
   let tokenSale;
-  
+
   before(async function () {
     let context = await shared.run(accounts);
     token = context.token;
@@ -39,7 +39,7 @@ contract("TokenSaleTest", function (accounts) {
     projectController = context.projectController;
     tokenCollector = context.tokenCollector;
     tokenSale = context.tokenSale;
-    
+
     // give tokenSale permission to speed root's money
     token.approve(
       tokenCollector.address,

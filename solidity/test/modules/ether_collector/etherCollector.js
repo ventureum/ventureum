@@ -1,4 +1,4 @@
-import { should, Web3, Error, EtherCollector } from '../../contants'
+import { should, Web3, Error, EtherCollector } from '../../constants'
 const shared = require("../../shared.js");
 
 const BALANCE_CI = Web3.utils.keccak256("balance");

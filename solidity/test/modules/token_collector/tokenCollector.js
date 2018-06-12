@@ -4,7 +4,7 @@ import {
   ACLHandler,
   ContractAddressHandler,
   TokenCollector,
-} from '../../contants'
+} from '../../constants'
 const shared = require("../../shared.js");
 
 const NULL_ADDRESS = "0x0";
@@ -20,7 +20,7 @@ contract("TokenCollectorTest", function (accounts) {
   let tokenCollector;
   let aclHandler;
   let contractAddressHandler;
-  
+
   before(async function () {
     let context = await shared.run(accounts);
     token = context.token;
@@ -29,7 +29,7 @@ contract("TokenCollectorTest", function (accounts) {
     contractAddressHandler = context.contractAddressHandler;
     tokenCollector = context.tokenCollector;
 
-    
+
     // give tokenCollector permission to speed ROOT"s money
     token.approve(
       tokenCollector.address,
