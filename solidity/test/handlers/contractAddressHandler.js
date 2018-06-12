@@ -1,51 +1,49 @@
 import {
-  should,
   wweb3,
   Error,
   Kernel,
-  ContractAddressHandler} from "../constants.js";
+  ContractAddressHandler} from '../constants.js'
 
 const UNREGISTERED_CI = wweb3.utils.keccak256(
-  "UnregisteredCI");
-
+  'UnregisteredCI')
 
 contract('ContractAddressHandlerTest', function (accounts) {
-  const ROOT = accounts[0];
+  const ROOT = accounts[0]
 
-  let kernel;
-  let contractAddressHandler;
+  let kernel
+  let contractAddressHandler
 
   before(async function () {
-    kernel = await Kernel.Self.new();
+    kernel = await Kernel.Self.new()
     contractAddressHandler = await ContractAddressHandler.Self.new(
-      kernel.address);
+      kernel.address)
 
     // register contract
-    await contractAddressHandler.registerContract(Kernel.RootCI, ROOT);
-  });
+    await contractAddressHandler.registerContract(Kernel.RootCI, ROOT)
+  })
 
   it('should reject cause already registered', async function () {
     contractAddressHandler.registerContract(Kernel.RootCI, ROOT)
-    .should.be.rejectedWith(Error.EVMRevert);
-  });
+      .should.be.rejectedWith(Error.EVMRevert)
+  })
 
   it('should receive ROOT address', async function () {
-    let address = await contractAddressHandler.contracts.call(Kernel.RootCI);
-    address.should.be.equal(ROOT);
-  });
+    let address = await contractAddressHandler.contracts.call(Kernel.RootCI)
+    address.should.be.equal(ROOT)
+  })
 
   it('should reject cause unregistered contract', async function () {
     contractAddressHandler.unregisterContract(UNREGISTERED_CI)
-    .should.be.rejectedWith(Error.EVMRevert);
-  });
+      .should.be.rejectedWith(Error.EVMRevert)
+  })
 
   it('should unregistered ROOT', async function () {
-    let address = await contractAddressHandler.contracts.call(Kernel.RootCI);
-    address.should.be.equal(ROOT);
+    let address = await contractAddressHandler.contracts.call(Kernel.RootCI)
+    address.should.be.equal(ROOT)
 
     await contractAddressHandler.unregisterContract(Kernel.RootCI)
-      .should.be.fulfilled;
-    address = await contractAddressHandler.contracts.call(Kernel.RootCI);
-    address.should.not.be.equal(ROOT);
-  });
-});
+      .should.be.fulfilled
+    address = await contractAddressHandler.contracts.call(Kernel.RootCI)
+    address.should.not.be.equal(ROOT)
+  })
+})
