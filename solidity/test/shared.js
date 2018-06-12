@@ -9,7 +9,7 @@ import {
   EtherCollector,
   TokenCollector,
   TokenSale,
-  Storage} from "./contants.js";
+  Storage} from "./constants.js";
 
 const run = exports.run = async([root]) => {
   /*---------------------Deploy Contracts---------------------------------*/

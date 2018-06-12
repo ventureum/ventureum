@@ -3,7 +3,7 @@ import {
   wweb3,
   Error,
   Kernel,
-  ContractAddressHandler} from "../contants.js";
+  ContractAddressHandler} from "../constants.js";
 
 const UNREGISTERED_CI = wweb3.utils.keccak256(
   "UnregisteredCI");

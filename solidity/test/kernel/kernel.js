@@ -2,7 +2,7 @@ import {
   should,
   wweb3,
   Error,
-  Kernel} from "../contants.js";
+  Kernel} from "../constants.js";
 
 const CI1 = wweb3.utils.keccak256("KernelTest1");
 const CI2 = wweb3.utils.keccak256("KernelTest2");
@@ -20,7 +20,7 @@ const INVALID_ADDRESS = "0xa0";
 contract('KernelTest', function (
   [_, testAccount1, testAccount2, testAccount3, testAccount4, testAccount5]) {
   let kernel;
-  
+
   before(async function () {
     kernel = await Kernel.Self.new();
   });
