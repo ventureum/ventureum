@@ -1,52 +1,130 @@
-const SafeMath = artifacts.require("./SafeMath.sol");
+'use strict'
 
-const Kernel = artifacts.require("./kernel/Kernel.sol");
-const Base = artifacts.require("./base/Base.sol");
-const Handler = artifacts.require("./handlers/Handler.sol");
+const Constant = require('../config/config.js')
+const Configuation = require('../config/configuation.js')
 
-// handlers
-const ACLHandler = artifacts.require("./handlers/ACLHandler.sol");
-const ContractAddressHandler = artifacts.require(
-    "./handlers/ContractAddressHandler.sol");
+// Get Constant
+const _contants = Constant.default(artifacts)
 
-// modules
-const Module = artifacts.require("./modules/Module.sol");
-const Storage = artifacts.require("./modules/storage/Storage.sol");
-const Manager = artifacts.require("./modules/managers/Manager.sol");
+//* Token
+const VetXToken = _contants.VetXToken
 
-const EtherCollector = artifacts.require(
-    "./modules/collector/EtherCollector.sol");
-const EtherCollectorStorage = artifacts.require(
-    "./modules/collector/EtherCollectorStorage.sol");
+//* SafeMath
+const SafeMath = _contants.SafeMath
 
-const ProjectController = artifacts.require(
-    "./modules/project_controller/ProjectController.sol");
-const ProjectControllerStorage = artifacts.require(
-    "./modules/project_controller/ProjectControllerStorage.sol");
+//* Kernel
+const Kernel = _contants.Kernel
 
-const UNIT_DEPLOY_ADDRESS = "0xa0";
+//* Handlers
+const ACLHandler = _contants.ACLHandler
+const ContractAddressHandler = _contants.ContractAddressHandler
 
-module.exports = function(deployer) {
-    function unitDeploy() {
-        deployer.deploy(SafeMath);
-        deployer.link(SafeMath, EtherCollector);
+//* Module
+// * Manager
+const RefundManager = _contants.RefundManager
 
-        deployer.deploy(Kernel);
-        deployer.deploy(Base, UNIT_DEPLOY_ADDRESS);
+// * Controllers
+const ProjectController = _contants.ProjectController
+const MilestoneController = _contants.MilestoneController
 
-        deployer.deploy(Handler, UNIT_DEPLOY_ADDRESS);
-        deployer.deploy(ACLHandler, UNIT_DEPLOY_ADDRESS);
-        deployer.deploy(ContractAddressHandler, UNIT_DEPLOY_ADDRESS);
+// * Collectors
+const EtherCollector = _contants.EtherCollector
+const TokenCollector = _contants.TokenCollector
 
-        deployer.deploy(Module, UNIT_DEPLOY_ADDRESS);
-        deployer.deploy(Storage, UNIT_DEPLOY_ADDRESS);
-        deployer.deploy(Manager, UNIT_DEPLOY_ADDRESS);
+// * Token sale
+const TokenSale = _contants.TokenSale
 
-        deployer.deploy(EtherCollector, UNIT_DEPLOY_ADDRESS);
-        deployer.deploy(EtherCollectorStorage, UNIT_DEPLOY_ADDRESS);
+module.exports = function (deployer) {
+  function migrationDeploy () {
+    let instances = {}
 
-        deployer.deploy(ProjectController, UNIT_DEPLOY_ADDRESS);
-        deployer.deploy(ProjectControllerStorage, UNIT_DEPLOY_ADDRESS);
-    }
-    unitDeploy();
-};
+    deployer.deploy(SafeMath.Self).then(function () {
+      return deployer.link(
+        SafeMath.Self,
+        [EtherCollector.Self,
+          RefundManager.Self,
+          MilestoneController.Self,
+          TokenSale.Self])
+    }).then(async function () {
+      // Deploy kernel
+      await deployer.deploy(Kernel.Self)
+
+      // Deploy token
+      await deployer.deploy(
+        VetXToken.Self,
+        '1000000000000000000',
+        'VetX',
+        18,
+        'VTX')
+
+      // Deploy acl handler
+      await deployer.deploy(ACLHandler.Self, Kernel.Self.address)
+
+      // Deploy contract address handler
+      await deployer.deploy(ContractAddressHandler.Self, Kernel.Self.address)
+
+      // Deploy refund Manager
+      await deployer.deploy(RefundManager.Self, Kernel.Self.address)
+
+      // Deploy refund Manager Storage
+      await deployer.deploy(RefundManager.Storage.Self, Kernel.Self.address)
+
+      // Deploy project controller
+      await deployer.deploy(ProjectController.Self, Kernel.Self.address)
+
+      // Deploy project controller storage
+      await deployer.deploy(ProjectController.Storage.Self, Kernel.Self.address)
+
+      // Deploy milestone controller
+      await deployer.deploy(MilestoneController.Self, Kernel.Self.address)
+
+      // Deploy milestone controller storage
+      await deployer.deploy(
+        MilestoneController.Storage.Self,
+        Kernel.Self.address)
+
+      // Deploy ether collector
+      await deployer.deploy(EtherCollector.Self, Kernel.Self.address)
+
+      // Deploy ether collector storage
+      await deployer.deploy(EtherCollector.Storage.Self, Kernel.Self.address)
+
+      // Deploy token collector
+      await deployer.deploy(TokenCollector.Self, Kernel.Self.address)
+
+      // Deploy token sale
+      await deployer.deploy(TokenSale.Self, Kernel.Self.address)
+
+      // Instances
+      instances.vetXToken = VetXToken.Self.at(VetXToken.Self.address)
+      instances.kernel = Kernel.Self.at(Kernel.Self.address)
+      instances.aclHandler = ACLHandler.Self.at(ACLHandler.Self.address)
+      instances.contractAddressHandler = ContractAddressHandler.Self.at(
+        ContractAddressHandler.Self.address)
+      instances.refundManager = RefundManager.Self.at(
+        RefundManager.Self.address)
+      instances.refundManagerStorage = RefundManager.Storage.Self.at(
+        RefundManager.Storage.Self.address)
+      instances.projectController = ProjectController.Self.at(
+        ProjectController.Self.address)
+      instances.milestoneController = MilestoneController.Self.at(
+        MilestoneController.Self.address)
+      instances.etherCollector = EtherCollector.Self.at(
+        EtherCollector.Self.address)
+      instances.tokenCollector = TokenCollector.Self.at(
+        TokenCollector.Self.address)
+      instances.tokenSale = TokenSale.Self.at(TokenSale.Self.address)
+      instances.projectControllerStorage = ProjectController.Storage.Self.at(
+        ProjectController.Storage.Self.address)
+      instances.milestoneControllerStorage =
+        MilestoneController.Storage.Self.at(
+          MilestoneController.Storage.Self.address)
+      instances.etherCollectorStorage = EtherCollector.Storage.Self.at(
+        EtherCollector.Storage.Self.address)
+
+      // Configuration
+      await Configuation.run(instances, web3.eth.accounts, artifacts)
+    })
+  }
+  migrationDeploy()
+}
