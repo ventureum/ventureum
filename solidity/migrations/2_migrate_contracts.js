@@ -34,7 +34,7 @@ const TokenCollector = _contants.TokenCollector
 // * Token sale
 const TokenSale = _contants.TokenSale
 
-module.exports = function (deployer) {
+module.exports = function (deployer, network, accounts) {
   function migrationDeploy () {
     let instances = {}
 
@@ -123,7 +123,7 @@ module.exports = function (deployer) {
         EtherCollector.Storage.Self.address)
 
       // Configuration
-      await Configuation.run(instances, web3.eth.accounts, artifacts)
+      await Configuation.run(instances, accounts, artifacts)
     })
   }
   migrationDeploy()
