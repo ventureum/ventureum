@@ -101,6 +101,21 @@ contract TokenSale is Module {
     }
 
     /**
+     * Return token info if this token sale info exist.
+     *
+     * @param namespace namespace of the project
+     */
+    function tokenInfo(bytes32 namespace) external view returns (uint, uint, uint, bool) {
+        require(tokenInfoExist(namespace));
+        return (
+        infoPoll[namespace].rate,
+        infoPoll[namespace].totalTokenSold,
+        infoPoll[namespace].totalEth,
+        infoPoll[namespace].finalized
+        );
+    }
+
+    /**
      * Return the average price of a token sale
      *
      * @param namespace namespace of the project
