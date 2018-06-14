@@ -42,6 +42,7 @@ contract Kernel is IKernel, Ownable {
                 handlerList[i] = handlerList[handlerList.length - 1];
                 delete handlerList[handlerList.length - 1];
                 handlerList.length--;
+                break;
             }
         }
     }

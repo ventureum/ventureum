@@ -10,12 +10,6 @@ import "../token_sale/TokenSale.sol";
 
 
 contract Manager is IModule, Module {
-    bytes32 constant public PROJECT_CONTROLLER_CI = keccak256("ProjectController");
-    bytes32 constant public MILESTONE_CONTROLLER_CI = keccak256("MilestoneController");
-    bytes32 constant public TOKEN_SALE_CI = keccak256("TokenSale");
-    bytes32 constant public TOKEN_COLLECTOR_CI = keccak256("TokenCollector");
-    bytes32 constant public ETHER_COLLECTOR_CI = keccak256("EtherCollector");
-
     ProjectController public projectController;
     MilestoneController public milestoneController;
     TokenSale public tokenSale;
