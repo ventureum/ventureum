@@ -17,6 +17,7 @@ const run = exports.run = async (instances, [root], artifacts) => {
   const TokenCollector = _constants.TokenCollector
   const TokenSale = _constants.TokenSale
   const Storage = _constants.Storage
+  const ReputationSystem = _constants.ReputationSystem
 
   /* ------- receive instances  -------- */
   // Token
@@ -51,6 +52,9 @@ const run = exports.run = async (instances, [root], artifacts) => {
 
   // Token Sale
   const tokenSale = instances.tokenSale
+
+  // Reputation System
+  const reputationSystem = instances.reputationSystem
 
   /* ---------------------Kernel Register Handlers----------------------------- */
   // ACLHandler
@@ -171,6 +175,11 @@ const run = exports.run = async (instances, [root], artifacts) => {
   await contractAddressHandler.registerContract(
     TokenSale.CI,
     tokenSale.address)
+
+  // Reputation System
+  await contractAddressHandler.registerContract(
+    ReputationSystem.CI,
+    reputationSystem.address)
 
   /* -----------------------ACLHandler Grants permit ------------------------ */
   /**
@@ -298,7 +307,15 @@ const run = exports.run = async (instances, [root], artifacts) => {
   // Ether Collector
   await etherCollector.setStorage(etherCollectorStorage.address)
 
-  /* -----------------------Managers Connected to Controllers---------------- */
+  /* -------------------Set address can register -------------- */
+  await reputationSystem.setAddressCanRegister(milestoneController.address)
+
+  /* -------------------Milestone set controller-------------- */
+  await milestoneController.setReputationSystem(reputationSystem.address)
+  await milestoneController.setProjectController(projectController.address)
+  await milestoneController.setTokenSale(tokenSale.address)
+
+  /* -------------------Managers Connected to Controllers-------------- */
   // Refund Manager
   contractAddressHandler.connect(
     refundManager.address,
@@ -326,6 +343,7 @@ const run = exports.run = async (instances, [root], artifacts) => {
     etherCollector,
     etherCollectorStorage,
     tokenCollector,
-    tokenSale
+    tokenSale,
+    reputationSystem
   }
 }

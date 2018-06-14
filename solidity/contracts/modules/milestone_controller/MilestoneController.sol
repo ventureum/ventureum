@@ -1,9 +1,12 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "repsys/contracts/ReputationSystem.sol";
 
 import '../Module.sol';
 import './MilestoneControllerStorage.sol';
+import '../project_controller/ProjectController.sol';
+import '../token_sale/TokenSale.sol';
 
 
 contract MilestoneController is Module {
@@ -46,10 +49,35 @@ contract MilestoneController is Module {
     string constant OBJS = "objs";
     string constant NUMBER_MILESTONES = "numberMilestones";
 
+    address constant NULL = address(0x0);
+
+    bytes32[] public mockContextTypes;
+
+    // CI
+    bytes32 constant REPUTATION_SYSTEM_CI = keccak256("ReputationSystem");
+    bytes32 constant PROJECT_CONTROLLER_CI = keccak256("ProjectController");
+    bytes32 constant TOKEN_SALE_CI = keccak256("TokenSale");
+
     MilestoneControllerStorage public milestoneControllerStore;
+
+    ReputationSystem public reputationSystem;
+    ProjectController public projectController;
+    TokenSale public tokenSale;
 
     constructor (address kernelAddr) Module(kernelAddr) public {
         CI = keccak256("MilestoneController");
+    }
+
+    function setReputationSystem (address reputationSystemAddress) external {
+        reputationSystem = ReputationSystem(reputationSystemAddress);
+    }
+
+    function setProjectController (address projectControllerAddress) external {
+        projectController = ProjectController(projectControllerAddress);
+    }
+
+    function setTokenSale (address tokenSaleAddress) external {
+        tokenSale = TokenSale(tokenSaleAddress);
     }
 
     /**
@@ -64,6 +92,10 @@ contract MilestoneController is Module {
     */
     function addMilestone(bytes32 namespace, uint length, bytes32[] objs) external {
         require(length >= 60 days);
+        require(
+            reputationSystem != NULL && 
+            projectController != NULL && 
+            tokenSale != NULL);
 
         uint numberMilestones = milestoneControllerStore.getUint(
             keccak256(abi.encodePacked(namespace, NUMBER_MILESTONES)));
@@ -95,6 +127,19 @@ contract MilestoneController is Module {
             keccak256(abi.encodePacked(namespace, id, STATE)), uint(MilestoneState.INACTIVE));
         milestoneControllerStore.setArray(
             keccak256(abi.encodePacked(namespace, id, OBJS)), objs);
+
+        address tokenAddress = projectController.getTokenAddress(namespace);
+
+        uint avgPrice = tokenSale.avgPrice(namespace);
+
+        reputationSystem.registerPollRequest(
+            keccak256(abi.encodePacked(namespace, NUMBER_MILESTONES)),
+            lastEndTime,
+            lastEndTime.add(length),
+            avgPrice,
+            true,
+            tokenAddress,
+            mockContextTypes);
     }
 
     /**

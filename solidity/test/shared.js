@@ -8,7 +8,9 @@ import {
   MilestoneController,
   EtherCollector,
   TokenCollector,
-  TokenSale} from './constants.js'
+  TokenSale,
+  ReputationSystem,
+  CarbonVoteXCore} from './constants.js'
 
 const Configuation = require('../config/configuation.js')
 
@@ -72,6 +74,18 @@ const run = exports.run = async (accounts) => {
 
   // Token Sale
   instances.tokenSale = await TokenSale.Self.new(instances.kernel.address)
+
+  // CarbonVoteX
+  instances.carbonVoteXCore = await CarbonVoteXCore.Self.new(accounts[1])
+
+  // Reputation System
+  instances.reputationSystem = await ReputationSystem.Self.new(
+    instances.carbonVoteXCore.address,
+    ReputationSystem.CI,
+    ReputationSystem.updateInterval,
+    ReputationSystem.prevVotesDiscount,
+    ReputationSystem.newVotesDiscount,
+    ReputationSystem.defaultAddressCanRegister)
 
   const instanceObjects = await Configuation.run(instances, accounts, artifacts)
 
