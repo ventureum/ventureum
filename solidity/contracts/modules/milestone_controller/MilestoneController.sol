@@ -49,6 +49,8 @@ contract MilestoneController is Module {
     string constant OBJS = "objs";
     string constant NUMBER_MILESTONES = "numberMilestones";
 
+    address constant NULL = address(0x0);
+
     bytes32[] public mockContextTypes;
 
     // CI
@@ -66,6 +68,18 @@ contract MilestoneController is Module {
         CI = keccak256("MilestoneController");
     }
 
+    function setReputationSystem (address reputationSystemAddress) external {
+        reputationSystem = ReputationSystem(reputationSystemAddress);
+    }
+
+    function setProjectController (address projectControllerAddress) external {
+        projectController = ProjectController(projectControllerAddress);
+    }
+
+    function setTokenSale (address tokenSaleAddress) external {
+        tokenSale = TokenSale(tokenSaleAddress);
+    }
+
     /**
     * Add a milestone
     * Can only be called if the first milestone is INACTIVE or there is no milestones
@@ -78,15 +92,10 @@ contract MilestoneController is Module {
     */
     function addMilestone(bytes32 namespace, uint length, bytes32[] objs) external {
         require(length >= 60 days);
-
-        reputationSystem = 
-            ReputationSystem(contractAddressHandler.contracts(REPUTATION_SYSTEM_CI));
-
-        projectController = 
-            ProjectController(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI));
-
-        tokenSale = 
-            TokenSale(contractAddressHandler.contracts(TOKEN_SALE_CI));
+        require(
+            reputationSystem != NULL && 
+            projectController != NULL && 
+            tokenSale != NULL);
 
         uint numberMilestones = milestoneControllerStore.getUint(
             keccak256(abi.encodePacked(namespace, NUMBER_MILESTONES)));

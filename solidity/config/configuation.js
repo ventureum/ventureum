@@ -18,7 +18,6 @@ const run = exports.run = async (instances, [root], artifacts) => {
   const TokenSale = _constants.TokenSale
   const Storage = _constants.Storage
   const ReputationSystem = _constants.ReputationSystem
-  // const CarbonVoteXCore = _constants.CarbonVoteXCore
 
   /* ------- receive instances  -------- */
   // Token
@@ -310,6 +309,11 @@ const run = exports.run = async (instances, [root], artifacts) => {
 
   /* -------------------Set address can register -------------- */
   await reputationSystem.setAddressCanRegister(milestoneController.address)
+
+  /* -------------------Milestone set controller-------------- */
+  await milestoneController.setReputationSystem(reputationSystem.address)
+  await milestoneController.setProjectController(projectController.address)
+  await milestoneController.setTokenSale(tokenSale.address)
 
   /* -------------------Managers Connected to Controllers-------------- */
   // Refund Manager
