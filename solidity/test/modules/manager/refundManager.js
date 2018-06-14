@@ -46,15 +46,6 @@ contract('RefundManagerTest', function (accounts) {
         ADVANCE_PROJECT_CI,
         ROOT,
         token.address).should.be.fulfilled
-      await milestoneController.addMilestone(
-        ADVANCE_PROJECT_CI,
-        MILESTONE_LENGTH,
-        []).should.be.fulfilled
-
-      let currentTime = TimeSetter.latestTime()
-      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
-      await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
-        .should.be.fulfilled
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
@@ -69,6 +60,16 @@ contract('RefundManagerTest', function (accounts) {
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
+
+      await milestoneController.addMilestone(
+        ADVANCE_PROJECT_CI,
+        MILESTONE_LENGTH,
+        []).should.be.fulfilled
+
+      let currentTime = TimeSetter.latestTime()
+      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
+      await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
+        .should.be.fulfilled
 
       const { logs } = await refundManager.refund(
         ADVANCE_PROJECT_CI, 0, refundValue).should.be.fulfilled
@@ -91,14 +92,6 @@ contract('RefundManagerTest', function (accounts) {
         ADVANCE_PROJECT_CI,
         ROOT,
         token.address).should.be.fulfilled
-      await milestoneController.addMilestone(
-        ADVANCE_PROJECT_CI,
-        MILESTONE_LENGTH,
-        []).should.be.fulfilled
-      let currentTime = TimeSetter.latestTime()
-      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
-      await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
-        .should.be.fulfilled
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
@@ -113,6 +106,15 @@ contract('RefundManagerTest', function (accounts) {
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
+
+      await milestoneController.addMilestone(
+        ADVANCE_PROJECT_CI,
+        MILESTONE_LENGTH,
+        []).should.be.fulfilled
+      let currentTime = TimeSetter.latestTime()
+      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
+      await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
+        .should.be.fulfilled
 
       await refundManager.refund(ADVANCE_PROJECT_CI, 0, refundValue)
         .should.be.fulfilled
@@ -145,14 +147,6 @@ contract('RefundManagerTest', function (accounts) {
         ADVANCE_PROJECT_CI,
         ROOT,
         token.address).should.be.fulfilled
-      await milestoneController.addMilestone(
-        ADVANCE_PROJECT_CI,
-        MILESTONE_LENGTH,
-        []).should.be.fulfilled
-      await TimeSetter.increaseTimeTo(
-        TimeSetter.latestTime() + LAST_WEEK_LENGTH)
-      await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
-        .should.be.fulfilled
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
@@ -167,6 +161,17 @@ contract('RefundManagerTest', function (accounts) {
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
+
+      await milestoneController.addMilestone(
+        ADVANCE_PROJECT_CI,
+        MILESTONE_LENGTH,
+        []).should.be.fulfilled
+
+      await TimeSetter.increaseTimeTo(
+        TimeSetter.latestTime() + LAST_WEEK_LENGTH)
+
+      await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
+        .should.be.fulfilled
 
       await refundManager.refund(ADVANCE_PROJECT_CI, 0, refundValue)
         .should.be.fulfilled
@@ -182,12 +187,6 @@ contract('RefundManagerTest', function (accounts) {
         ADVANCE_PROJECT_CI,
         ROOT,
         token.address).should.be.fulfilled
-      await milestoneController.addMilestone(
-        ADVANCE_PROJECT_CI,
-        MILESTONE_LENGTH,
-        []).should.be.fulfilled
-      let currentTime = TimeSetter.latestTime()
-      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
@@ -202,6 +201,13 @@ contract('RefundManagerTest', function (accounts) {
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
+
+      await milestoneController.addMilestone(
+        ADVANCE_PROJECT_CI,
+        MILESTONE_LENGTH,
+        []).should.be.fulfilled
+      let currentTime = TimeSetter.latestTime()
+      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
 
       await refundManager.refund(ADVANCE_PROJECT_CI, 0, refundValue)
         .should.be.rejectedWith(Error.EVMRevert)
@@ -215,14 +221,6 @@ contract('RefundManagerTest', function (accounts) {
         ADVANCE_PROJECT_CI,
         ROOT,
         token.address).should.be.fulfilled
-      await milestoneController.addMilestone(
-        ADVANCE_PROJECT_CI,
-        MILESTONE_LENGTH,
-        []).should.be.fulfilled
-      let currentTime = TimeSetter.latestTime()
-      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
-      await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
-        .should.be.fulfilled
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
@@ -233,6 +231,15 @@ contract('RefundManagerTest', function (accounts) {
         .should.be.fulfilled
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
+
+      await milestoneController.addMilestone(
+        ADVANCE_PROJECT_CI,
+        MILESTONE_LENGTH,
+        []).should.be.fulfilled
+      let currentTime = TimeSetter.latestTime()
+      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
+      await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
+        .should.be.fulfilled
 
       await refundManager.refund(ADVANCE_PROJECT_CI, 0, refundValue)
         .should.be.rejectedWith(Error.EVMRevert)
@@ -246,14 +253,6 @@ contract('RefundManagerTest', function (accounts) {
         ADVANCE_PROJECT_CI,
         ROOT,
         token.address).should.be.fulfilled
-      await milestoneController.addMilestone(
-        ADVANCE_PROJECT_CI,
-        MILESTONE_LENGTH,
-        []).should.be.fulfilled
-      let currentTime = TimeSetter.latestTime()
-      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
-      await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
-        .should.be.fulfilled
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
@@ -268,6 +267,15 @@ contract('RefundManagerTest', function (accounts) {
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
+
+      await milestoneController.addMilestone(
+        ADVANCE_PROJECT_CI,
+        MILESTONE_LENGTH,
+        []).should.be.fulfilled
+      let currentTime = TimeSetter.latestTime()
+      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
+      await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
+        .should.be.fulfilled
 
       await refundManager.refund(ADVANCE_PROJECT_CI, 0, refundValue)
         .should.be.fulfilled

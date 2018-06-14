@@ -34,6 +34,12 @@ const TokenCollector = _contants.TokenCollector
 // * Token sale
 const TokenSale = _contants.TokenSale
 
+// * Reputation System
+const ReputationSystem = _contants.ReputationSystem
+
+// * CarbonVoteX Core
+const CarbonVoteXCore = _contants.CarbonVoteXCore
+
 module.exports = function (deployer, network, accounts) {
   function migrationDeploy () {
     let instances = {}
@@ -95,6 +101,19 @@ module.exports = function (deployer, network, accounts) {
       // Deploy token sale
       await deployer.deploy(TokenSale.Self, Kernel.Self.address)
 
+      // Deploy carbon vote x core
+      await deployer.deploy(CarbonVoteXCore.Self, accounts[1])
+
+      // Deploy reputation system
+      await deployer.deploy(
+        ReputationSystem.Self,
+        CarbonVoteXCore.Self.address,
+        ReputationSystem.CI,
+        ReputationSystem.updateInterval,
+        ReputationSystem.prevVotesDiscount,
+        ReputationSystem.newVotesDiscount,
+        ReputationSystem.defaultAddressCanRegister)
+
       // Instances
       instances.vetXToken = VetXToken.Self.at(VetXToken.Self.address)
       instances.kernel = Kernel.Self.at(Kernel.Self.address)
@@ -121,6 +140,8 @@ module.exports = function (deployer, network, accounts) {
           MilestoneController.Storage.Self.address)
       instances.etherCollectorStorage = EtherCollector.Storage.Self.at(
         EtherCollector.Storage.Self.address)
+      instances.reputationSystem = ReputationSystem.Self.at(
+        ReputationSystem.Self.address)
 
       // Configuration
       await Configuation.run(instances, accounts, artifacts)

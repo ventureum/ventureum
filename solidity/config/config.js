@@ -175,9 +175,28 @@ export default function (artifacts) {
   /**
    * Contracts - SafeMath
    */
-  // Token
+  // SafeMath
   class SafeMath {}
   SafeMath.Self = artifacts.require('./SafeMath')
+
+  /**
+   * Contracts - ReputationSystem
+   */
+  // ReputationSystem
+  class ReputationSystem {}
+  ReputationSystem.Self = artifacts.require('./ReputationSystem')
+  ReputationSystem.CI = Web3.utils.keccak256('ReputationSystem')
+  ReputationSystem.updateInterval = 100000
+  ReputationSystem.prevVotesDiscount = 90
+  ReputationSystem.newVotesDiscount = 10
+  ReputationSystem.defaultAddressCanRegister = '0x0'
+
+  /**
+   * Contracts - CarbonVoteX
+   */
+  // CarbonVoteXCore
+  class CarbonVoteXCore {}
+  CarbonVoteXCore.Self = artifacts.require('./CarbonVoteXCore')
 
   // Mocked Project Controllers
   class MockedProjectController {}
@@ -227,6 +246,8 @@ export default function (artifacts) {
     'Error': Error,
     'fs': fs,
     'VetXToken': VetXToken,
-    'SafeMath': SafeMath
+    'SafeMath': SafeMath,
+    'ReputationSystem': ReputationSystem,
+    'CarbonVoteXCore': CarbonVoteXCore
   }
 }
