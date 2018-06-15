@@ -4,6 +4,8 @@ import {
   Kernel,
   ContractAddressHandler} from '../constants.js'
 
+const shared = require('../shared.js')
+
 const UNREGISTERED_CI = wweb3.utils.keccak256(
   'UnregisteredCI')
 
@@ -14,12 +16,9 @@ contract('ContractAddressHandlerTest', function (accounts) {
   let contractAddressHandler
 
   before(async function () {
-    kernel = await Kernel.Self.new()
-    contractAddressHandler = await ContractAddressHandler.Self.new(
-      kernel.address)
-
-    // register contract
-    await contractAddressHandler.registerContract(Kernel.RootCI, ROOT)
+    let context = await shared.run(accounts)
+    kernel = context.kernel
+    contractAddressHandler = context.contractAddressHandler
   })
 
   it('should reject cause already registered', async function () {
