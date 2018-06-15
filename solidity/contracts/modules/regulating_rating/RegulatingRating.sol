@@ -12,6 +12,8 @@ import "../project_controller/ProjectController.sol";
 contract RegulatingRating is Module {
     using SafeMath for uint;
 
+    enum BidAction {IN, OUT}
+
     /*
         Fields Names for struct RegulatingRatingData
 
@@ -28,17 +30,18 @@ contract RegulatingRating is Module {
             bytes32[] objMaxRegulationRewards;
         }
     */
-    string constant START_TIME = "startTime";
-    string constant END_TIME = "endTime";
-    string constant FINALIZED = "finalized";
-    string constant OBJ = "objective";
-    string constant OBJ_ID = "objectiveId";
-    string constant OBJ_TYPE = "objectiveType";
-    string constant OBJ_MAX_REGULATION_REWARD = "objectiveMaxRegulationReward";
-    string constant OBJ_REGULATION_REWARD = "objectiveRegulationReward";
-    string constant NUMBER_OBJECTIVES = "numberObjectives";
-    string constant REGULATOR_BID = "regulatorBid";
-    string constant REGULATOR_ADDRESS_LIST = "regulatorAddressList";
+    bytes32 constant START_TIME = "startTime";
+    bytes32 constant END_TIME = "endTime";
+    bytes32 constant FINALIZED = "finalized";
+    bytes32 constant OBJ = "objective";
+    bytes32 constant OBJ_ID = "objectiveId";
+    bytes32 constant OBJ_TYPE = "objectiveType";
+    bytes32 constant OBJ_MAX_REGULATION_REWARD = "objectiveMaxRegulationReward";
+    bytes32 constant OBJ_REGULATION_REWARD = "objectiveRegulationReward";
+    bytes32 constant OBJ_TOTAL_REPUTATION_VOTES = "objectiveTotalReputationVotes";
+    bytes32 constant NUMBER_OBJECTIVES = "numberObjectives";
+    bytes32 constant REGULATOR_BID = "regulatorBid";
+    bytes32 constant REGULATOR_ADDRESS_LIST = "regulatorAddressList";
     uint constant GLOBAL_OBJ_ID = uint(-1);
     uint constant TRUE = 1;
     uint constant FALSE = 0;
@@ -185,6 +188,7 @@ contract RegulatingRating is Module {
             keccak256(abi.encodePacked(namespace, milestoneId, objId, msg.sender, OBJ_REGULATION_REWARD)),
             0
         );
+        updateObjTotalReputationVotes(namespace, milestoneId, objId, msg.sender, BidAction.IN);
     }
 
     /**
@@ -210,6 +214,7 @@ contract RegulatingRating is Module {
             keccak256(abi.encodePacked(namespace, milestoneId, objId, msg.sender, OBJ_REGULATION_REWARD)),
             0
         );
+        updateObjTotalReputationVotes(namespace, milestoneId, objId, msg.sender, BidAction.OUT);
     }
 
     /**
@@ -361,6 +366,49 @@ contract RegulatingRating is Module {
     }
 
     /**
+    * Update ObjTotalReputationVotes by BidAction
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId milestoneId of a milestone of the project
+    * @param objId objective id
+    * @param regulatorAddress regulator address
+    * @param bidAction BidAction performed by regulator
+    */
+    function updateObjTotalReputationVotes(
+        bytes32 namespace,
+        uint milestoneId,
+        uint objId,
+        address regulatorAddress,
+        BidAction bidAction
+    )
+        internal
+    {
+        uint objTotalReputationVotes = regulatingRatingStorage.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_TOTAL_REPUTATION_VOTES))
+        );
+
+        bytes32 objType = regulatingRatingStorage.getBytes32(
+            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_TYPE))
+        );
+        bytes32 pollId = keccak256(abi.encodePacked(namespace, milestoneId));
+        uint regulatorVotes = reputationSystem.getVotingResultForMember(
+            pollId,
+            regulatorAddress,
+            objType
+        );
+
+        if (bidAction == BidAction.IN) {
+            objTotalReputationVotes = objTotalReputationVotes.add(regulatorVotes);
+        } else {
+            objTotalReputationVotes = objTotalReputationVotes.sub(regulatorVotes);
+        }
+        regulatingRatingStorage.setUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_TOTAL_REPUTATION_VOTES)),
+            objTotalReputationVotes
+        );
+    }
+
+    /**
     * Finalize the bid of an objective by objective id that in rating process
     *
     * @param namespace namespace of a project
@@ -383,7 +431,7 @@ contract RegulatingRating is Module {
             keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_MAX_REGULATION_REWARD))
         );
 
-        uint currentRegulationRewards = maxRegulationRewards.mul(rewardPercentage).div(100);
+        uint currentRegulationRewards = maxRegulationRewards.mul(rewardPercentage).div(PERCENTAGE_BASE);
         address[] memory regulatorAddressList = regulatingRatingStorage.getAddressArray(
             keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, REGULATOR_ADDRESS_LIST))
         );
@@ -394,11 +442,14 @@ contract RegulatingRating is Module {
 
         for (uint i = 0; i < regulatorAddressList.length; i++) {
             uint rewardPercentageForRegulator = getRewardPercentageForRegulator(
+                namespace,
+                milestoneId,
                 pollId,
+                objId,
                 objType,
                 regulatorAddressList[i]
             );
-            uint rewards = rewardPercentageForRegulator.mul(currentRegulationRewards).div(100);
+            uint rewards = rewardPercentageForRegulator.mul(currentRegulationRewards).div(PERCENTAGE_BASE);
             regulatingRatingStorage.setUint(
                 keccak256(abi.encodePacked(
                     namespace, milestoneId, objId, regulatorAddressList[i], OBJ_REGULATION_REWARD)),
@@ -428,7 +479,7 @@ contract RegulatingRating is Module {
         if (now < endTime) {
             endTime = now;
         }
-        uint rewardPercentage = (endTime.sub(startTime)).mul(100).div(interval);
+        uint rewardPercentage = (endTime.sub(startTime)).mul(PERCENTAGE_BASE).div(interval);
         return rewardPercentage;
     }
 
@@ -502,12 +553,18 @@ contract RegulatingRating is Module {
     /**
     * Return reward percentage for a regulator by the votes in Reputation System
     *
+    * @param namespace namespace of a project
+    * @param milestoneId milestoneId of a milestone of the project
     * @param pollId for the milestone
+    * @param objId objective id of an objective in a milestone of the project
     * @param objType objective type of an objective in a milestone of the project
     * @param _addr address of the regulator
     */
     function getRewardPercentageForRegulator(
+        bytes32 namespace,
+        uint milestoneId,
         bytes32 pollId,
+        uint objId,
         bytes32 objType,
         address _addr
     )
@@ -515,10 +572,11 @@ contract RegulatingRating is Module {
         view
         returns (uint)
     {
-
-        uint totalVotes = reputationSystem.getVotingResultForContextType(pollId, objType);
+        uint objTotalReputationVotes = regulatingRatingStorage.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_TOTAL_REPUTATION_VOTES))
+        );
         uint regulatorVotes = reputationSystem.getVotingResultForMember(pollId, _addr, objType);
-        require(totalVotes > 0);
-        return regulatorVotes.mul(100).div(totalVotes);
+        require(objTotalReputationVotes > 0);
+        return regulatorVotes.mul(PERCENTAGE_BASE).div(objTotalReputationVotes);
     }
 }
