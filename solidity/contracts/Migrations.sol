@@ -1,5 +1,7 @@
 pragma solidity ^0.4.24;
 
+import "carbonvotex/contracts/CarbonVoteXBasic.sol";
+
 contract Migrations {
     address public owner;
     uint public last_completed_migration;

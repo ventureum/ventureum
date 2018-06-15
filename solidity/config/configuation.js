@@ -2,7 +2,9 @@
 
 const Constant = require('../config/config.js')
 
-const run = exports.run = async (instances, [root], artifacts) => {
+const run = exports.run = async (instances, accounts, artifacts) => {
+  const root = accounts[0]
+
   /* ------- receive Constant -------- */
   const _constants = Constant.default(artifacts)
 
@@ -18,6 +20,7 @@ const run = exports.run = async (instances, [root], artifacts) => {
   const TokenSale = _constants.TokenSale
   const Storage = _constants.Storage
   const ReputationSystem = _constants.ReputationSystem
+  const CarbonVoteX = _constants.CarbonVoteX
 
   /* ------- receive instances  -------- */
   // Token
@@ -55,6 +58,22 @@ const run = exports.run = async (instances, [root], artifacts) => {
 
   // Reputation System
   const reputationSystem = instances.reputationSystem
+
+  // CarbonVoteX
+  const carbonVoteXCore = instances.carbonVoteXCore
+  const carbonVoteXBasic = instances.carbonVoteXBasic
+
+  /* ---------------------Configuation CarbonVoteX----------------------------- */
+  let functions = []
+  for (let i = 0; i < accounts.length; i++) {
+    functions.push(CarbonVoteX.sendGas)
+  }
+  await carbonVoteXCore.setReceiver(
+    CarbonVoteX.NAME_SPACE,
+    carbonVoteXBasic.address,
+    CarbonVoteX.receiverFunctions)
+
+  await carbonVoteXCore.setPermissions(functions, accounts)
 
   /* ---------------------Kernel Register Handlers----------------------------- */
   // ACLHandler

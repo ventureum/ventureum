@@ -223,8 +223,12 @@ export default function (artifacts) {
    * Contracts - CarbonVoteX
    */
   // CarbonVoteXCore
-  class CarbonVoteXCore {}
-  CarbonVoteXCore.Self = artifacts.require('./CarbonVoteXCore')
+  class CarbonVoteX {}
+  CarbonVoteX.Core = artifacts.require('./CarbonVoteXCore')
+  CarbonVoteX.Basic = artifacts.require('./CarbonVoteXBasic')
+  CarbonVoteX.NAME_SPACE = Web3.utils.sha3('simple-namespace')
+  CarbonVoteX.receiverFunctions = [Web3.utils.sha3('register')]
+  CarbonVoteX.sendGas = Web3.utils.sha3('sendGas')
 
   // Mocked Project Controllers
   class MockedProjectController {}
@@ -278,6 +282,6 @@ export default function (artifacts) {
     'VetXToken': VetXToken,
     'SafeMath': SafeMath,
     'ReputationSystem': ReputationSystem,
-    'CarbonVoteXCore': CarbonVoteXCore
+    'CarbonVoteX': CarbonVoteX
   }
 }
