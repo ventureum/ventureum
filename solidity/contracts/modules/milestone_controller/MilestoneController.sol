@@ -101,8 +101,10 @@ contract MilestoneController is Module {
         uint length,
         bytes32[] objs,
         bytes32[] objTypes,
-        uint[] objMaxRegulationRewards)
+        uint[] objMaxRegulationRewards
+    )
         external
+        connected
     {
         require(length >= 60 days);
         require(
@@ -134,7 +136,7 @@ contract MilestoneController is Module {
         uint avgPrice = tokenSale.avgPrice(namespace);
 
         reputationSystem.registerPollRequest(
-            keccak256(abi.encodePacked(namespace, NUMBER_MILESTONES)),
+            keccak256(abi.encodePacked(namespace, milestoneId)),
             lastEndTime,
             lastEndTime.add(length),
             avgPrice,
@@ -154,7 +156,7 @@ contract MilestoneController is Module {
     * @param milestoneId milestoneId of a milestone of the project
     * @param weiLocked the amount of wei locked in the milestone
     */
-    function activate(bytes32 namespace, uint milestoneId, uint weiLocked) external {
+    function activate(bytes32 namespace, uint milestoneId, uint weiLocked) external connected {
         bool existing;
         uint endTime;
         (existing, endTime) = isExisting(namespace, milestoneId);
@@ -220,7 +222,7 @@ contract MilestoneController is Module {
     * @param namespace namespace of a project
     * @param milestoneId milestoneId of a milestone of the project
     */
-    function startRefundStage(bytes32 namespace, uint milestoneId) external {
+    function startRefundStage(bytes32 namespace, uint milestoneId) external  {
         bool existing;
         uint endTime;
         (existing, endTime) = isExisting(namespace, milestoneId);

@@ -64,7 +64,8 @@ export default function (artifacts) {
   RefundManager.Storage = {
     Self: artifacts.require(
       'modules/managers/refund_manager/RefundManagerStorage'),
-    CI: Web3.utils.keccak256('RefundManagerStorage')}
+    CI: Web3.utils.keccak256('RefundManagerStorage')
+  }
 
   /**
    * Contracts - controllers
@@ -88,7 +89,8 @@ export default function (artifacts) {
   ProjectController.Storage = {
     Self: artifacts.require(
       'modules/project_controller/ProjectControllerStorage'),
-    CI: Web3.utils.keccak256('ProjectControllerStorage')}
+    CI: Web3.utils.keccak256('ProjectControllerStorage')
+  }
 
   // Milestone Controller
   class MilestoneController {}
@@ -98,11 +100,25 @@ export default function (artifacts) {
   MilestoneController.Sig = {
     RegisterProject: wweb3.eth.abi.encodeFunctionSignature(
       'registerProject(bytes32,address,address)'),
-    SetStorage: SET_STORAGE_SIG}
+    SetStorage: SET_STORAGE_SIG,
+    SetReputationSystem: wweb3.eth.abi.encodeFunctionSignature(
+      'setReputationSystem(address)'),
+    SetRegulatingRating: wweb3.eth.abi.encodeFunctionSignature(
+      'setRegulatingRating(address)'),
+    SetTokenSale: wweb3.eth.abi.encodeFunctionSignature(
+      'setTokenSale(address)'),
+    SetProjectController: wweb3.eth.abi.encodeFunctionSignature(
+      'setProjectController(address)'),
+    Activate: wweb3.eth.abi.encodeFunctionSignature(
+      'activate(bytes32,uint256,uint256)'),
+    AddMilestone: wweb3.eth.abi.encodeFunctionSignature(
+      'addMilestone(bytes32,uint256,bytes32[],bytes32[],uint256[])')
+  }
   MilestoneController.Storage = {
     Self: artifacts.require(
       'modules/milestone_controller/MilestoneControllerStorage'),
-    CI: Web3.utils.keccak256('MilestoneControllerStorage')}
+    CI: Web3.utils.keccak256('MilestoneControllerStorage')
+  }
 
   // Token Sale
   class TokenSale {}
@@ -118,7 +134,8 @@ export default function (artifacts) {
     Deposit: wweb3.eth.abi.encodeFunctionSignature(
       'deposit(address,uint256)'),
     Withdraw: wweb3.eth.abi.encodeFunctionSignature(
-      'withdraw(address,address,uint256)')}
+      'withdraw(address,address,uint256)')
+  }
 
   // Ether Collector
   class EtherCollector {}
@@ -129,10 +146,12 @@ export default function (artifacts) {
     Deposit: wweb3.eth.abi.encodeFunctionSignature('deposit()'),
     Withdraw: wweb3.eth.abi.encodeFunctionSignature(
       'withdraw(address,uint256)'),
-    SetStorage: SET_STORAGE_SIG}
+    SetStorage: SET_STORAGE_SIG
+  }
   EtherCollector.Storage = {
     Self: artifacts.require('modules/ether_collector/EtherCollectorStorage'),
-    CI: Web3.utils.keccak256('EtherCollectorStorage')}
+    CI: Web3.utils.keccak256('EtherCollectorStorage')
+  }
 
   /**
    * Contracts - storage
@@ -149,7 +168,16 @@ export default function (artifacts) {
     GetBytes32: wweb3.eth.abi.encodeFunctionSignature('getBytes32(bytes32)'),
     SetArray: wweb3.eth.abi.encodeFunctionSignature(
       'setArray(bytes32,bytes32[])'),
-    GetArray: wweb3.eth.abi.encodeFunctionSignature('getArray(bytes32)')}
+    GetArray: wweb3.eth.abi.encodeFunctionSignature('getArray(bytes32)'),
+    SetUintArray: wweb3.eth.abi.encodeFunctionSignature(
+      'setUintArray(bytes32,uint256[])'),
+    GetUintArray: wweb3.eth.abi.encodeFunctionSignature(
+      'getUintArray(bytes32)'),
+    SetAddressArray: wweb3.eth.abi.encodeFunctionSignature(
+      'setAddressArray(bytes32,address[])'),
+    GetAddressArray: wweb3.eth.abi.encodeFunctionSignature(
+      'getAddressArray(bytes32)')
+  }
 
   /**
    * Contracts - modules
@@ -207,7 +235,8 @@ export default function (artifacts) {
     RegisterOwner: wweb3.eth.abi.encodeFunctionSignature(
       'registerOwner(bytes32,address)'),
     SetState: wweb3.eth.abi.encodeFunctionSignature(
-      'setState(bytes32,uint256)')}
+      'setState(bytes32,uint256)')
+  }
 
   class MockedProjectController2 {}
   MockedProjectController2.Self = artifacts.require(
@@ -217,7 +246,8 @@ export default function (artifacts) {
     RegisterOwner: wweb3.eth.abi.encodeFunctionSignature(
       'registerOwner(bytes32,address)'),
     SetState: wweb3.eth.abi.encodeFunctionSignature(
-      'setState(bytes32,uint256)')}
+      'setState(bytes32,uint256)')
+  }
 
   // Mocked Sale for registry
   class MockedSale {}

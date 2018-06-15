@@ -9,6 +9,12 @@ const DEPOSIT_ETH_VALUE = 1000
 const MILESTONE_LENGTH = TimeSetter.OneYear
 const LAST_WEEK_LENGTH = MILESTONE_LENGTH + 100 - TimeSetter.OneWeek
 
+const OBJS = [Web3.utils.keccak256('obj1')]
+const OBJ_TYPES = ["type1"]
+const OBJ_MAX_REGULATION_REWARDS = [100]
+
+
+
 contract('RefundManagerTest', function (accounts) {
   const ROOT = accounts[0]
   const PURCHASER = accounts[2]
@@ -64,7 +70,9 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.addMilestone(
         ADVANCE_PROJECT_CI,
         MILESTONE_LENGTH,
-        []).should.be.fulfilled
+        OBJS,
+        OBJ_TYPES,
+        OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
 
       let currentTime = TimeSetter.latestTime()
       await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
@@ -110,7 +118,10 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.addMilestone(
         ADVANCE_PROJECT_CI,
         MILESTONE_LENGTH,
-        []).should.be.fulfilled
+        OBJS,
+        OBJ_TYPES,
+        OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
+
       let currentTime = TimeSetter.latestTime()
       await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
       await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
@@ -165,7 +176,9 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.addMilestone(
         ADVANCE_PROJECT_CI,
         MILESTONE_LENGTH,
-        []).should.be.fulfilled
+        OBJS,
+        OBJ_TYPES,
+        OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
 
       await TimeSetter.increaseTimeTo(
         TimeSetter.latestTime() + LAST_WEEK_LENGTH)
@@ -205,7 +218,10 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.addMilestone(
         ADVANCE_PROJECT_CI,
         MILESTONE_LENGTH,
-        []).should.be.fulfilled
+        OBJS,
+        OBJ_TYPES,
+        OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
+
       let currentTime = TimeSetter.latestTime()
       await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
 
@@ -235,7 +251,10 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.addMilestone(
         ADVANCE_PROJECT_CI,
         MILESTONE_LENGTH,
-        []).should.be.fulfilled
+        OBJS,
+        OBJ_TYPES,
+        OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
+
       let currentTime = TimeSetter.latestTime()
       await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
       await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)
@@ -271,7 +290,10 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.addMilestone(
         ADVANCE_PROJECT_CI,
         MILESTONE_LENGTH,
-        []).should.be.fulfilled
+        OBJS,
+        OBJ_TYPES,
+        OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
+
       let currentTime = TimeSetter.latestTime()
       await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
       await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, 0)

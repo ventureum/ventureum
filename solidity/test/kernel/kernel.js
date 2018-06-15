@@ -1,7 +1,7 @@
 import {
   wweb3,
-  Error,
-  Kernel} from '../constants.js'
+  Error} from '../constants.js'
+const shared = require('../shared.js')
 
 const CI1 = wweb3.utils.keccak256('KernelTest1')
 const CI2 = wweb3.utils.keccak256('KernelTest2')
@@ -15,31 +15,40 @@ const CI9 = wweb3.utils.keccak256('KernelTest9')
 const CI10 = wweb3.utils.keccak256('KernelTest10')
 const INVALID_ADDRESS = '0xa0'
 
-contract('KernelTest', function (
-  [_, testAccount1, testAccount2, testAccount3, testAccount4, testAccount5]) {
+contract('KernelTest', function (accounts) {
+
+  const TEST_ACCOUNT1 = accounts[1];
+  const TEST_ACCOUNT2 = accounts[2];
+  const TEST_ACCOUNT3 = accounts[3];
+  const TEST_ACCOUNT4 = accounts[4];
+  const TEST_ACCOUNT5 = accounts[5];
+
   let kernel
+
   before(async function () {
-    kernel = await Kernel.Self.new()
+    let context = await shared.run(accounts)
+    kernel = context.kernel
   })
 
   describe('basic tests', function () {
+
     it('should return 0x0', async function () {
       let addr = await kernel.handlers.call(CI1)
       wweb3.utils.hexToNumber(addr).should.be.equal(0)
     })
 
     it('should reject register', async function () {
-      await kernel.registerHandler(CI2, testAccount1)
+      await kernel.registerHandler(CI2, TEST_ACCOUNT1)
         .should.be.fulfilled
-      await kernel.registerHandler(CI2, testAccount1)
+      await kernel.registerHandler(CI2, TEST_ACCOUNT1)
         .should.be.rejectedWith(Error.EVMRevert)
     })
 
     it('should return testAccount', async function () {
-      await kernel.registerHandler(CI3, testAccount2)
+      await kernel.registerHandler(CI3, TEST_ACCOUNT2)
         .should.be.fulfilled
       let addr = await kernel.handlers.call(CI3)
-      addr.should.be.equal(testAccount2)
+      addr.should.be.equal(TEST_ACCOUNT2)
     })
 
     it('should reject unregister', async function () {
@@ -48,9 +57,9 @@ contract('KernelTest', function (
     })
 
     it('should unregister success', async function () {
-      await kernel.registerHandler(CI5, testAccount3)
+      await kernel.registerHandler(CI5, TEST_ACCOUNT3)
         .should.be.fulfilled
-      await kernel.registerHandler(CI6, testAccount3)
+      await kernel.registerHandler(CI6, TEST_ACCOUNT3)
         .should.be.fulfilled
       await kernel.unregisterHandler(CI6).should.be.fulfilled
       let addr = await kernel.handlers.call(CI6)
@@ -58,9 +67,9 @@ contract('KernelTest', function (
     })
 
     it('register two same address should be fulfilled', async function () {
-      await kernel.registerHandler(CI7, testAccount4)
+      await kernel.registerHandler(CI7, TEST_ACCOUNT4)
         .should.be.fulfilled
-      await kernel.registerHandler(CI8, testAccount4)
+      await kernel.registerHandler(CI8, TEST_ACCOUNT4)
         .should.be.fulfilled
     })
 
@@ -72,7 +81,7 @@ contract('KernelTest', function (
 
     it('should reject by failed address require', async function () {
       const handlerList = [CI10]
-      await kernel.registerHandler(CI10, testAccount5)
+      await kernel.registerHandler(CI10, TEST_ACCOUNT5)
         .should.be.fulfilled
       await kernel.connect(
         INVALID_ADDRESS, handlerList).should.be.rejectedWith(Error.EVMRevert)

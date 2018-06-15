@@ -211,7 +211,14 @@ const run = exports.run = async (instances, [root], artifacts) => {
   await aclHandler.permit(
     Kernel.RootCI,
     MilestoneController.CI,
-    [MilestoneController.Sig.SetStorage])
+    [
+      MilestoneController.Sig.SetStorage,
+      MilestoneController.Sig.SetRegulatingRating,
+      MilestoneController.Sig.SetProjectController,
+      MilestoneController.Sig.SetTokenSale,
+      MilestoneController.Sig.SetReputationSystem,
+      MilestoneController.Sig.AddMilestone
+    ])
   await aclHandler.permit(
     Kernel.RootCI,
     MilestoneController.Storage.CI,
@@ -272,7 +279,7 @@ const run = exports.run = async (instances, [root], artifacts) => {
   await aclHandler.permit(
     MilestoneController.CI,
     MilestoneController.Storage.CI,
-    [Storage.Sig.SetUint, Storage.Sig.SetArray])
+    [Storage.Sig.SetUint, Storage.Sig.SetArray, Storage.Sig.SetUintArray])
 
   // Source: Ether Collector
   // Destination: Ether Collector Storage
