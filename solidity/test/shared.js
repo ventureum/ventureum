@@ -10,7 +10,7 @@ import {
   TokenCollector,
   TokenSale,
   ReputationSystem,
-  CarbonVoteXCore} from './constants.js'
+  CarbonVoteX} from './constants.js'
 
 const Configuation = require('../config/configuation.js')
 
@@ -76,7 +76,11 @@ const run = exports.run = async (accounts) => {
   instances.tokenSale = await TokenSale.Self.new(instances.kernel.address)
 
   // CarbonVoteX
-  instances.carbonVoteXCore = await CarbonVoteXCore.Self.new(accounts[1])
+  instances.carbonVoteXCore = await CarbonVoteX.Core.new(accounts[0])
+  instances.carbonVoteXBasic = await CarbonVoteX.Basic.new(
+    CarbonVoteX.NAME_SPACE,
+    instances.carbonVoteXCore.address
+  )
 
   // Reputation System
   instances.reputationSystem = await ReputationSystem.Self.new(
@@ -86,6 +90,7 @@ const run = exports.run = async (accounts) => {
     ReputationSystem.prevVotesDiscount,
     ReputationSystem.newVotesDiscount,
     ReputationSystem.defaultAddressCanRegister)
+  console.log('Test here here ')
 
   const instanceObjects = await Configuation.run(instances, accounts, artifacts)
 

@@ -25,7 +25,7 @@ const Error = _constant.Error
 const fs = _constant.fs
 const VetXToken = _constant.VetXToken
 const SafeMath = _constant.SafeMath
-const CarbonVoteXCore = _constant.CarbonVoteXCore
+const CarbonVoteX = _constant.CarbonVoteX
 const ReputationSystem = _constant.ReputationSystem
 
 export {
@@ -52,6 +52,6 @@ export {
   fs,
   VetXToken,
   SafeMath,
-  CarbonVoteXCore,
+  CarbonVoteX,
   ReputationSystem
 }

@@ -38,7 +38,9 @@ const TokenSale = _contants.TokenSale
 const ReputationSystem = _contants.ReputationSystem
 
 // * CarbonVoteX Core
-const CarbonVoteXCore = _contants.CarbonVoteXCore
+const CarbonVoteXCore = _contants.CarbonVoteX.Core
+const CarbonVoteXBasic = _contants.CarbonVoteX.Basic
+const CarbonVoteXNameSpace = _contants.NAME_SPACE
 
 module.exports = function (deployer, network, accounts) {
   function migrationDeploy () {
@@ -101,13 +103,17 @@ module.exports = function (deployer, network, accounts) {
       // Deploy token sale
       await deployer.deploy(TokenSale.Self, Kernel.Self.address)
 
-      // Deploy carbon vote x core
-      await deployer.deploy(CarbonVoteXCore.Self, accounts[1])
+      // Deploy carbon vote x
+      await deployer.deploy(CarbonVoteXCore, accounts[0])
+      await deployer.deploy(
+        CarbonVoteXBasic,
+        CarbonVoteXNameSpace,
+        CarbonVoteXCore.address)
 
       // Deploy reputation system
       await deployer.deploy(
         ReputationSystem.Self,
-        CarbonVoteXCore.Self.address,
+        CarbonVoteXCore.address,
         ReputationSystem.CI,
         ReputationSystem.updateInterval,
         ReputationSystem.prevVotesDiscount,
@@ -142,6 +148,10 @@ module.exports = function (deployer, network, accounts) {
         EtherCollector.Storage.Self.address)
       instances.reputationSystem = ReputationSystem.Self.at(
         ReputationSystem.Self.address)
+      instances.carbonVoteXCore = CarbonVoteXCore.at(
+        CarbonVoteXCore.address)
+      instances.carbonVoteXBasic = CarbonVoteXBasic.at(
+        CarbonVoteXBasic.address)
 
       // Configuration
       await Configuation.run(instances, accounts, artifacts)
