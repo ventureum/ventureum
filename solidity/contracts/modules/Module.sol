@@ -13,14 +13,17 @@ contract Module is Base, Ownable {
     bytes32 constant public TOKEN_SALE_CI = keccak256("TokenSale");
     bytes32 constant public TOKEN_COLLECTOR_CI = keccak256("TokenCollector");
     bytes32 constant public ETHER_COLLECTOR_CI = keccak256("EtherCollector");
+    bytes32 constant public ACL_HANDLER_CI = keccak256("ACLHandler");
+    bytes32 constant public CONTRACT_ADDRESS_HANDLER_CI = keccak256("ContractAddressHandler");
+
+    uint constant PERCENTAGE_BASE = 1e18;
 
     address public storeAddr;
 
     IACLHandler public aclHandler;
     IContractAddressHandler public contractAddressHandler;
 
-    bytes32 constant public ACL_HANDLER_CI = keccak256("ACLHandler");
-    bytes32 constant public CONTRACT_ADDRESS_HANDLER_CI = keccak256("ContractAddressHandler");
+
 
     modifier handlerOnly(bytes32 handlerCI) {
         require(msg.sender == kernel.handlers(handlerCI));
