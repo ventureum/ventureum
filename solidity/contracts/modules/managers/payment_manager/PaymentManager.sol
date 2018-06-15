@@ -27,6 +27,7 @@ contract PaymentManager is Manager {
     *  @param milestoneId the id of a milestone
     */
     function withdraw(bytes32 namespace, uint milestoneId) external founderOnly(namespace) {
+        require(etherCollector != NULL);
         // check milestone state
         uint milestoneState = milestoneController.milestoneState(namespace, milestoneId);
         require(milestoneState == uint(MilestoneController.MilestoneState.COMPLETION));
@@ -35,7 +36,7 @@ contract PaymentManager is Manager {
         uint weiLocked = milestoneController.milestoneWeiLocked(namespace, milestoneId);
         require(weiLocked > 0);
 
-        require(etherCollector != NULL);
+        require(weiLocked <= address(etherCollector).balance);
         etherCollector.withdraw(msg.sender, weiLocked);
         emit FundWithdrawnByFounder(msg.sender, namespace, milestoneId, weiLocked);
     }

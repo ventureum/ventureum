@@ -248,6 +248,27 @@ contract MilestoneController is Module {
     }
 
     /**
+    * Get regulation rewards for an objective performed by a regulator
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId milestoneId of a milestone of the project
+    * @param obj an objective in a milestone of the project
+    * @param _addr address of the regulator
+    */
+    function getRegulationRewardsForRegulator(
+        bytes32 namespace,
+        uint milestoneId,
+        bytes32 obj,
+        address _addr
+    )
+        external
+        view
+        returns (uint)
+    {
+        return regulatingRating.getRegulationRewardsForRegulator(namespace, milestoneId, obj, _addr);
+    }
+
+    /**
     * Returns the current state, convert enum to uint
     *
     * @param namespace namespace of a project
