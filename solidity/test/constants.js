@@ -27,6 +27,8 @@ const VetXToken = _constant.VetXToken
 const SafeMath = _constant.SafeMath
 const CarbonVoteX = _constant.CarbonVoteX
 const ReputationSystem = _constant.ReputationSystem
+const RegulatingRating = _constant.RegulatingRating
+const RewardManager = _constant.RewardManager
 
 export {
   Kernel,
@@ -53,5 +55,7 @@ export {
   VetXToken,
   SafeMath,
   CarbonVoteX,
-  ReputationSystem
+  ReputationSystem,
+  RegulatingRating,
+  RewardManager
 }

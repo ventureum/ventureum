@@ -23,8 +23,6 @@ contract Module is Base, Ownable {
     IACLHandler public aclHandler;
     IContractAddressHandler public contractAddressHandler;
 
-
-
     modifier handlerOnly(bytes32 handlerCI) {
         require(msg.sender == kernel.handlers(handlerCI));
         _;

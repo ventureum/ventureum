@@ -220,6 +220,42 @@ export default function (artifacts) {
   ReputationSystem.defaultAddressCanRegister = '0x0'
 
   /**
+   * Contracts - RegulatingRating
+   */
+  // RegulatingRating
+  class RegulatingRating {}
+  RegulatingRating.Self = artifacts.require('./RegulatingRating')
+  RegulatingRating.CI = Web3.utils.keccak256('RegulatingRating')
+  RegulatingRating.Sig = {
+    SetReputationSystem: wweb3.eth.abi.encodeFunctionSignature(
+      'setReputationSystem(address)'),
+    SetProjectController: wweb3.eth.abi.encodeFunctionSignature(
+      'setProjectController(address)'),
+    SetStorage: SET_STORAGE_SIG
+  }
+  RegulatingRating.Storage = {
+    Self: artifacts.require(
+      'modules/regulating_rating/RegulatingRatingStorage'),
+    CI: Web3.utils.keccak256('RegulatingRatingStorage')
+  }
+
+  /**
+   * Contracts - Reward Manager
+   */
+  // Reward Manager
+  class RewardManager {}
+  RewardManager.Self = artifacts.require('./RewardManager')
+  RewardManager.CI = Web3.utils.keccak256('RewardManager')
+  RewardManager.Sig = {
+    SetStorage: SET_STORAGE_SIG
+  }
+  RewardManager.Storage = {
+    Self: artifacts.require(
+      'modules/managers/reward_manager/RewardManagerStorage'),
+    CI: Web3.utils.keccak256('RewardManagerStorage')
+  }
+
+  /**
    * Contracts - CarbonVoteX
    */
   // CarbonVoteXCore
@@ -282,6 +318,8 @@ export default function (artifacts) {
     'VetXToken': VetXToken,
     'SafeMath': SafeMath,
     'ReputationSystem': ReputationSystem,
-    'CarbonVoteX': CarbonVoteX
+    'CarbonVoteX': CarbonVoteX,
+    'RegulatingRating': RegulatingRating,
+    'RewardManager': RewardManager
   }
 }
