@@ -10,10 +10,8 @@ const MILESTONE_LENGTH = TimeSetter.OneYear
 const LAST_WEEK_LENGTH = MILESTONE_LENGTH + 100 - TimeSetter.OneWeek
 
 const OBJS = [Web3.utils.keccak256('obj1')]
-const OBJ_TYPES = ["type1"]
+const OBJ_TYPES = ['type1']
 const OBJ_MAX_REGULATION_REWARDS = [100]
-
-
 
 contract('RefundManagerTest', function (accounts) {
   const ROOT = accounts[0]

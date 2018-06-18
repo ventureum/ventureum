@@ -21,6 +21,8 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   const Storage = _constants.Storage
   const ReputationSystem = _constants.ReputationSystem
   const CarbonVoteX = _constants.CarbonVoteX
+  const RegulatingRating = _constants.RegulatingRating
+  const RewardManager = _constants.RewardManager
 
   /* ------- receive instances  -------- */
   // Token
@@ -55,6 +57,14 @@ const run = exports.run = async (instances, accounts, artifacts) => {
 
   // Token Sale
   const tokenSale = instances.tokenSale
+
+  // Regulating Rating
+  const regulatingRating = instances.regulatingRating
+  const regulatingRatingStorage = instances.regulatingRatingStorage
+
+  // Reward manager
+  const rewardManager = instances.rewardManager
+  const rewardManagerStorage = instances.rewardManagerStorage
 
   // Reputation System
   const reputationSystem = instances.reputationSystem
@@ -136,6 +146,22 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     tokenCollector.address,
     [ACLHandler.CI, ContractAddressHandler.CI])
 
+  // RegulatingRating
+  await kernel.connect(
+    regulatingRating.address,
+    [ACLHandler.CI, ContractAddressHandler.CI])
+  await kernel.connect(
+    regulatingRatingStorage.address,
+    [ACLHandler.CI, ContractAddressHandler.CI])
+
+  // RewardManager
+  await kernel.connect(
+    rewardManager.address,
+    [ACLHandler.CI, ContractAddressHandler.CI])
+  await kernel.connect(
+    rewardManagerStorage.address,
+    [ACLHandler.CI, ContractAddressHandler.CI])
+
   // TokenSale
   await kernel.connect(
     tokenSale.address,
@@ -184,6 +210,22 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await contractAddressHandler.registerContract(
     EtherCollector.Storage.CI,
     etherCollectorStorage.address)
+
+  // Regulating Rating
+  await contractAddressHandler.registerContract(
+    RegulatingRating.CI,
+    regulatingRating.address)
+  await contractAddressHandler.registerContract(
+    RegulatingRating.Storage.CI,
+    regulatingRatingStorage.address)
+
+  // Reward Manager
+  await contractAddressHandler.registerContract(
+    RewardManager.CI,
+    rewardManager.address)
+  await contractAddressHandler.registerContract(
+    RewardManager.Storage.CI,
+    rewardManagerStorage.address)
 
   // Token Collector
   await contractAddressHandler.registerContract(
@@ -263,6 +305,37 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     EtherCollector.Storage.CI,
     [Storage.Sig.SetUint])
 
+  // Destination: Regulating Rating
+  await aclHandler.permit(
+    Kernel.RootCI,
+    RegulatingRating.CI,
+    [
+      RegulatingRating.Sig.SetReputationSystem,
+      RegulatingRating.Sig.SetProjectController,
+      RegulatingRating.Sig.SetStorage
+    ])
+  await aclHandler.permit(
+    RegulatingRating.CI,
+    RegulatingRating.Storage.CI,
+    [Storage.Sig.SetUint,
+      Storage.Sig.SetBytes32,
+      Storage.Sig.SetAddress,
+      Storage.Sig.SetUintArray,
+      Storage.Sig.SetBytes23Array,
+      Storage.Sig.SetAddressArray])
+
+  // Destination: Reward Manager
+  await aclHandler.permit(
+    Kernel.RootCI,
+    RewardManager.CI,
+    [
+      RewardManager.Sig.SetStorage
+    ])
+  await aclHandler.permit(
+    RewardManager.CI,
+    EtherCollector.CI,
+    [EtherCollector.Sig.Withdraw])
+
   /**
    * Grant permits to managers
    */
@@ -332,6 +405,12 @@ const run = exports.run = async (instances, accounts, artifacts) => {
 
   // Ether Collector
   await etherCollector.setStorage(etherCollectorStorage.address)
+
+  // Regulating Rating
+  await regulatingRating.setStorage(regulatingRatingStorage.address)
+
+  // Regulating Rating
+  await rewardManager.setStorage(rewardManagerStorage.address)
 
   /* -------------------Set address can register -------------- */
   await reputationSystem.setAddressCanRegister(milestoneController.address)

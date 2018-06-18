@@ -8,7 +8,6 @@ import "../Module.sol";
 import "../project_controller/ProjectController.sol";
 
 
-
 contract RegulatingRating is Module {
     using SafeMath for uint;
 

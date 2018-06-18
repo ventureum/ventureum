@@ -31,6 +31,12 @@ const MilestoneController = _contants.MilestoneController
 const EtherCollector = _contants.EtherCollector
 const TokenCollector = _contants.TokenCollector
 
+// * RegulatingRating
+const RegulatingRating = _contants.RegulatingRating
+
+// * RewardManager
+const RewardManager = _contants.RewardManager
+
 // * Token sale
 const TokenSale = _contants.TokenSale
 
@@ -52,6 +58,7 @@ module.exports = function (deployer, network, accounts) {
         [EtherCollector.Self,
           RefundManager.Self,
           MilestoneController.Self,
+          RegulatingRating.Self,
           TokenSale.Self])
     }).then(async function () {
       // Deploy kernel
@@ -96,6 +103,18 @@ module.exports = function (deployer, network, accounts) {
 
       // Deploy ether collector storage
       await deployer.deploy(EtherCollector.Storage.Self, Kernel.Self.address)
+
+      // Deploy ether regulating rating
+      await deployer.deploy(RegulatingRating.Self, Kernel.Self.address)
+
+      // Deploy ether regulating rating storage
+      await deployer.deploy(RegulatingRating.Storage.Self, Kernel.Self.address)
+
+      // Deploy ether reward manager
+      await deployer.deploy(RewardManager.Self, Kernel.Self.address)
+
+      // Deploy ether reward manager storage
+      await deployer.deploy(RewardManager.Storage.Self, Kernel.Self.address)
 
       // Deploy token collector
       await deployer.deploy(TokenCollector.Self, Kernel.Self.address)
@@ -152,6 +171,14 @@ module.exports = function (deployer, network, accounts) {
         CarbonVoteXCore.address)
       instances.carbonVoteXBasic = CarbonVoteXBasic.at(
         CarbonVoteXBasic.address)
+      instances.regulatingRating = RegulatingRating.Self.at(
+        RegulatingRating.Self.address)
+      instances.regulatingRatingStorage = RegulatingRating.Storage.Self.at(
+        RegulatingRating.Storage.Self.address)
+      instances.rewardManager = RewardManager.Self.at(
+        RewardManager.Self.address)
+      instances.rewardManagerStorage = RewardManager.Storage.Self.at(
+        RewardManager.Storage.Self.address)
 
       // Configuration
       await Configuation.run(instances, accounts, artifacts)
