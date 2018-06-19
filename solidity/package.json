@@ -33,6 +33,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
     "repsys": "^1.0.1",
+    "solidity-coverage": "^0.5.4",
     "standard": "^11.0.1",
     "truffle-hdwallet-provider": "0.0.4"
   },
