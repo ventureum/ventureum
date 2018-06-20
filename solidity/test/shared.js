@@ -12,6 +12,7 @@ import {
   ReputationSystem,
   RegulatingRating,
   RewardManager,
+  PaymentManager,
   CarbonVoteX} from './constants.js'
 
 const Configuation = require('../config/configuation.js')
@@ -83,6 +84,12 @@ const run = exports.run = async (accounts) => {
   instances.rewardManagerStorage = await RewardManager.Storage.Self.new(
     instances.kernel.address)
 
+  // Payment Manager
+  instances.paymentManager = await PaymentManager.Self.new(
+    instances.kernel.address)
+  instances.paymentManagerStorage = await PaymentManager.Storage.Self.new(
+    instances.kernel.address)
+
   // Regulating Rating
   instances.regulatingRating = await RegulatingRating.Self.new(
     instances.kernel.address)
@@ -91,10 +98,6 @@ const run = exports.run = async (accounts) => {
 
   // CarbonVoteX
   instances.carbonVoteXCore = await CarbonVoteX.Core.new(accounts[0])
-  instances.carbonVoteXBasic = await CarbonVoteX.Basic.new(
-    CarbonVoteX.NAME_SPACE,
-    instances.carbonVoteXCore.address
-  )
 
   // Reputation System
   instances.reputationSystem = await ReputationSystem.Self.new(

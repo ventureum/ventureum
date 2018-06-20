@@ -2,6 +2,7 @@ import { increaseTimeTo, duration } from
   'openzeppelin-solidity/test/helpers/increaseTime'
 import latestTime from 'openzeppelin-solidity/test/helpers/latestTime'
 import EVMRevert from 'openzeppelin-solidity/test/helpers/EVMRevert'
+import { expect } from 'chai'
 
 export default function (artifacts) {
   const fs = require('fs')
@@ -16,6 +17,10 @@ export default function (artifacts) {
 
   const SET_STORAGE_SIG = wweb3.eth.abi.encodeFunctionSignature(
     'setStorage(address)')
+  const SET_REPUTATION_SYSTEM = wweb3.eth.abi.encodeFunctionSignature(
+    'setReputationSystem(address)')
+  const SET_PROJECT_CONTROLLER = wweb3.eth.abi.encodeFunctionSignature(
+    'setProjectController(address)')
 
   /* ---------------------Utils------------------------------------------------ */
   class TimeSetter {}
@@ -67,6 +72,32 @@ export default function (artifacts) {
     CI: Web3.utils.keccak256('RefundManagerStorage')
   }
 
+  // Reward Manager
+  class RewardManager {}
+  RewardManager.Self = artifacts.require('./RewardManager')
+  RewardManager.CI = Web3.utils.keccak256('RewardManager')
+  RewardManager.Sig = {
+    SetStorage: SET_STORAGE_SIG
+  }
+  RewardManager.Storage = {
+    Self: artifacts.require(
+      'modules/managers/reward_manager/RewardManagerStorage'),
+    CI: Web3.utils.keccak256('RewardManagerStorage')
+  }
+
+  // Payment Manager
+  class PaymentManager {}
+  PaymentManager.Self = artifacts.require('./PaymentManager')
+  PaymentManager.CI = Web3.utils.keccak256('PaymentManager')
+  PaymentManager.Sig = {
+    SetStorage: SET_STORAGE_SIG
+  }
+  PaymentManager.Storage = {
+    Self: artifacts.require(
+      'modules/managers/payment_manager/PaymentManagerStorage'),
+    CI: Web3.utils.keccak256('PaymentManagerStorage')
+  }
+
   /**
    * Contracts - controllers
    */
@@ -107,8 +138,7 @@ export default function (artifacts) {
       'setRegulatingRating(address)'),
     SetTokenSale: wweb3.eth.abi.encodeFunctionSignature(
       'setTokenSale(address)'),
-    SetProjectController: wweb3.eth.abi.encodeFunctionSignature(
-      'setProjectController(address)'),
+    SetProjectController: SET_PROJECT_CONTROLLER,
     Activate: wweb3.eth.abi.encodeFunctionSignature(
       'activate(bytes32,uint256,uint256)'),
     AddMilestone: wweb3.eth.abi.encodeFunctionSignature(
@@ -182,56 +212,30 @@ export default function (artifacts) {
   /**
    * Contracts - modules
    */
+  // Registry
   class Registry {}
   Registry.Self = artifacts.require('./VTCR/Registry.sol')
   Registry.CI = Web3.utils.keccak256('Registry')
 
-  /**
-   * Contracts - mocks
-   */
-  // Token
-  class Token {}
-  Token.Self = artifacts.require('mocks/Token')
-
-  /**
-   * Contracts - VetXToken
-   */
-  // VetXToken
-  class VetXToken {}
-  VetXToken.Self = artifacts.require('./VetXToken')
-
-  /**
-   * Contracts - SafeMath
-   */
-  // SafeMath
-  class SafeMath {}
-  SafeMath.Self = artifacts.require('./SafeMath')
-
-  /**
-   * Contracts - ReputationSystem
-   */
-  // ReputationSystem
-  class ReputationSystem {}
-  ReputationSystem.Self = artifacts.require('./ReputationSystem')
-  ReputationSystem.CI = Web3.utils.keccak256('ReputationSystem')
-  ReputationSystem.updateInterval = 100000
-  ReputationSystem.prevVotesDiscount = 90
-  ReputationSystem.newVotesDiscount = 10
-  ReputationSystem.defaultAddressCanRegister = '0x0'
-
-  /**
-   * Contracts - RegulatingRating
-   */
   // RegulatingRating
   class RegulatingRating {}
-  RegulatingRating.Self = artifacts.require('./RegulatingRating')
+  RegulatingRating.Self = artifacts.require(
+    'modules/regulating_rating/RegulatingRating')
   RegulatingRating.CI = Web3.utils.keccak256('RegulatingRating')
   RegulatingRating.Sig = {
-    SetReputationSystem: wweb3.eth.abi.encodeFunctionSignature(
-      'setReputationSystem(address)'),
-    SetProjectController: wweb3.eth.abi.encodeFunctionSignature(
-      'setProjectController(address)'),
-    SetStorage: SET_STORAGE_SIG
+    Start: wweb3.eth.abi.encodeFunctionSignature(
+      'start(bytes32,uint256,uint256,uint256,bytes32[],bytes32[],uint256[])'),
+    FinalizeAllBids: wweb3.eth.abi.encodeFunctionSignature(
+      'finalizeAllBids(bytes32,uint256)'),
+    FinalizeBidForObj: wweb3.eth.abi.encodeFunctionSignature(
+      'finalizeBidForObj(bytes32,uint256,finalizeBidForObj)'),
+    Bid: wweb3.eth.abi.encodeFunctionSignature(
+      'bid(bytes32,uint256,bytes32)'),
+    BackOutFromBid: wweb3.eth.abi.encodeFunctionSignature(
+      'backOutFromBid(bytes32,uint256,bytes32)'),
+    SetStorage: SET_STORAGE_SIG,
+    SetReputationSystem: SET_REPUTATION_SYSTEM,
+    SetProjectController: SET_PROJECT_CONTROLLER
   }
   RegulatingRating.Storage = {
     Self: artifacts.require(
@@ -240,31 +244,11 @@ export default function (artifacts) {
   }
 
   /**
-   * Contracts - Reward Manager
+   * Contracts - mocks
    */
-  // Reward Manager
-  class RewardManager {}
-  RewardManager.Self = artifacts.require('./RewardManager')
-  RewardManager.CI = Web3.utils.keccak256('RewardManager')
-  RewardManager.Sig = {
-    SetStorage: SET_STORAGE_SIG
-  }
-  RewardManager.Storage = {
-    Self: artifacts.require(
-      'modules/managers/reward_manager/RewardManagerStorage'),
-    CI: Web3.utils.keccak256('RewardManagerStorage')
-  }
-
-  /**
-   * Contracts - CarbonVoteX
-   */
-  // CarbonVoteXCore
-  class CarbonVoteX {}
-  CarbonVoteX.Core = artifacts.require('./CarbonVoteXCore')
-  CarbonVoteX.Basic = artifacts.require('./CarbonVoteXBasic')
-  CarbonVoteX.NAME_SPACE = Web3.utils.sha3('simple-namespace')
-  CarbonVoteX.receiverFunctions = [Web3.utils.sha3('register')]
-  CarbonVoteX.sendGas = Web3.utils.sha3('sendGas')
+  // Token
+  class Token {}
+  Token.Self = artifacts.require('mocks/Token')
 
   // Mocked Project Controllers
   class MockedProjectController {}
@@ -293,6 +277,32 @@ export default function (artifacts) {
   class MockedSale {}
   MockedSale.Self = artifacts.require('./mocks/MockedSale.sol')
 
+  /**
+   *  External Contracts
+   */
+  // VetXToken
+  class VetXToken {}
+  VetXToken.Self = artifacts.require('./VetXToken')
+
+  // SafeMath
+  class SafeMath {}
+  SafeMath.Self = artifacts.require('./SafeMath')
+
+  // ReputationSystem
+  class ReputationSystem {}
+  ReputationSystem.Self = artifacts.require('./ReputationSystem')
+  ReputationSystem.CI = Web3.utils.keccak256('ReputationSystem')
+  ReputationSystem.updateInterval = 100000
+  ReputationSystem.prevVotesDiscount = 90
+  ReputationSystem.newVotesDiscount = 10
+  ReputationSystem.defaultAddressCanRegister = '0x0'
+
+  // CarbonVoteXCore
+  class CarbonVoteX {}
+  CarbonVoteX.Core = artifacts.require('./CarbonVoteXCore')
+  CarbonVoteX.receiverFunctions = [Web3.utils.sha3('register')]
+  CarbonVoteX.sendGas = Web3.utils.sha3('sendGas')
+
   return {
     'Kernel': Kernel,
     'ACLHandler': ACLHandler,
@@ -320,6 +330,8 @@ export default function (artifacts) {
     'ReputationSystem': ReputationSystem,
     'CarbonVoteX': CarbonVoteX,
     'RegulatingRating': RegulatingRating,
-    'RewardManager': RewardManager
+    'RewardManager': RewardManager,
+    'PaymentManager': PaymentManager,
+    'expect': expect
   }
 }

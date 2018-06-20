@@ -23,6 +23,7 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   const CarbonVoteX = _constants.CarbonVoteX
   const RegulatingRating = _constants.RegulatingRating
   const RewardManager = _constants.RewardManager
+  const PaymentManager = _constants.PaymentManager
 
   /* ------- receive instances  -------- */
   // Token
@@ -66,12 +67,15 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   const rewardManager = instances.rewardManager
   const rewardManagerStorage = instances.rewardManagerStorage
 
+  // Payment Manager
+  const paymentManager = instances.paymentManager
+  const paymentManagerStorage = instances.paymentManagerStorage
+
   // Reputation System
   const reputationSystem = instances.reputationSystem
 
   // CarbonVoteX
   const carbonVoteXCore = instances.carbonVoteXCore
-  const carbonVoteXBasic = instances.carbonVoteXBasic
 
   /* ---------------------Configuation CarbonVoteX----------------------------- */
   let functions = []
@@ -79,8 +83,8 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     functions.push(CarbonVoteX.sendGas)
   }
   await carbonVoteXCore.setReceiver(
-    CarbonVoteX.NAME_SPACE,
-    carbonVoteXBasic.address,
+    ReputationSystem.CI,
+    reputationSystem.address,
     CarbonVoteX.receiverFunctions)
 
   await carbonVoteXCore.setPermissions(functions, accounts)
@@ -112,6 +116,22 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     [ACLHandler.CI, ContractAddressHandler.CI])
   await kernel.connect(
     refundManagerStorage.address,
+    [ACLHandler.CI, ContractAddressHandler.CI])
+
+  // RewardManager
+  await kernel.connect(
+    rewardManager.address,
+    [ACLHandler.CI, ContractAddressHandler.CI])
+  await kernel.connect(
+    rewardManagerStorage.address,
+    [ACLHandler.CI, ContractAddressHandler.CI])
+
+  // PaymentManager
+  await kernel.connect(
+    paymentManager.address,
+    [ACLHandler.CI, ContractAddressHandler.CI])
+  await kernel.connect(
+    paymentManagerStorage.address,
     [ACLHandler.CI, ContractAddressHandler.CI])
 
   /**
@@ -152,14 +172,6 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     [ACLHandler.CI, ContractAddressHandler.CI])
   await kernel.connect(
     regulatingRatingStorage.address,
-    [ACLHandler.CI, ContractAddressHandler.CI])
-
-  // RewardManager
-  await kernel.connect(
-    rewardManager.address,
-    [ACLHandler.CI, ContractAddressHandler.CI])
-  await kernel.connect(
-    rewardManagerStorage.address,
     [ACLHandler.CI, ContractAddressHandler.CI])
 
   // TokenSale
@@ -226,6 +238,14 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await contractAddressHandler.registerContract(
     RewardManager.Storage.CI,
     rewardManagerStorage.address)
+
+  // Payment Manager
+  await contractAddressHandler.registerContract(
+    PaymentManager.CI,
+    paymentManager.address)
+  await contractAddressHandler.registerContract(
+    PaymentManager.Storage.CI,
+    paymentManagerStorage.address)
 
   // Token Collector
   await contractAddressHandler.registerContract(
@@ -310,6 +330,7 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     Kernel.RootCI,
     RegulatingRating.CI,
     [
+      RegulatingRating.Sig.Start,
       RegulatingRating.Sig.SetReputationSystem,
       RegulatingRating.Sig.SetProjectController,
       RegulatingRating.Sig.SetStorage
@@ -317,12 +338,14 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await aclHandler.permit(
     RegulatingRating.CI,
     RegulatingRating.Storage.CI,
-    [Storage.Sig.SetUint,
+    [
+      Storage.Sig.SetUint,
       Storage.Sig.SetBytes32,
       Storage.Sig.SetAddress,
       Storage.Sig.SetUintArray,
       Storage.Sig.SetBytes23Array,
-      Storage.Sig.SetAddressArray])
+      Storage.Sig.SetAddressArray
+    ])
 
   // Destination: Reward Manager
   await aclHandler.permit(
@@ -333,6 +356,18 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     ])
   await aclHandler.permit(
     RewardManager.CI,
+    EtherCollector.CI,
+    [EtherCollector.Sig.Withdraw])
+
+  // Destination: Payment Manager
+  await aclHandler.permit(
+    Kernel.RootCI,
+    PaymentManager.CI,
+    [
+      PaymentManager.Sig.SetStorage
+    ])
+  await aclHandler.permit(
+    PaymentManager.CI,
     EtherCollector.CI,
     [EtherCollector.Sig.Withdraw])
 
@@ -420,6 +455,10 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await milestoneController.setProjectController(projectController.address)
   await milestoneController.setTokenSale(tokenSale.address)
 
+  /* -------------------Regulating Rating set controllers-------------- */
+  await regulatingRating.setReputationSystem(reputationSystem.address)
+  await regulatingRating.setProjectController(projectController.address)
+
   /* -------------------Managers Connected to Controllers-------------- */
   // Refund Manager
   contractAddressHandler.connect(
@@ -449,6 +488,11 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     etherCollectorStorage,
     tokenCollector,
     tokenSale,
-    reputationSystem
+    carbonVoteXCore,
+    reputationSystem,
+    paymentManager,
+    paymentManagerStorage,
+    regulatingRating,
+    regulatingRatingStorage,
   }
 }
