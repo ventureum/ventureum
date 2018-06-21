@@ -1,5 +1,6 @@
 import {
   Token,
+  VetXToken,
   Kernel,
   ACLHandler,
   ContractAddressHandler,
@@ -13,6 +14,10 @@ import {
   RegulatingRating,
   RewardManager,
   PaymentManager,
+  Challenge,
+  PLCRVoting,
+  Parameterizer,
+  Registry,
   CarbonVoteX} from './constants.js'
 
 const Configuation = require('../config/configuation.js')
@@ -25,6 +30,15 @@ const run = exports.run = async (accounts) => {
    * deploy token
    */
   instances.token = await Token.Self.new()
+
+  /**
+   * deploy VetXToken
+   */
+  instances.vetXToken = await VetXToken.Self.new(
+    VetXToken.initAmount,
+    VetXToken.tokenName,
+    VetXToken.decimalUnits,
+    VetXToken.tokenSymbol)
 
   /**
    * deploy kernel
@@ -107,6 +121,35 @@ const run = exports.run = async (accounts) => {
     ReputationSystem.prevVotesDiscount,
     ReputationSystem.newVotesDiscount,
     ReputationSystem.defaultAddressCanRegister)
+
+  // Deploy VTCR
+  instances.challenge = await Challenge.Self.new()
+  instances.plcrVoting = await PLCRVoting.Self.new(
+    instances.vetXToken.address
+  )
+  instances.parameterizer = await Parameterizer.Self.new(
+    instances.vetXToken.address,
+    instances.plcrVoting.address,
+    Parameterizer.paramDefaults.minDeposit,
+    Parameterizer.paramDefaults.pMinDeposit,
+    Parameterizer.paramDefaults.applyStageLength,
+    Parameterizer.paramDefaults.pApplyStageLength,
+    Parameterizer.paramDefaults.commitStageLength,
+    Parameterizer.paramDefaults.pCommitStageLength,
+    Parameterizer.paramDefaults.revealStageLength,
+    Parameterizer.paramDefaults.pRevealStageLength,
+    Parameterizer.paramDefaults.dispensationPct,
+    Parameterizer.paramDefaults.pDispensationPct,
+    Parameterizer.paramDefaults.voteQuorum,
+    Parameterizer.paramDefaults.pVoteQuorum)
+
+  instances.registry = await Registry.Self.new(
+    instances.kernel.address,
+    instances.vetXToken.address,
+    instances.plcrVoting.address,
+    instances.parameterizer.address,
+    instances.projectController.address
+  )
 
   const instanceObjects = await Configuation.run(instances, accounts, artifacts)
 

@@ -6,8 +6,8 @@ import "vetx-token/contracts/VetXToken.sol";
 contract MockedSale {
     VetXToken token; 
 
-    constructor() public {
-        token = new VetXToken(1000000000000000000000000000, "TestToken", 18, "TT");
+    constructor(address tokenAddr) public {
+        token = VetXToken(tokenAddr);
     }
 
     function purchaseTokens() public payable {

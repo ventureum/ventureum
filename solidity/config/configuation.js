@@ -25,6 +25,8 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   const RewardManager = _constants.RewardManager
   const PaymentManager = _constants.PaymentManager
 
+  const Registry = _constants.Registry
+
   /* ------- receive instances  -------- */
   // Token
   const token = instances.token
@@ -32,6 +34,9 @@ const run = exports.run = async (instances, accounts, artifacts) => {
 
   // Kernel
   const kernel = instances.kernel
+
+  // Register
+  const registry = instances.registry
 
   // Handlers
   const aclHandler = instances.aclHandler
@@ -161,6 +166,11 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     etherCollectorStorage.address,
     [ACLHandler.CI, ContractAddressHandler.CI])
 
+  // Registry
+  await kernel.connect(
+    registry.address,
+    [ACLHandler.CI, ContractAddressHandler.CI])
+
   // TokenCollector
   await kernel.connect(
     tokenCollector.address,
@@ -222,6 +232,11 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await contractAddressHandler.registerContract(
     EtherCollector.Storage.CI,
     etherCollectorStorage.address)
+
+  // Register
+  await contractAddressHandler.registerContract(
+    Registry.CI,
+    registry.address)
 
   // Regulating Rating
   await contractAddressHandler.registerContract(
@@ -422,6 +437,17 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     TokenCollector.CI,
     [TokenCollector.Sig.Withdraw])
 
+  // Registry
+  await aclHandler.permit(
+    Registry.CI,
+    ProjectController.CI,
+    [
+      ProjectController.Sig.RegisterProject,
+      ProjectController.Sig.UnregisterProject,
+      ProjectController.Sig.SetState,
+      ProjectController.Sig.SetTokenAddress
+    ])
+
   /* ------------------------Set Storage------------------------- */
   /**
    * Set Storage for managers
@@ -494,5 +520,6 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     paymentManagerStorage,
     regulatingRating,
     regulatingRatingStorage,
+    registry
   }
 }

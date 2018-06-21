@@ -12,6 +12,10 @@ import "../../library/AttributeStore.sol";
 @author Team: Aspyn Palatnick, Cem Ozer, Yorke Rhodes
 */
 contract PLCRVoting {
+    using DLL for DLL.Data;
+    using AttributeStore for AttributeStore.Data;
+    using SafeMath for uint;
+
     event VoteCommitted(address voter, uint pollID, uint numTokens);
     event VoteRevealed(address voter, uint pollID, uint numTokens, uint choice);
     event PollCreated(uint voteQuorum, uint commitDuration, uint revealDuration, uint pollID);
@@ -33,13 +37,10 @@ contract PLCRVoting {
     mapping(uint => Poll) public pollMap;
     uint pollNonce;
 
-    using DLL for DLL.Data;
     mapping(address => DLL.Data) dllMap;
 
-    using AttributeStore for AttributeStore.Data;
     AttributeStore.Data store;
 
-    using SafeMath for uint;
 
     // ============
     // CONSTRUCTOR:
