@@ -36,7 +36,6 @@ contract('Registry', (accounts) => {
     token = context.vetXToken
     registry = context.registry
 
-    const config = JSON.parse(fs.readFileSync('./config/VTCR/config.json'))
     parameterizerConfig = Parameterizer.paramDefaults
 
     mockedSale = await MockedSale.Self.new(token.address)
@@ -45,7 +44,7 @@ contract('Registry', (accounts) => {
     await token.transfer(mockedSale.address, totalAmount)
 
     await mockedSale.purchaseTokens(
-      {from: ROOT_ACCOUNT, value: config.initialTokenPurchase})
+      {from: ROOT_ACCOUNT, value: parameterizerConfig.initialTokenPurchase})
     tokenAdd = token.address
   })
 

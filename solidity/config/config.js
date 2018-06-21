@@ -252,7 +252,7 @@ export default function (artifacts) {
   }
 
   /**
-   * Contracts - RegulatingRating
+   * Contracts - Modules
    */
   // RegulatingRating
   class RegulatingRating {}
