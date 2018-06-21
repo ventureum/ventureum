@@ -1,5 +1,4 @@
 import {
-  Token,
   VetXToken,
   Kernel,
   ACLHandler,
@@ -26,11 +25,6 @@ const run = exports.run = async (accounts) => {
   let instances = {}
 
   /* ---------------------Deploy Contracts--------------------------------- */
-  /**
-   * deploy token
-   */
-  instances.token = await Token.Self.new()
-
   /**
    * deploy VetXToken
    */

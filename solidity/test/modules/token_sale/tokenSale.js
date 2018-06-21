@@ -20,7 +20,7 @@ contract('TokenSaleTest', function (accounts) {
   const ROOT = accounts[0]
   const PURCHASER = accounts[2]
 
-  let token
+  let vetXToken
   let kernel
   let aclHandler
   let contractAddressHandler
@@ -30,7 +30,7 @@ contract('TokenSaleTest', function (accounts) {
 
   before(async function () {
     let context = await shared.run(accounts)
-    token = context.token
+    vetXToken = context.vetXToken
     kernel = context.kernel
     aclHandler = context.aclHandler
     contractAddressHandler = context.contractAddressHandler
@@ -39,7 +39,7 @@ contract('TokenSaleTest', function (accounts) {
     tokenSale = context.tokenSale
 
     // give tokenSale permission to speed root's money
-    token.approve(
+    vetXToken.approve(
       tokenCollector.address,
       TOTAL_SPEND_MONEY).should.be.fulfilled
   })
@@ -78,21 +78,21 @@ contract('TokenSaleTest', function (accounts) {
   describe('basic functional test', function () {
     it('should start token sale', async function () {
       projectController.registerProject(
-        PROJECT_TEST_CI, ROOT, token.address).should.be.fulfilled
+        PROJECT_TEST_CI, ROOT, vetXToken.address).should.be.fulfilled
 
       const { logs } = await tokenSale.startTokenSale(
         PROJECT_TEST_CI,
         RATE,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
       const event = logs.find(e => e.event === '_StartTokenSale')
       should.exist(event)
       event.args.namespace.should.be.equal(PROJECT_TEST_CI)
       event.args.rate.should.be.bignumber.equal(RATE)
-      event.args.token.should.be.equal(token.address)
+      event.args.token.should.be.equal(vetXToken.address)
     })
 
     it('should approve transfer for root', async function () {
-      const { logs } = await token.approve(
+      const { logs } = await vetXToken.approve(
         tokenCollector.address,
         TOTAL_SPEND_MONEY).should.be.fulfilled
       const event = logs.find(e => e.event === 'Approval')
@@ -105,10 +105,10 @@ contract('TokenSaleTest', function (accounts) {
     it('should finalize success', async function () {
       const testCI1 = Web3.utils.keccak256('testCI1')
       projectController.registerProject(
-        testCI1, ROOT, token.address).should.be.fulfilled
+        testCI1, ROOT, vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
-        testCI1, RATE, token.address).should.be.fulfilled
+        testCI1, RATE, vetXToken.address).should.be.fulfilled
       await tokenSale.finalize(testCI1).should.be.fulfilled
       await tokenSale.buyTokens(
         testCI1, {value: ETH_AMOUNT, from: PURCHASER})
@@ -118,10 +118,10 @@ contract('TokenSaleTest', function (accounts) {
     it('should rejected cause project already finalized', async function () {
       const testCI2 = Web3.utils.keccak256('testCI2')
       projectController.registerProject(
-        testCI2, ROOT, token.address).should.be.fulfilled
+        testCI2, ROOT, vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
-        testCI2, RATE, token.address).should.be.fulfilled
+        testCI2, RATE, vetXToken.address).should.be.fulfilled
       await tokenSale.finalize(testCI2).should.be.fulfilled
       await tokenSale.buyTokens(
         testCI2, {value: ETH_AMOUNT, from: PURCHASER})
@@ -132,10 +132,10 @@ contract('TokenSaleTest', function (accounts) {
       async function () {
         const testCI3 = Web3.utils.keccak256('testCI3')
         projectController.registerProject(
-          testCI3, ROOT, token.address).should.be.fulfilled
+          testCI3, ROOT, vetXToken.address).should.be.fulfilled
 
         await tokenSale.startTokenSale(
-          testCI3, RATE, token.address).should.be.fulfilled
+          testCI3, RATE, vetXToken.address).should.be.fulfilled
         await tokenSale.finalize(testCI3).should.be.fulfilled
         await tokenSale.finalize(testCI3)
           .should.be.rejectedWith(Error.EVMRevert)
@@ -145,23 +145,23 @@ contract('TokenSaleTest', function (accounts) {
   describe('advanced testing include branch test', function () {
     before(async function () {
       await tokenCollector.deposit(
-        token.address, DEPOSIT_VALUE).should.be.fulfilled
+        vetXToken.address, DEPOSIT_VALUE).should.be.fulfilled
     })
 
     it('should buy token success', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced1')
       projectController.registerProject(
-        PROJECT_CI, ROOT, token.address).should.be.fulfilled
+        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
-        PROJECT_CI, RATE, token.address).should.be.fulfilled
+        PROJECT_CI, RATE, vetXToken.address).should.be.fulfilled
 
       const tokenAmount = RATE * ETH_AMOUNT
 
       const preStoreTokenBalance =
         await tokenCollector.balanceOf.call(
-          token.address)
-      const prePurchaserTokenBalance = await token.balanceOf(
+          vetXToken.address)
+      const prePurchaserTokenBalance = await vetXToken.balanceOf(
         PURCHASER)
 
       const { logs } = await tokenSale.buyTokens(
@@ -177,8 +177,8 @@ contract('TokenSaleTest', function (accounts) {
 
       const postStoreTokenBalance =
         await tokenCollector.balanceOf.call(
-          token.address)
-      const postPurchaserTokenBalance = await token.balanceOf(
+          vetXToken.address)
+      const postPurchaserTokenBalance = await vetXToken.balanceOf(
         PURCHASER)
 
       postStoreTokenBalance.plus(tokenAmount).should.be.bignumber.equal(
@@ -190,10 +190,10 @@ contract('TokenSaleTest', function (accounts) {
     it('should receive avg price equal RATE', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced2')
       projectController.registerProject(
-        PROJECT_CI, ROOT, token.address).should.be.fulfilled
+        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
-        PROJECT_CI, RATE, token.address).should.be.fulfilled
+        PROJECT_CI, RATE, vetXToken.address).should.be.fulfilled
 
       await tokenSale.avgPrice.call(PROJECT_CI)
         .should.be.rejectedWith(Error.EVMRevert)
@@ -216,10 +216,10 @@ contract('TokenSaleTest', function (accounts) {
     it('should receive avg price equal zero', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced3')
       projectController.registerProject(
-        PROJECT_CI, ROOT, token.address).should.be.fulfilled
+        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
-        PROJECT_CI, RATE, token.address).should.be.fulfilled
+        PROJECT_CI, RATE, vetXToken.address).should.be.fulfilled
 
       await tokenSale.finalize(PROJECT_CI).should.be.fulfilled
       const afterFinalizedAvgPrice = await tokenSale
@@ -230,23 +230,23 @@ contract('TokenSaleTest', function (accounts) {
     it('should rejected cause project already exist', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced4')
       projectController.registerProject(
-        PROJECT_CI, ROOT, token.address).should.be.fulfilled
+        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
-        PROJECT_CI, RATE, token.address).should.be.fulfilled
+        PROJECT_CI, RATE, vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
-        PROJECT_CI, 123, token.address)
+        PROJECT_CI, 123, vetXToken.address)
         .should.be.rejectedWith(Error.EVMRevert)
     })
 
     it('should rejected cause project not exist', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced5')
       projectController.registerProject(
-        PROJECT_CI, ROOT, token.address).should.be.fulfilled
+        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
-        PROJECT_CI, RATE, token.address)
+        PROJECT_CI, RATE, vetXToken.address)
         .should.be.fulfilled
 
       await tokenSale.buyTokens(
@@ -257,18 +257,18 @@ contract('TokenSaleTest', function (accounts) {
     it('should rejected cause buy too large token', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced6')
       projectController.registerProject(
-        PROJECT_CI, ROOT, token.address).should.be.fulfilled
+        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
-        PROJECT_CI, RATE, token.address)
+        PROJECT_CI, RATE, vetXToken.address)
         .should.be.fulfilled
       const storeBalance = await tokenCollector.balanceOf.call(
-        token.address)
+        vetXToken.address)
 
       await tokenCollector.withdraw(
-        token.address, ROOT, storeBalance)
+        vetXToken.address, ROOT, storeBalance)
       const preStoreTokenBalance = await tokenCollector
-        .balanceOf.call(token.address)
+        .balanceOf.call(vetXToken.address)
       preStoreTokenBalance.should.be.bignumber.equal(0)
       await tokenSale.buyTokens(
         PROJECT_CI,
@@ -280,10 +280,10 @@ contract('TokenSaleTest', function (accounts) {
       async function () {
         const PROJECT_CI = Web3.utils.keccak256('advanced7')
         projectController.registerProject(
-          PROJECT_CI, ROOT, token.address).should.be.fulfilled
+          PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
 
         await tokenSale.startTokenSale(
-          PROJECT_CI, RATE, token.address).should.be.fulfilled
+          PROJECT_CI, RATE, vetXToken.address).should.be.fulfilled
 
         await tokenSale.finalize(Kernel.RootCI)
           .should.be.rejectedWith(Error.EVMRevert)
