@@ -17,7 +17,7 @@ contract('RefundManagerTest', function (accounts) {
   const ROOT = accounts[0]
   const PURCHASER = accounts[2]
 
-  let token
+  let vetXToken
   let refundManager
   let projectController
   let milestoneController
@@ -27,7 +27,7 @@ contract('RefundManagerTest', function (accounts) {
 
   before(async function () {
     let context = await shared.run(accounts)
-    token = context.token
+    vetXToken = context.vetXToken
     refundManager = context.refundManager
     projectController = context.projectController
     milestoneController = context.milestoneController
@@ -36,8 +36,8 @@ contract('RefundManagerTest', function (accounts) {
     tokenSale = context.tokenSale
 
     // give tokenSale permission to spend ROOT's money
-    await token.approve(tokenCollector.address, TOTAL_SPEND_MONEY)
-    await token.approve(refundManager.address, TOTAL_SPEND_MONEY)
+    await vetXToken.approve(tokenCollector.address, TOTAL_SPEND_MONEY)
+    await vetXToken.approve(refundManager.address, TOTAL_SPEND_MONEY)
     await etherCollector.deposit({value: DEPOSIT_ETH_VALUE})
   })
 
@@ -49,14 +49,14 @@ contract('RefundManagerTest', function (accounts) {
       await projectController.registerProject(
         ADVANCE_PROJECT_CI,
         ROOT,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
-      await tokenCollector.deposit(token.address, DEPOSIT_VALUE)
+      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
         .should.be.fulfilled
 
       await tokenSale.buyTokens(
@@ -97,14 +97,14 @@ contract('RefundManagerTest', function (accounts) {
       await projectController.registerProject(
         ADVANCE_PROJECT_CI,
         ROOT,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
-      await tokenCollector.deposit(token.address, DEPOSIT_VALUE)
+      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
         .should.be.fulfilled
 
       await tokenSale.buyTokens(
@@ -155,14 +155,14 @@ contract('RefundManagerTest', function (accounts) {
       await projectController.registerProject(
         ADVANCE_PROJECT_CI,
         ROOT,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
-      await tokenCollector.deposit(token.address, DEPOSIT_VALUE)
+      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
         .should.be.fulfilled
 
       await tokenSale.buyTokens(
@@ -197,14 +197,14 @@ contract('RefundManagerTest', function (accounts) {
       await projectController.registerProject(
         ADVANCE_PROJECT_CI,
         ROOT,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
-      await tokenCollector.deposit(token.address, DEPOSIT_VALUE)
+      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
         .should.be.fulfilled
 
       await tokenSale.buyTokens(
@@ -234,14 +234,14 @@ contract('RefundManagerTest', function (accounts) {
       await projectController.registerProject(
         ADVANCE_PROJECT_CI,
         ROOT,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
-      await tokenCollector.deposit(token.address, DEPOSIT_VALUE)
+      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
         .should.be.fulfilled
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
@@ -269,14 +269,14 @@ contract('RefundManagerTest', function (accounts) {
       await projectController.registerProject(
         ADVANCE_PROJECT_CI,
         ROOT,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        token.address).should.be.fulfilled
+        vetXToken.address).should.be.fulfilled
 
-      await tokenCollector.deposit(token.address, DEPOSIT_VALUE)
+      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
         .should.be.fulfilled
 
       await tokenSale.buyTokens(

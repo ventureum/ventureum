@@ -24,8 +24,7 @@ contract('Registry', (accounts) => {
   let parameterizerConfig
   let mockedSale
   let registry
-  let tokenAdd
-  let token
+  let vetXToken
 
   before(async () => {
     let context = await shared.run(accounts)
@@ -33,37 +32,36 @@ contract('Registry', (accounts) => {
     aclHandler = context.aclHandler
     contractAddressHandler = context.contractAddressHandler
     projectController = context.projectController
-    token = context.vetXToken
+    vetXToken = context.vetXToken
     registry = context.registry
 
     parameterizerConfig = Parameterizer.paramDefaults
 
-    mockedSale = await MockedSale.Self.new(token.address)
+    mockedSale = await MockedSale.Self.new(vetXToken.address)
 
-    let totalAmount = await token.balanceOf(ROOT_ACCOUNT);
-    await token.transfer(mockedSale.address, totalAmount)
+    let totalAmount = await vetXToken.balanceOf(ROOT_ACCOUNT);
+    await vetXToken.transfer(mockedSale.address, totalAmount)
 
     await mockedSale.purchaseTokens(
       {from: ROOT_ACCOUNT, value: parameterizerConfig.initialTokenPurchase})
-    tokenAdd = token.address
   })
 
   describe('Project applications', () => {
     it('One new application', async () => {
-      await token.approve(registry.address, parameterizerConfig.minDeposit)
+      await vetXToken.approve(registry.address, parameterizerConfig.minDeposit)
       await registry.apply(PROJECT_LIST[0], parameterizerConfig.minDeposit)
     })
 
     it('Two different projects', async () => {
-      await token.approve(registry.address, parameterizerConfig.minDeposit)
+      await vetXToken.approve(registry.address, parameterizerConfig.minDeposit)
       await registry.apply(PROJECT_LIST[1], parameterizerConfig.minDeposit)
 
-      await token.approve(registry.address, parameterizerConfig.minDeposit)
+      await vetXToken.approve(registry.address, parameterizerConfig.minDeposit)
       await registry.apply(PROJECT_LIST[2], parameterizerConfig.minDeposit)
     })
 
     it('Duplicate project rejected', async () => {
-      await token.approve(registry.address, parameterizerConfig.minDeposit)
+      await vetXToken.approve(registry.address, parameterizerConfig.minDeposit)
       await registry.apply(
         PROJECT_LIST[0],
         parameterizerConfig.minDeposit
@@ -77,12 +75,12 @@ contract('Registry', (accounts) => {
 
   describe('Challenges', () => {
     it('A new challenge to existing application', async () => {
-      await token.approve(registry.address, parameterizerConfig.minDeposit)
+      await vetXToken.approve(registry.address, parameterizerConfig.minDeposit)
       await registry.challenge(PROJECT_LIST[0])
     })
 
     it('A new challenge to non-existing application', async () => {
-      await token.approve(registry.address, parameterizerConfig.minDeposit)
+      await vetXToken.approve(registry.address, parameterizerConfig.minDeposit)
       await registry.challenge(
         PROJECT_LIST[3]
       ).should.be.rejectedWith(Error.EVMRevert)
@@ -92,17 +90,17 @@ contract('Registry', (accounts) => {
   describe('Register token address to a project', () => {
     it('Register token addres to a existing project', async () => {
       const projectHash = wweb3.utils.keccak256(PROJECT_LIST[0])
-      await projectController.setTokenAddress(projectHash, tokenAdd)
+      await projectController.setTokenAddress(projectHash, vetXToken.address)
 
       const result = await projectController.getTokenAddress(projectHash)
-      result.should.be.equal(tokenAdd)
+      result.should.be.equal(vetXToken.address)
     })
 
     it('Register token addres to a non-existing project', async () => {
       const projectHash = wweb3.utils.keccak256(PROJECT_LIST[1])
       await projectController.setTokenAddress(
         projectHash,
-        tokenAdd
+        vetXToken.address
       ).should.be.rejectedWith(Error.EVMRevert)
     })
   })

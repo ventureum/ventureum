@@ -20,7 +20,7 @@ contract('Project Handler', function (accounts) {
   const TEST_ACCOUNT4 = accounts[4]
   const TEST_ACCOUNT5 = accounts[5]
 
-  let token
+  let vetXToken
   let kernel
   let aclHandler
   let contractAddressHandler
@@ -30,13 +30,13 @@ contract('Project Handler', function (accounts) {
 
   before(async function () {
     let context = await shared.run(accounts)
-    token = context.token
+    vetXToken = context.vetXToken
     kernel = context.kernel
     projectControllerStorage = context.projectControllerStorage
     projectController = context.projectController
     contractAddressHandler = context.contractAddressHandler
     aclHandler = context.aclHandler
-    tokenAddress = token.address
+    tokenAddress = vetXToken.address
   })
 
   it('should be connected successfully', async function () {
@@ -74,7 +74,7 @@ contract('Project Handler', function (accounts) {
   })
 
   it('should set/get address correctly', async function () {
-    let value = token.address
+    let value = vetXToken.address
     let key = '123'
     await projectControllerStorage.setAddress(key, value)
       .should.be.fulfilled
@@ -91,9 +91,9 @@ contract('Project Handler', function (accounts) {
       TEST_ACCOUNT1)
     namespace.should.be.equal(TEST_NAMESPACE1)
 
-    let token = await projectController.getTokenAddress.call(
+    let tokenAdd = await projectController.getTokenAddress.call(
       TEST_NAMESPACE1)
-    token.should.be.equal(tokenAddress)
+    tokenAdd.should.be.equal(tokenAddress)
 
     let isOwner = await projectController.verifyOwner.call(
       TEST_NAMESPACE1, TEST_ACCOUNT1)

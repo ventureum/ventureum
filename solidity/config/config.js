@@ -283,10 +283,6 @@ export default function (artifacts) {
   /**
    * Contracts - mocks
    */
-  // Token
-  class Token {}
-  Token.Self = artifacts.require('mocks/Token')
-
   // Mocked Project Controllers
   class MockedProjectController {}
   MockedProjectController.Self = artifacts.require(
@@ -357,7 +353,6 @@ export default function (artifacts) {
     'TokenCollector': TokenCollector,
     'TokenSale': TokenSale,
     'Storage': Storage,
-    'Token': Token,
     'MockedSale': MockedSale,
     'wweb3': wweb3,
     'Web3': Web3,

@@ -45,7 +45,7 @@ contract('RegulatingRatingTest', function (accounts) {
   const INVESTOR_ONE = accounts[6]
   const INVESTOR_TWO = accounts[7]
 
-  let token
+  let vetXToken
   let projectController
   let regulatingRating
   let reputationSystem
@@ -56,7 +56,7 @@ contract('RegulatingRatingTest', function (accounts) {
 
   before(async function () {
     let context = await shared.run(accounts)
-    token = context.token
+    vetXToken = context.vetXToken
     projectController = context.projectController
     regulatingRating = context.regulatingRating
     reputationSystem = context.reputationSystem
@@ -68,12 +68,12 @@ contract('RegulatingRatingTest', function (accounts) {
     await projectController.registerProject(
       PROJECT_ONE,
       FOUNDER_ONE,
-      token.address).should.be.fulfilled
+      vetXToken.address).should.be.fulfilled
 
     await projectController.registerProject(
       PROJECT_TWO,
       FOUNDER_TWO,
-      token.address).should.be.fulfilled
+      vetXToken.address).should.be.fulfilled
 
     setUpReputationSystemVote = async function(
       projectId,
@@ -98,7 +98,7 @@ contract('RegulatingRatingTest', function (accounts) {
         maxStartTimeForPOllRequest,
         pseudoPrice,
         priceGteOne,
-        token.address,
+        vetXToken.address,
         OBJ_TYPES);
 
       await reputationSystem.startPoll(

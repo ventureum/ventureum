@@ -15,7 +15,7 @@ contract('TokenCollectorTest', function (accounts) {
   const ROOT = accounts[0]
   const TEST_ACCOUNT = accounts[2]
 
-  let token
+  let vetXToken
   let kernel
   let tokenCollector
   let aclHandler
@@ -23,20 +23,20 @@ contract('TokenCollectorTest', function (accounts) {
 
   before(async function () {
     let context = await shared.run(accounts)
-    token = context.token
+    vetXToken = context.vetXToken
     kernel = context.kernel
     aclHandler = context.aclHandler
     contractAddressHandler = context.contractAddressHandler
     tokenCollector = context.tokenCollector
 
     // give tokenCollector permission to speed ROOT"s money
-    token.approve(
+    vetXToken.approve(
       tokenCollector.address,
       TOTAL_SPEND_MONEY).should.be.fulfilled
 
     // some basic test
     const val = await tokenCollector.balanceOf.call(
-      token.address)
+      vetXToken.address)
     val.should.be.bignumber.equal(0)
   })
 
@@ -78,7 +78,7 @@ contract('TokenCollectorTest', function (accounts) {
       tokenCollector.withdraw(NULL_ADDRESS, ROOT, 0)
         .should.be.rejectedWith(Error.EVMRevert)
       tokenCollector.withdraw(
-        token.address,
+        vetXToken.address,
         NULL_ADDRESS,
         0).should.be.rejectedWith(Error.EVMRevert)
       tokenCollector.deposit(NULL_ADDRESS, 0)
@@ -88,9 +88,9 @@ contract('TokenCollectorTest', function (accounts) {
     it('should rejected when withdraw value ' +
       'over balance', async function () {
       let balance = await tokenCollector.balanceOf.call(
-        token.address)
+        vetXToken.address)
       tokenCollector.withdraw(
-        token.address,
+        vetXToken.address,
         ROOT,
         balance + 1).should.be.rejectedWith(Error.EVMRevert)
     })
@@ -98,7 +98,7 @@ contract('TokenCollectorTest', function (accounts) {
 
   describe('basic functional test', function () {
     it('should approve success', async function () {
-      const { logs } = await token.approve(
+      const { logs } = await vetXToken.approve(
         tokenCollector.address,
         TOTAL_SPEND_MONEY).should.be.fulfilled
 
@@ -111,30 +111,30 @@ contract('TokenCollectorTest', function (accounts) {
     })
 
     it('should deposit success', async function () {
-      const pre = await token.balanceOf.call(ROOT)
+      const pre = await vetXToken.balanceOf.call(ROOT)
       await tokenCollector.deposit(
-        token.address, VALUE).should.be.fulfilled
-      const post = await token.balanceOf.call(ROOT)
+        vetXToken.address, VALUE).should.be.fulfilled
+      const post = await vetXToken.balanceOf.call(ROOT)
       pre.minus(post).should.be.bignumber.equal(VALUE)
     })
 
     it('should withdraw success', async function () {
       const withdrawAmount = 200
 
-      const pre = await token.balanceOf.call(TEST_ACCOUNT)
+      const pre = await vetXToken.balanceOf.call(TEST_ACCOUNT)
       await tokenCollector.deposit(
-        token.address, VALUE).should.be.fulfilled
+        vetXToken.address, VALUE).should.be.fulfilled
       const storeBalance = await tokenCollector.balanceOf.call(
-        token.address)
+        vetXToken.address)
 
       await tokenCollector.withdraw(
-        token.address,
+        vetXToken.address,
         TEST_ACCOUNT, withdrawAmount).should.be.fulfilled
-      const post = await token.balanceOf.call(TEST_ACCOUNT)
+      const post = await vetXToken.balanceOf.call(TEST_ACCOUNT)
       post.minus(pre).should.be.bignumber.equal(withdrawAmount)
 
       const val = await tokenCollector.balanceOf.call(
-        token.address)
+        vetXToken.address)
       val.should.be.bignumber.equal(storeBalance - withdrawAmount)
     })
   })

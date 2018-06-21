@@ -14,7 +14,6 @@ const EtherCollector = _constant.EtherCollector
 const TokenCollector = _constant.TokenCollector
 const TokenSale = _constant.TokenSale
 const Storage = _constant.Storage
-const Token = _constant.Token
 const MockedSale = _constant.MockedSale
 const wweb3 = _constant.wweb3
 const Web3 = _constant.Web3
@@ -49,7 +48,6 @@ export {
   TokenCollector,
   TokenSale,
   Storage,
-  Token,
   MockedSale,
   wweb3,
   Web3,

@@ -29,7 +29,6 @@ const run = exports.run = async (instances, accounts, artifacts) => {
 
   /* ------- receive instances  -------- */
   // Token
-  const token = instances.token
   const vetXToken = instances.vetXToken
 
   // Kernel
@@ -499,7 +498,6 @@ const run = exports.run = async (instances, accounts, artifacts) => {
 
   /* -----------------------Return------------------------------------------- */
   return {
-    token,
     vetXToken,
     kernel,
     aclHandler,
