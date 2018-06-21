@@ -265,6 +265,8 @@ contract MilestoneController is Module {
         view
         returns (uint)
     {
+        (bool existing, ) = isExisting(namespace, milestoneId);
+        require(existing);
         return regulatingRating.getRegulationRewardsForRegulator(namespace, milestoneId, obj, _addr);
     }
 

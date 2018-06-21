@@ -22,6 +22,8 @@ const ContractAddressHandler = _contants.ContractAddressHandler
 //* Module
 // * Manager
 const RefundManager = _contants.RefundManager
+const RewardManager = _contants.RewardManager
+const PaymentManager = _contants.PaymentManager
 
 // * Controllers
 const ProjectController = _contants.ProjectController
@@ -34,9 +36,6 @@ const TokenCollector = _contants.TokenCollector
 // * RegulatingRating
 const RegulatingRating = _contants.RegulatingRating
 
-// * RewardManager
-const RewardManager = _contants.RewardManager
-
 // * Token sale
 const TokenSale = _contants.TokenSale
 
@@ -45,7 +44,6 @@ const ReputationSystem = _contants.ReputationSystem
 
 // * CarbonVoteX Core
 const CarbonVoteXCore = _contants.CarbonVoteX.Core
-const CarbonVoteXBasic = _contants.CarbonVoteX.Basic
 const CarbonVoteXNameSpace = _contants.NAME_SPACE
 
 module.exports = function (deployer, network, accounts) {
@@ -116,6 +114,12 @@ module.exports = function (deployer, network, accounts) {
       // Deploy ether reward manager storage
       await deployer.deploy(RewardManager.Storage.Self, Kernel.Self.address)
 
+      // Deploy ether payment manager
+      await deployer.deploy(PaymentManager.Self, Kernel.Self.address)
+
+      // Deploy ether payment manager storage
+      await deployer.deploy(PaymentManager.Storage.Self, Kernel.Self.address)
+
       // Deploy token collector
       await deployer.deploy(TokenCollector.Self, Kernel.Self.address)
 
@@ -124,10 +128,6 @@ module.exports = function (deployer, network, accounts) {
 
       // Deploy carbon vote x
       await deployer.deploy(CarbonVoteXCore, accounts[0])
-      await deployer.deploy(
-        CarbonVoteXBasic,
-        CarbonVoteXNameSpace,
-        CarbonVoteXCore.address)
 
       // Deploy reputation system
       await deployer.deploy(
@@ -169,8 +169,6 @@ module.exports = function (deployer, network, accounts) {
         ReputationSystem.Self.address)
       instances.carbonVoteXCore = CarbonVoteXCore.at(
         CarbonVoteXCore.address)
-      instances.carbonVoteXBasic = CarbonVoteXBasic.at(
-        CarbonVoteXBasic.address)
       instances.regulatingRating = RegulatingRating.Self.at(
         RegulatingRating.Self.address)
       instances.regulatingRatingStorage = RegulatingRating.Storage.Self.at(
@@ -179,6 +177,10 @@ module.exports = function (deployer, network, accounts) {
         RewardManager.Self.address)
       instances.rewardManagerStorage = RewardManager.Storage.Self.at(
         RewardManager.Storage.Self.address)
+      instances.paymentManager = PaymentManager.Self.at(
+        PaymentManager.Self.address)
+      instances.paymentManagerStorage = PaymentManager.Storage.Self.at(
+        PaymentManager.Storage.Self.address)
 
       // Configuration
       await Configuation.run(instances, accounts, artifacts)

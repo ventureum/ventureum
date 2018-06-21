@@ -29,6 +29,8 @@ const CarbonVoteX = _constant.CarbonVoteX
 const ReputationSystem = _constant.ReputationSystem
 const RegulatingRating = _constant.RegulatingRating
 const RewardManager = _constant.RewardManager
+const PaymentManager = _constant.PaymentManager
+const expect = _constant.expect
 
 export {
   Kernel,
@@ -57,5 +59,7 @@ export {
   CarbonVoteX,
   ReputationSystem,
   RegulatingRating,
-  RewardManager
+  RewardManager,
+  PaymentManager,
+  expect
 }
