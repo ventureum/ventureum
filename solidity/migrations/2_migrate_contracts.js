@@ -1,57 +1,62 @@
 'use strict'
 
-const Constant = require('../config/config.js')
+const OwnSolConfig = require('../config/ownSolConfig.js')
+const ThirdPartySolConfig = require('../config/thirdPartySolConfig.js')
+
 const Configuation = require('../config/configuation.js')
 
 // Get Constant
-const _constants = Constant.default(artifacts)
+const _ownSolConstants = OwnSolConfig.default(artifacts)
+const _thirdPartySolConstants = ThirdPartySolConfig.default(artifacts)
 
+// Own contracts:
 //* VTCR
-const Library = _constants.Library
-const PLCRVoting = _constants.PLCRVoting
-const Challenge = _constants.Challenge
-const Parameterizer = _constants.Parameterizer
-const Registry = _constants.Registry
-
-//* Token
-const VetXToken = _constants.VetXToken
-
-//* SafeMath
-const SafeMath = _constants.SafeMath
+const Library = _ownSolConstants.Library
+const PLCRVoting = _ownSolConstants.PLCRVoting
+const Challenge = _ownSolConstants.Challenge
+const Parameterizer = _ownSolConstants.Parameterizer
+const Registry = _ownSolConstants.Registry
 
 //* Kernel
-const Kernel = _constants.Kernel
+const Kernel = _ownSolConstants.Kernel
 
 //* Handlers
-const ACLHandler = _constants.ACLHandler
-const ContractAddressHandler = _constants.ContractAddressHandler
+const ACLHandler = _ownSolConstants.ACLHandler
+const ContractAddressHandler = _ownSolConstants.ContractAddressHandler
 
 //* Module
 // * Manager
-const RefundManager = _constants.RefundManager
-const RewardManager = _constants.RewardManager
-const PaymentManager = _constants.PaymentManager
+const RefundManager = _ownSolConstants.RefundManager
+const RewardManager = _ownSolConstants.RewardManager
+const PaymentManager = _ownSolConstants.PaymentManager
 
 // * Controllers
-const ProjectController = _constants.ProjectController
-const MilestoneController = _constants.MilestoneController
+const ProjectController = _ownSolConstants.ProjectController
+const MilestoneController = _ownSolConstants.MilestoneController
 
 // * Collectors
-const EtherCollector = _constants.EtherCollector
-const TokenCollector = _constants.TokenCollector
+const EtherCollector = _ownSolConstants.EtherCollector
+const TokenCollector = _ownSolConstants.TokenCollector
 
 // * RegulatingRating
-const RegulatingRating = _constants.RegulatingRating
+const RegulatingRating = _ownSolConstants.RegulatingRating
 
 // * Token sale
-const TokenSale = _constants.TokenSale
+const TokenSale = _ownSolConstants.TokenSale
+
+// third party contracts:
+//* Token
+const VetXToken = _thirdPartySolConstants.VetXToken
+
+//* SafeMath
+const SafeMath = _thirdPartySolConstants.SafeMath
 
 // * Reputation System
-const ReputationSystem = _constants.ReputationSystem
+const ReputationSystem = _thirdPartySolConstants.ReputationSystem
 
 // * CarbonVoteX Core
-const CarbonVoteXCore = _constants.CarbonVoteX.Core
-const CarbonVoteXNameSpace = _constants.NAME_SPACE
+const CarbonVoteXCore = _thirdPartySolConstants.CarbonVoteX.Core
+const CarbonVoteXNameSpace = _thirdPartySolConstants.NAME_SPACE
 
 module.exports = function (deployer, network, accounts) {
   function migrationDeploy () {

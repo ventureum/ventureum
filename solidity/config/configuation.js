@@ -1,31 +1,36 @@
 'use strict'
 
-const Constant = require('../config/config.js')
+const ThirdPartySolConstants = require('../config/thirdPartySolConfig.js')
+const OwnSolConstants = require('../config/ownSolConfig.js')
 
 const run = exports.run = async (instances, accounts, artifacts) => {
   const root = accounts[0]
 
   /* ------- receive Constant -------- */
-  const _constants = Constant.default(artifacts)
+  const _thirdPartySolConstants = ThirdPartySolConstants.default(artifacts)
+  const _ownSolConstants = OwnSolConstants.default(artifacts)
 
   /* ------- receive objects  -------- */
-  const Kernel = _constants.Kernel
-  const ACLHandler = _constants.ACLHandler
-  const ContractAddressHandler = _constants.ContractAddressHandler
-  const RefundManager = _constants.RefundManager
-  const ProjectController = _constants.ProjectController
-  const MilestoneController = _constants.MilestoneController
-  const EtherCollector = _constants.EtherCollector
-  const TokenCollector = _constants.TokenCollector
-  const TokenSale = _constants.TokenSale
-  const Storage = _constants.Storage
-  const ReputationSystem = _constants.ReputationSystem
-  const CarbonVoteX = _constants.CarbonVoteX
-  const RegulatingRating = _constants.RegulatingRating
-  const RewardManager = _constants.RewardManager
-  const PaymentManager = _constants.PaymentManager
+  // own solidity
+  const Kernel = _ownSolConstants.Kernel
+  const ACLHandler = _ownSolConstants.ACLHandler
+  const ContractAddressHandler = _ownSolConstants.ContractAddressHandler
+  const RefundManager = _ownSolConstants.RefundManager
+  const ProjectController = _ownSolConstants.ProjectController
+  const MilestoneController = _ownSolConstants.MilestoneController
+  const EtherCollector = _ownSolConstants.EtherCollector
+  const TokenCollector = _ownSolConstants.TokenCollector
+  const TokenSale = _ownSolConstants.TokenSale
+  const Storage = _ownSolConstants.Storage
+  const RegulatingRating = _ownSolConstants.RegulatingRating
+  const RewardManager = _ownSolConstants.RewardManager
+  const PaymentManager = _ownSolConstants.PaymentManager
+  const Registry = _ownSolConstants.Registry
 
-  const Registry = _constants.Registry
+  // third party solidity solidity
+  const ReputationSystem = _thirdPartySolConstants.ReputationSystem
+  const CarbonVoteX = _thirdPartySolConstants.CarbonVoteX
+
 
   /* ------- receive instances  -------- */
   // Token

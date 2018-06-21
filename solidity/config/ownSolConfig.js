@@ -1,19 +1,10 @@
-import { increaseTimeTo, duration } from
-  'openzeppelin-solidity/test/helpers/increaseTime'
-import latestTime from 'openzeppelin-solidity/test/helpers/latestTime'
-import EVMRevert from 'openzeppelin-solidity/test/helpers/EVMRevert'
-import { expect } from 'chai'
+const ThirdPartyJsConfig = require("../config/thirdPartyJsConfig.js")
 
 export default function (artifacts) {
-  const fs = require('fs')
-  const Web3 = require('web3')
-  const wweb3 = new Web3(
-    new Web3.providers.HttpProvider('http://localhost:8545'))
-  const BigNumber = wweb3.BigNumber
-  const should = require('chai')
-    .use(require('chai-as-promised'))
-    .use(require('chai-bignumber')(BigNumber))
-    .should()
+  const _thirdPartyJsConstants = ThirdPartyJsConfig.default()
+
+  const wweb3 = _thirdPartyJsConstants.wweb3
+  const Web3 = _thirdPartyJsConstants.Web3
 
   const SET_STORAGE_SIG = wweb3.eth.abi.encodeFunctionSignature(
     'setStorage(address)')
@@ -22,20 +13,7 @@ export default function (artifacts) {
   const SET_PROJECT_CONTROLLER = wweb3.eth.abi.encodeFunctionSignature(
     'setProjectController(address)')
 
-  /* ---------------------Utils------------------------------------------------ */
-  class TimeSetter {}
-  TimeSetter.increaseTimeTo = increaseTimeTo
-  TimeSetter.duration = duration
-  TimeSetter.latestTime = latestTime
-  TimeSetter.OneMonth = duration.days(1) * 30
-  TimeSetter.OneWeek = duration.weeks(1)
-  TimeSetter.OneYear = duration.years(1)
-
-  class Error {}
-  Error.EVMRevert = EVMRevert
-
   /* ---------------------Contracts-------------------------------------------- */
-
   /**
    * VTCR Contracts
    */
@@ -310,36 +288,6 @@ export default function (artifacts) {
   class MockedSale {}
   MockedSale.Self = artifacts.require('./mocks/MockedSale.sol')
 
-  /**
-   *  External Contracts
-   */
-  // VetXToken
-  class VetXToken {}
-  VetXToken.Self = artifacts.require('./VetXToken')
-  VetXToken.initAmount = '1000000000000000000'
-  VetXToken.tokenName = 'VetX'
-  VetXToken.decimalUnits = 18
-  VetXToken.tokenSymbol = 'VTX'
-
-  // SafeMath
-  class SafeMath {}
-  SafeMath.Self = artifacts.require('./SafeMath')
-
-  // ReputationSystem
-  class ReputationSystem {}
-  ReputationSystem.Self = artifacts.require('./ReputationSystem')
-  ReputationSystem.CI = Web3.utils.keccak256('ReputationSystem')
-  ReputationSystem.updateInterval = 100000
-  ReputationSystem.prevVotesDiscount = 90
-  ReputationSystem.newVotesDiscount = 10
-  ReputationSystem.defaultAddressCanRegister = '0x0'
-
-  // CarbonVoteXCore
-  class CarbonVoteX {}
-  CarbonVoteX.Core = artifacts.require('./CarbonVoteXCore')
-  CarbonVoteX.receiverFunctions = [Web3.utils.sha3('register')]
-  CarbonVoteX.sendGas = Web3.utils.sha3('sendGas')
-
   return {
     'Kernel': Kernel,
     'ACLHandler': ACLHandler,
@@ -354,20 +302,9 @@ export default function (artifacts) {
     'TokenSale': TokenSale,
     'Storage': Storage,
     'MockedSale': MockedSale,
-    'wweb3': wweb3,
-    'Web3': Web3,
-    'should': should,
-    'TimeSetter': TimeSetter,
-    'Error': Error,
-    'fs': fs,
-    'VetXToken': VetXToken,
-    'SafeMath': SafeMath,
-    'ReputationSystem': ReputationSystem,
-    'CarbonVoteX': CarbonVoteX,
     'RegulatingRating': RegulatingRating,
     'RewardManager': RewardManager,
     'PaymentManager': PaymentManager,
-    'expect': expect,
     'Library': Library,
     'PLCRVoting': PLCRVoting,
     'Challenge': Challenge,
