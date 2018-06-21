@@ -4,47 +4,54 @@ const Constant = require('../config/config.js')
 const Configuation = require('../config/configuation.js')
 
 // Get Constant
-const _contants = Constant.default(artifacts)
+const _constants = Constant.default(artifacts)
+
+//* VTCR
+const Library = _constants.Library
+const PLCRVoting = _constants.PLCRVoting
+const Challenge = _constants.Challenge
+const Parameterizer = _constants.Parameterizer
+const Registry = _constants.Registry
 
 //* Token
-const VetXToken = _contants.VetXToken
+const VetXToken = _constants.VetXToken
 
 //* SafeMath
-const SafeMath = _contants.SafeMath
+const SafeMath = _constants.SafeMath
 
 //* Kernel
-const Kernel = _contants.Kernel
+const Kernel = _constants.Kernel
 
 //* Handlers
-const ACLHandler = _contants.ACLHandler
-const ContractAddressHandler = _contants.ContractAddressHandler
+const ACLHandler = _constants.ACLHandler
+const ContractAddressHandler = _constants.ContractAddressHandler
 
 //* Module
 // * Manager
-const RefundManager = _contants.RefundManager
-const RewardManager = _contants.RewardManager
-const PaymentManager = _contants.PaymentManager
+const RefundManager = _constants.RefundManager
+const RewardManager = _constants.RewardManager
+const PaymentManager = _constants.PaymentManager
 
 // * Controllers
-const ProjectController = _contants.ProjectController
-const MilestoneController = _contants.MilestoneController
+const ProjectController = _constants.ProjectController
+const MilestoneController = _constants.MilestoneController
 
 // * Collectors
-const EtherCollector = _contants.EtherCollector
-const TokenCollector = _contants.TokenCollector
+const EtherCollector = _constants.EtherCollector
+const TokenCollector = _constants.TokenCollector
 
 // * RegulatingRating
-const RegulatingRating = _contants.RegulatingRating
+const RegulatingRating = _constants.RegulatingRating
 
 // * Token sale
-const TokenSale = _contants.TokenSale
+const TokenSale = _constants.TokenSale
 
 // * Reputation System
-const ReputationSystem = _contants.ReputationSystem
+const ReputationSystem = _constants.ReputationSystem
 
 // * CarbonVoteX Core
-const CarbonVoteXCore = _contants.CarbonVoteX.Core
-const CarbonVoteXNameSpace = _contants.NAME_SPACE
+const CarbonVoteXCore = _constants.CarbonVoteX.Core
+const CarbonVoteXNameSpace = _constants.NAME_SPACE
 
 module.exports = function (deployer, network, accounts) {
   function migrationDeploy () {
@@ -57,7 +64,10 @@ module.exports = function (deployer, network, accounts) {
           RefundManager.Self,
           MilestoneController.Self,
           RegulatingRating.Self,
-          TokenSale.Self])
+          PLCRVoting.Self,
+          Challenge.Self,
+          Registry.Self,
+          Parameterizer.Self])
     }).then(async function () {
       // Deploy kernel
       await deployer.deploy(Kernel.Self)
@@ -65,10 +75,55 @@ module.exports = function (deployer, network, accounts) {
       // Deploy token
       await deployer.deploy(
         VetXToken.Self,
-        '1000000000000000000',
-        'VetX',
-        18,
-        'VTX')
+        VetXToken.initAmount,
+        VetXToken.tokenName,
+        VetXToken.decimalUnits,
+        VetXToken.tokenSymbol)
+
+      //*  Deploy VTCR
+      // Deploy Library
+      await deployer.deploy(Library.DLL)
+      await deployer.deploy(Library.DLLBytes32)
+      await deployer.deploy(Library.AttributeStore)
+      await deployer.link(
+        Library.DLL,
+        [PLCRVoting.Self])
+      await deployer.link(
+        Library.AttributeStore,
+        [PLCRVoting.Self])
+      await deployer.link(
+        Library.DLLBytes32,
+        [Registry.Self])
+
+      // Deploy Challenge
+      await deployer.deploy(Challenge.Self)
+      await deployer.link(
+        Challenge.Self,
+        [Parameterizer.Self,
+        Registry.Self])
+
+      // Deploy PLCRVoting
+      await deployer.deploy(
+        PLCRVoting.Self,
+        VetXToken.Self.address)
+
+      // Deploy Parameterizer
+      await deployer.deploy(
+        Parameterizer.Self,
+        VetXToken.Self.address,
+        PLCRVoting.Self.address,
+        Parameterizer.paramDefaults.minDeposit,
+        Parameterizer.paramDefaults.pMinDeposit,
+        Parameterizer.paramDefaults.applyStageLength,
+        Parameterizer.paramDefaults.pApplyStageLength,
+        Parameterizer.paramDefaults.commitStageLength,
+        Parameterizer.paramDefaults.pCommitStageLength,
+        Parameterizer.paramDefaults.revealStageLength,
+        Parameterizer.paramDefaults.pRevealStageLength,
+        Parameterizer.paramDefaults.dispensationPct,
+        Parameterizer.paramDefaults.pDispensationPct,
+        Parameterizer.paramDefaults.voteQuorum,
+        Parameterizer.paramDefaults.pVoteQuorum)
 
       // Deploy acl handler
       await deployer.deploy(ACLHandler.Self, Kernel.Self.address)
@@ -139,6 +194,16 @@ module.exports = function (deployer, network, accounts) {
         ReputationSystem.newVotesDiscount,
         ReputationSystem.defaultAddressCanRegister)
 
+      // Deploy Registry
+      await deployer.deploy(
+        Registry.Self,
+        Kernel.Self.address,
+        VetXToken.Self.address,
+        PLCRVoting.Self.address,
+        Parameterizer.Self.address,
+        ProjectController.Self.address)
+
+
       // Instances
       instances.vetXToken = VetXToken.Self.at(VetXToken.Self.address)
       instances.kernel = Kernel.Self.at(Kernel.Self.address)
@@ -181,6 +246,8 @@ module.exports = function (deployer, network, accounts) {
         PaymentManager.Self.address)
       instances.paymentManagerStorage = PaymentManager.Storage.Self.at(
         PaymentManager.Storage.Self.address)
+      instances.registry = Registry.Self.at(
+        Registry.Self.address)
 
       // Configuration
       await Configuation.run(instances, accounts, artifacts)

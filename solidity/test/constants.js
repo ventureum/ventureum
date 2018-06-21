@@ -15,7 +15,6 @@ const TokenCollector = _constant.TokenCollector
 const TokenSale = _constant.TokenSale
 const Storage = _constant.Storage
 const Token = _constant.Token
-const Registry = _constant.Registry
 const MockedSale = _constant.MockedSale
 const wweb3 = _constant.wweb3
 const Web3 = _constant.Web3
@@ -31,6 +30,11 @@ const RegulatingRating = _constant.RegulatingRating
 const RewardManager = _constant.RewardManager
 const PaymentManager = _constant.PaymentManager
 const expect = _constant.expect
+const Library = _constant.Library
+const Challenge = _constant.Challenge
+const PLCRVoting = _constant.PLCRVoting
+const Parameterizer = _constant.Parameterizer
+const Registry = _constant.Registry
 
 export {
   Kernel,
@@ -46,7 +50,6 @@ export {
   TokenSale,
   Storage,
   Token,
-  Registry,
   MockedSale,
   wweb3,
   Web3,
@@ -61,5 +64,10 @@ export {
   RegulatingRating,
   RewardManager,
   PaymentManager,
-  expect
+  expect,
+  Library,
+  Challenge,
+  PLCRVoting,
+  Parameterizer,
+  Registry
 }

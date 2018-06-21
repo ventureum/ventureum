@@ -35,6 +35,48 @@ export default function (artifacts) {
   Error.EVMRevert = EVMRevert
 
   /* ---------------------Contracts-------------------------------------------- */
+
+  /**
+   * VTCR Contracts
+   */
+  // Library
+  class Library {}
+  Library.DLL = artifacts.require('libaray/DLL')
+  Library.AttributeStore = artifacts.require('libaray/AttributeStore')
+  Library.DLLBytes32 = artifacts.require('libaray/DLLBytes32')
+
+  // PLCRVoting
+  class PLCRVoting {}
+  PLCRVoting.Self = artifacts.require('modules/VTCR/PLCRVoting')
+
+  // Challenge
+  class Challenge {}
+  Challenge.Self = artifacts.require('modules/VTCR/Challenge')
+
+  // Parameterizer
+  class Parameterizer {}
+  Parameterizer.Self = artifacts.require('modules/VTCR/Parameterizer')
+  Parameterizer.paramDefaults = {
+    "minDeposit": 500000,
+    "pMinDeposit": 50000,
+    "applyStageLength": 300,
+    "pApplyStageLength": 60,
+    "commitStageLength": 60,
+    "pCommitStageLength": 60,
+    "revealStageLength": 60,
+    "pRevealStageLength": 120,
+    "dispensationPct": 50,
+    "pDispensationPct": 50,
+    "voteQuorum": 50,
+    "pVoteQuorum": 50,
+    "initialTokenPurchase": 100000000
+  }
+
+  // Registry
+  class Registry {}
+  Registry.Self = artifacts.require('modules/VTCR/Registry')
+  Registry.CI = Web3.utils.keccak256('Registry')
+
   /**
    * Contracts - kernel
    */
@@ -210,13 +252,8 @@ export default function (artifacts) {
   }
 
   /**
-   * Contracts - modules
+   * Contracts - RegulatingRating
    */
-  // Registry
-  class Registry {}
-  Registry.Self = artifacts.require('./VTCR/Registry.sol')
-  Registry.CI = Web3.utils.keccak256('Registry')
-
   // RegulatingRating
   class RegulatingRating {}
   RegulatingRating.Self = artifacts.require(
@@ -283,6 +320,10 @@ export default function (artifacts) {
   // VetXToken
   class VetXToken {}
   VetXToken.Self = artifacts.require('./VetXToken')
+  VetXToken.initAmount = '1000000000000000000'
+  VetXToken.tokenName = 'VetX'
+  VetXToken.decimalUnits = 18
+  VetXToken.tokenSymbol = 'VTX'
 
   // SafeMath
   class SafeMath {}
@@ -317,7 +358,6 @@ export default function (artifacts) {
     'TokenSale': TokenSale,
     'Storage': Storage,
     'Token': Token,
-    'Registry': Registry,
     'MockedSale': MockedSale,
     'wweb3': wweb3,
     'Web3': Web3,
@@ -332,6 +372,11 @@ export default function (artifacts) {
     'RegulatingRating': RegulatingRating,
     'RewardManager': RewardManager,
     'PaymentManager': PaymentManager,
-    'expect': expect
+    'expect': expect,
+    'Library': Library,
+    'PLCRVoting': PLCRVoting,
+    'Challenge': Challenge,
+    'Registry': Registry,
+    'Parameterizer': Parameterizer
   }
 }

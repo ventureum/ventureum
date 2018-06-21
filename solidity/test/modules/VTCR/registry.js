@@ -6,15 +6,10 @@ import {
   ContractAddressHandler,
   Registry,
   MockedSale,
-  ProjectController
+  ProjectController,
+  Parameterizer
 } from '../../constants'
 const shared = require('../../shared.js')
-
-const PLCRVoting = artifacts.require('./VTCR/PLCRVoting.sol')
-const Parameterizer = artifacts.require(
-  './VTCR/Parameterizer.sol')
-const Token = artifacts.require(
-  'vetx-token/contracts/VetXToken.sol')
 
 const PROJECT_LIST = ['project #0', 'project #1', 'project #2', 'project #3']
 
@@ -38,59 +33,20 @@ contract('Registry', (accounts) => {
     aclHandler = context.aclHandler
     contractAddressHandler = context.contractAddressHandler
     projectController = context.projectController
+    token = context.vetXToken
+    registry = context.registry
 
     const config = JSON.parse(fs.readFileSync('./config/VTCR/config.json'))
-    parameterizerConfig = config.paramDefaults
+    parameterizerConfig = Parameterizer.paramDefaults
 
-    mockedSale = await MockedSale.Self.new()
+    mockedSale = await MockedSale.Self.new(token.address)
+
+    let totalAmount = await token.balanceOf(ROOT_ACCOUNT);
+    await token.transfer(mockedSale.address, totalAmount)
+
     await mockedSale.purchaseTokens(
       {from: ROOT_ACCOUNT, value: config.initialTokenPurchase})
-
-    tokenAdd = await mockedSale.getTokenAddr()
-    token = await Token.at(tokenAdd)
-
-    const plcrVoting = await PLCRVoting.new(tokenAdd)
-    const parameterizer = await Parameterizer.new(
-      plcrVoting.address,
-      tokenAdd,
-      parameterizerConfig.minDeposit,
-      parameterizerConfig.pMinDeposit,
-      parameterizerConfig.applyStageLength,
-      parameterizerConfig.pApplyStageLength,
-      parameterizerConfig.commitStageLength,
-      parameterizerConfig.pCommitStageLength,
-      parameterizerConfig.revealStageLength,
-      parameterizerConfig.pRevealStageLength,
-      parameterizerConfig.dispensationPct,
-      parameterizerConfig.pDispensationPct,
-      parameterizerConfig.voteQuorum,
-      parameterizerConfig.pVoteQuorum
-    )
-
-    registry = await Registry.Self.new(
-      kernel.address,
-      tokenAdd,
-      plcrVoting.address,
-      parameterizer.address,
-      projectController.address
-    )
-
-    await kernel.connect(
-      registry.address,
-      [ACLHandler.CI, ContractAddressHandler.CI])
-
-    await contractAddressHandler.registerContract(
-      Registry.CI, registry.address)
-
-    await aclHandler.permit(
-      Registry.CI,
-      ProjectController.CI,
-      [
-        ProjectController.Sig.RegisterProject,
-        ProjectController.Sig.UnregisterProject,
-        ProjectController.Sig.SetState,
-        ProjectController.Sig.SetTokenAddress
-      ])
+    tokenAdd = token.address
   })
 
   describe('Project applications', () => {

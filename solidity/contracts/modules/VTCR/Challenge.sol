@@ -6,7 +6,6 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 library Challenge {
-
     using SafeMath for uint;
 
     // ------

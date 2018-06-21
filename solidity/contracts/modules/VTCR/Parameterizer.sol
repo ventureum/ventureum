@@ -7,6 +7,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 contract Parameterizer {
+    using Challenge for Challenge.Data;
 
     // ------
     // EVENTS
@@ -19,8 +20,6 @@ contract Parameterizer {
     // ------
     // DATA STRUCTURES
     // ------
-
-    using Challenge for Challenge.Data;
 
     struct ParamProposal {
         uint appExpiry;
