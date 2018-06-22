@@ -2,6 +2,7 @@ import { increaseTimeTo, duration } from
   'openzeppelin-solidity/test/helpers/increaseTime'
 import latestTime from 'openzeppelin-solidity/test/helpers/latestTime'
 import EVMRevert from 'openzeppelin-solidity/test/helpers/EVMRevert'
+import { advanceBlock } from 'openzeppelin-solidity/test/helpers/advanceToBlock'
 
 const ThirdPartyJsConfig = require("../config/thirdPartyJsConfig.js")
 
@@ -19,6 +20,7 @@ export default function (artifacts) {
   TimeSetter.OneMonth = duration.days(1) * 30
   TimeSetter.OneWeek = duration.weeks(1)
   TimeSetter.OneYear = duration.years(1)
+  TimeSetter.advanceBlock = advanceBlock
 
   class Error {}
   Error.EVMRevert = EVMRevert

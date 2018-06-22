@@ -35,6 +35,7 @@ const expect = _thirdPartyJsConstants.expect
 const wweb3 = _thirdPartyJsConstants.wweb3
 const Web3 = _thirdPartyJsConstants.Web3
 const should = _thirdPartyJsConstants.should
+const saltHashVote = _thirdPartyJsConstants.saltHashVote
 
 // Third party solidity contracts:
 const Error = _thirdPartySolConstants.Error
@@ -76,5 +77,6 @@ export {
   Challenge,
   PLCRVoting,
   Parameterizer,
-  Registry
+  Registry,
+  saltHashVote
 }

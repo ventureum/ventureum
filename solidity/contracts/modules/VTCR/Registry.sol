@@ -13,13 +13,16 @@ import "../project_controller/ProjectController.sol";
 
 
 contract Registry is Module {
+    using Challenge for Challenge.Data;
+    using DLLBytes32 for DLLBytes32.Data;
+    using SafeMath for uint;
 
     // ------
     // EVENTS
     // ------
 
     event _Application(address indexed applicant, string project, uint deposit);
-    event _Challenge(address indexed challenger, string project, uint deposit, uint pollID);
+    event _Challenge(address indexed challenger, string project, uint deposit, uint pollId);
     event _NewProjectWhitelisted(string project);
     event _ApplicationRemoved(string project);
     event _ListingRemoved(string project);
@@ -30,10 +33,6 @@ contract Registry is Module {
     // ------
     // DATA STRUCTURES
     // ------
-
-    using Challenge for Challenge.Data;
-    using DLLBytes32 for DLLBytes32.Data;
-    using SafeMath for uint;
 
     struct Listing {
         uint applicationExpiry; // Expiration date of apply stage
@@ -197,17 +196,17 @@ contract Registry is Module {
         );
 
         // Starts poll
-        uint pollID = voting.startPoll(
+        uint pollId = voting.startPoll(
             parameterizer.get("voteQuorum"),
             parameterizer.get("commitStageLen"),
             parameterizer.get("revealStageLen")
         );
         uint oneHundred = 100;
-        challenges[pollID] = Challenge.Data({
+        challenges[pollId] = Challenge.Data({
             challenger: msg.sender,
             voting: voting,
             token: token,
-            challengeID: pollID,
+            challengeID: pollId,
             rewardPool : oneHundred.sub(parameterizer.get("dispensationPct")).mul(_deposit).div(oneHundred),
             stake: _deposit,
             resolved: false,
@@ -215,16 +214,16 @@ contract Registry is Module {
             });
 
         // Updates listing to store most recent challenge
-        listings[projectHash].challengeID = pollID;
+        listings[projectHash].challengeID = pollId;
 
-        emit _Challenge(msg.sender, _project, _deposit, pollID);
-        return pollID;
+        emit _Challenge(msg.sender, _project, _deposit, pollId);
+        return pollId;
     }
 
     /**
        @notice Called by a voter to claim his/her reward for each completed vote.
        @dev Someone must call updateStatus() before this can be called.
-       @param _challengeID The pollID of the challenge a reward is being claimed for
+       @param _challengeID The pollId of the challenge a reward is being claimed for
        @param _salt The salt of a voter's commit hash in the given poll
     */
     function claimReward(uint _challengeID, uint _salt) public {

@@ -32,6 +32,7 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
+    "ethereumjs-abi": "^0.6.5",
     "repsys": "^1.0.3",
     "solidity-coverage": "^0.5.4",
     "standard": "^11.0.1",
