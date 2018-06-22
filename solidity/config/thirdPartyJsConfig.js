@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import {soliditySHA3} from 'ethereumjs-abi'
 
 export default function () {
   const fs = require('fs')
@@ -11,11 +12,16 @@ export default function () {
     .use(require('chai-bignumber')(BigNumber))
     .should()
 
+  const saltHashVote = function (vote, salt) {
+    return `0x${soliditySHA3(['uint', 'uint'], [vote, salt]).toString("hex")}`
+  }
+
   return {
     'wweb3': wweb3,
     'Web3': Web3,
     'should': should,
     'fs': fs,
-    'expect': expect
+    'expect': expect,
+    'saltHashVote': saltHashVote
   }
 }
