@@ -61,8 +61,14 @@ library Challenge {
     @return             The uint indicating the voter's reward (in nano-ADT)
     */
     function voterReward(Data storage _self, address _voter, uint _salt)
-    public view returns (uint) {
+        public 
+        view 
+        returns (uint) 
+    {
         uint voterTokens = _self.voting.getNumPassingTokens(_voter, _self.challengeID, _salt);
+        if (voterTokens == 0) {
+            return 0;
+        }
         return voterTokens.mul(_self.rewardPool).div(_self.winningTokens);
     }
 
