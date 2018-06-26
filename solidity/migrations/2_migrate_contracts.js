@@ -4,6 +4,7 @@ const OwnSolConfig = require('../config/ownSolConfig.js')
 const ThirdPartySolConfig = require('../config/thirdPartySolConfig.js')
 
 const Configuation = require('../config/configuation.js')
+const MigrationConfiguation = require('../config/migrationConfiguation.js')
 
 // Get Constant
 const _ownSolConstants = OwnSolConfig.default(artifacts)
@@ -256,6 +257,7 @@ module.exports = function (deployer, network, accounts) {
 
       // Configuration
       await Configuation.run(instances, accounts, artifacts)
+      await MigrationConfiguation.initMockData(instances, accounts, artifacts)
     })
   }
   migrationDeploy()
