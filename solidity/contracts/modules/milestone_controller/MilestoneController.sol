@@ -11,7 +11,6 @@ import "../token_sale/TokenSale.sol";
 
 
 contract MilestoneController is Module {
-
     using SafeMath for uint;
 
     // Can only add state in order
@@ -104,7 +103,7 @@ contract MilestoneController is Module {
         uint[] objMaxRegulationRewards
     )
         external
-        connected
+        founderOnly(namespace)
     {
         require(length >= 60 days);
         require(
@@ -122,28 +121,15 @@ contract MilestoneController is Module {
             keccak256(abi.encodePacked(namespace, GLOBAL_MILESTONE_ID, NUMBER_MILESTONES)),
             milestoneId.add(1)
         );
-        initMilestone(
-            namespace,
-            milestoneId,
-            lastEndTime,
-            lastEndTime.add(length),
-            objs,
-            objTypes,
-            objMaxRegulationRewards);
 
-        address tokenAddress = projectController.getTokenAddress(namespace);
-
-        uint avgPrice = tokenSale.avgPrice(namespace);
-
-        reputationSystem.registerPollRequest(
-            keccak256(abi.encodePacked(namespace, milestoneId)),
-            lastEndTime,
-            lastEndTime.add(length),
-            avgPrice,
-            true,
-            tokenAddress,
-            objTypes
-        );
+        addMilestoneHelper(
+            namespace, 
+            length, 
+            objs, 
+            objTypes, 
+            objMaxRegulationRewards, 
+            milestoneId, 
+            lastEndTime);
     }
 
     /**
@@ -470,5 +456,54 @@ contract MilestoneController is Module {
         uint endTime = milestoneControllerStore.getUint(
             keccak256(abi.encodePacked(namespace, milestoneId, END_TIME)));
         return endTime != 0 ? (true, endTime) : (false, 0);
+    }
+
+    /**
+    * The helper function for addMilestone
+    * Can only be called by addMilestone
+    * This function is separated from addMilestone, 
+    *  in order to avoid stack too deep error.
+    *
+    * @param namespace namespace of a project
+    * @param length length of the milestone, >= 60 days
+    * @param objs list of objectives' IPFS hash
+    * @param objTypes list of objectives' type
+    * @param objMaxRegulationRewards list of objectives' max regulation rewards
+    * @param milestoneId the id for this milestone
+    * @param lastEndTime the last end time for this milestone
+    */
+    function addMilestoneHelper (
+        bytes32 namespace,
+        uint length,
+        bytes32[] objs,
+        bytes32[] objTypes,
+        uint[] objMaxRegulationRewards,
+        uint256 milestoneId,
+        uint256 lastEndTime
+    )
+        private
+    {
+        initMilestone(
+            namespace,
+            milestoneId,
+            lastEndTime,
+            lastEndTime.add(length),
+            objs,
+            objTypes,
+            objMaxRegulationRewards);
+
+        address tokenAddress = projectController.getTokenAddress(namespace);
+
+        uint avgPrice = tokenSale.avgPrice(namespace);
+
+        reputationSystem.registerPollRequest(
+            keccak256(abi.encodePacked(namespace, milestoneId)),
+            lastEndTime,
+            lastEndTime.add(length),
+            avgPrice,
+            true,
+            tokenAddress,
+            objTypes
+        );
     }
 }
