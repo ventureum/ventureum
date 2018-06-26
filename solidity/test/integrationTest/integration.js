@@ -13,6 +13,7 @@ import {
   EtherCollector,
   PLCRVoting,
   Registry,
+  TokenCollector,
   Parameterizer,
   TokenSale} from "../constants.js"
 
@@ -23,6 +24,7 @@ const VOTE_FOR = 1
 const AGAINST = 0
 
 const VOTE_NUMBER = 1000
+const PURCHASER_DEPOSIT = 1000
 
 const CHALLENGE_DEPOSIT = Parameterizer.paramDefaults.minDeposit / 2
 const CHALLENGE_REWARD =
@@ -32,11 +34,14 @@ const CHALLENGE_REWARD =
 
 contract("Integration Test", function (accounts) {
   const ROOT = accounts[0]
-  const PURCHASER = accounts[1]
-  const PROJECT_OWNER = accounts[2]
-  const CHALLENGER = accounts[3]
-  const VOTER1 = accounts[4]
-  const VOTER2 = accounts[5]
+  const PROJECT_OWNER = accounts[1]
+  const CHALLENGER = accounts[2]
+  const VOTER1 = accounts[3]
+  const VOTER2 = accounts[4]
+
+  const PURCHASER1 = accounts[2]
+  const PURCHASER2 = accounts[3]
+  const PURCHASER3 = accounts[4]
 
   let vetXToken
   let projectToken
@@ -45,12 +50,17 @@ contract("Integration Test", function (accounts) {
   let plcrVoting
 
   let projectController
+  let tokenCollector
+  let tokenSale
 
   before(async function () {
     vetXToken = await VetXToken.Self.deployed()
     registry = await Registry.Self.deployed()
     plcrVoting = await PLCRVoting.Self.deployed()
     projectController = await ProjectController.Self.deployed()
+    tokenCollector = await TokenCollector.Self.deployed()
+    tokenSale = await TokenSale.Self.deployed()
+
 
     // init project token and transfer all to project owner
     projectToken = await VetXToken.Self.new(
@@ -66,9 +76,17 @@ contract("Integration Test", function (accounts) {
     await vetXToken.transfer(VOTER2, VOTE_NUMBER)
   })
 
+  let deposit = async function (address, vetXTokenNum) {
+    const bal = await vetXToken.balanceOf(address)
+    if (bal !== 0) {
+      await vetXToken.transfer(ROOT, bal, {from: address})
+    }
+    await vetXToken.transfer(address, vetXTokenNum)
+  }
+
   let applyApplication = async function (projectName) {
     // Transfer minDeposit VTX to project owner
-    vetXToken.transfer(PROJECT_OWNER, Parameterizer.paramDefaults.minDeposit)
+    await vetXToken.transfer(PROJECT_OWNER, Parameterizer.paramDefaults.minDeposit)
     let pre = await vetXToken.balanceOf(PROJECT_OWNER)
 
     // allow registry transfer minDeposit VTX from project owner
@@ -96,7 +114,7 @@ contract("Integration Test", function (accounts) {
 
   let challengeApplication = async function (projectName) {
     // Transfer minDeposit VTX to project owner
-    vetXToken.transfer(CHALLENGER, Parameterizer.paramDefaults.minDeposit)
+    await vetXToken.transfer(CHALLENGER, Parameterizer.paramDefaults.minDeposit)
     let pre = await vetXToken.balanceOf(CHALLENGER)
 
     // allow registry transfer minDeposit VTX from project owner
@@ -170,9 +188,58 @@ contract("Integration Test", function (accounts) {
     event.args.numTokens.should.be.bignumber.equal(tokenNum)
   }
 
+  let mockTokenSale = async function (projectHash, rate, projectToken) {
+    // Transfer from PROJECT_OWNER to tokenCollector
+    await projectToken.transfer(
+      tokenCollector.address,
+      VetXToken.initAmount,
+      {from: PROJECT_OWNER})
+
+    await deposit(PURCHASER1, PURCHASER_DEPOSIT)
+    await deposit(PURCHASER2, PURCHASER_DEPOSIT)
+    await deposit(PURCHASER3, PURCHASER_DEPOSIT)
+
+    const purchaser1BalPre = await projectToken.balanceOf(PURCHASER1)
+    const purchaser2BalPre = await projectToken.balanceOf(PURCHASER2)
+    const purchaser3BalPre = await projectToken.balanceOf(PURCHASER3)
+
+    await tokenSale.startTokenSale(
+      projectHash,
+      rate,
+      projectToken.address,
+      {from: PROJECT_OWNER}).should.be.fulfilled
+
+    await tokenSale.buyTokens(
+      projectHash,
+      {value: PURCHASER_DEPOSIT, from: PURCHASER1})
+      .should.be.fulfilled
+
+    await tokenSale.buyTokens(
+      projectHash,
+      {value: PURCHASER_DEPOSIT, from: PURCHASER2})
+      .should.be.fulfilled
+
+    await tokenSale.buyTokens(
+      projectHash,
+      {value: PURCHASER_DEPOSIT, from: PURCHASER3})
+      .should.be.fulfilled
+
+    await tokenSale.finalize(projectHash, {from: PROJECT_OWNER})
+      .should.be.fulfilled
+    const avgPrice = await tokenSale.avgPrice.call(projectHash)
+
+    const purchaser1BalPost = await projectToken.balanceOf(PURCHASER1)
+    const purchaser2BalPost = await projectToken.balanceOf(PURCHASER2)
+    const purchaser3BalPost = await projectToken.balanceOf(PURCHASER3)
+
+    purchaser1BalPost.minus(purchaser1BalPre)
+      .should.be.bignumber.equal(PURCHASER_DEPOSIT * rate)
+
+    avgPrice.should.be.bignumber.equal(rate)
+  }
 
   describe('The integration test for VTCR', function () {
-    it('should be fulfilled', async function () {
+    it('challenge not pass', async function () {
       const voter1BalPre = await vetXToken.balanceOf(VOTER1)
       const voter2BalPre = await vetXToken.balanceOf(VOTER2)
 
@@ -216,6 +283,38 @@ contract("Integration Test", function (accounts) {
       voter1BalPost.minus(voter1BalPre).should.be.bignumber.equal(0)
       voter2BalPost.minus(voter2BalPre)
         .should.be.bignumber.equal(CHALLENGE_DEPOSIT - CHALLENGE_REWARD)
+    })
+
+    it('should be fulfilled', async function () {
+      await applyApplication(PROJECT_LIST[1])
+      let pollId = await challengeApplication(PROJECT_LIST[1])
+      await voteForChallenge(pollId, VOTER1, VOTE_FOR, 200)
+      await voteForChallenge(pollId, VOTER2, AGAINST, 150)
+      await increaseTime(Parameterizer.paramDefaults.commitStageLength)
+
+      // Fast forward to reveal stage
+      const revealStage = await plcrVoting.revealStageActive(pollId)
+      revealStage.should.be.equal(true)
+
+      await revealVote(pollId, VOTER1, VOTE_FOR, 200)
+      await revealVote(pollId, VOTER2, AGAINST, 150)
+      await increaseTime(Parameterizer.paramDefaults.revealStageLength)
+
+      // Fast forward to end reveal stage
+      const endStage = await plcrVoting.pollEnded(pollId)
+      endStage.should.be.equal(true)
+
+      const isPassed = await plcrVoting.isPassed(pollId)
+      isPassed.should.be.equal(true)
+
+      // update status and check reward
+      await registry.updateStatus(PROJECT_LIST[1]).should.be.fulfilled
+
+      await voterReward(pollId, VOTER1, 200)
+      await voterReward(pollId, VOTER2, 150)
+
+      const projectHash = wweb3.utils.keccak256(PROJECT_LIST[1])
+      await mockTokenSale(projectHash, 5, projectToken)
     })
   })
 })
