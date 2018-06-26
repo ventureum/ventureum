@@ -18,7 +18,6 @@
     "babel-preset-stage-3": "^6.24.1",
     "babel-register": "^6.26.0",
     "carbonvotex": "^2.0.1",
-    "repsys": "^1.0.3",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
@@ -33,7 +32,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
     "ethereumjs-abi": "^0.6.5",
-    "repsys": "^1.0.3",
+    "repsys": "^1.0.4",
     "solidity-coverage": "^0.5.4",
     "standard": "^11.0.1",
     "truffle-hdwallet-provider": "0.0.4"
