@@ -238,83 +238,118 @@ contract("Integration Test", function (accounts) {
     avgPrice.should.be.bignumber.equal(rate)
   }
 
+  let challengeNotPassTest = async function () {
+    const voter1BalPre = await vetXToken.balanceOf(VOTER1)
+    const voter2BalPre = await vetXToken.balanceOf(VOTER2)
+
+    await applyApplication(PROJECT_LIST[0])
+    let pollId = await challengeApplication(PROJECT_LIST[0])
+    await voteForChallenge(pollId, VOTER1, VOTE_FOR, 100)
+    await voteForChallenge(pollId, VOTER2, AGAINST, 150)
+    await increaseTime(Parameterizer.paramDefaults.commitStageLength)
+
+    // Fast forward to reveal stage
+    const revealStage = await plcrVoting.revealStageActive(pollId)
+    revealStage.should.be.equal(true)
+
+    await revealVote(pollId, VOTER1, VOTE_FOR, 100)
+    await revealVote(pollId, VOTER2, AGAINST, 150)
+    await increaseTime(Parameterizer.paramDefaults.revealStageLength)
+
+    // Fast forward to end reveal stage
+    const endStage = await plcrVoting.pollEnded(pollId)
+    endStage.should.be.equal(true)
+
+    const isPassed = await plcrVoting.isPassed(pollId)
+    isPassed.should.be.equal(false)
+
+    // update status and check reward
+    const challengerPre = await vetXToken.balanceOf(CHALLENGER)
+    const projectOwnerPre = await vetXToken.balanceOf(PROJECT_OWNER)
+
+    const canBeWhitelisted =
+      await registry.canBeWhitelisted(PROJECT_LIST[0]).should.be.fulfilled
+    canBeWhitelisted.should.be.equal(false)
+
+    const challengeCanBeResolved =
+      await registry.challengeCanBeResolved(PROJECT_LIST[0]).should.be.fulfilled
+    challengeCanBeResolved.should.be.equal(true)
+
+    const { logs } = await registry.updateStatus(PROJECT_LIST[0]).should.be.fulfilled
+
+    const ChallengeSucceededEvent = logs.find(e => e.event === "_ChallengeSucceeded")
+    should.exist(ChallengeSucceededEvent)
+
+    const ApplicationRemovedEvent = logs.find(e => e.event === "_ApplicationRemoved")
+    should.exist(ApplicationRemovedEvent)
+
+    const challengerPost = await vetXToken.balanceOf(CHALLENGER)
+    const projectOwnerPost = await vetXToken.balanceOf(PROJECT_OWNER)
+
+    challengerPost.minus(challengerPre).should.be.bignumber.equal(
+      CHALLENGE_REWARD + CHALLENGE_DEPOSIT)
+    projectOwnerPost.minus(projectOwnerPre).should.be.bignumber.equal(0)
+
+    await voterReward(pollId, VOTER1, 100)
+    await voterReward(pollId, VOTER2, 150)
+
+    const voter1BalPost = await vetXToken.balanceOf(VOTER1)
+    const voter2BalPost = await vetXToken.balanceOf(VOTER2)
+    voter1BalPost.minus(voter1BalPre).should.be.bignumber.equal(0)
+    voter2BalPost.minus(voter2BalPre)
+      .should.be.bignumber.equal(CHALLENGE_DEPOSIT - CHALLENGE_REWARD)
+  }
+
+  let mainTest = async function () {
+    await applyApplication(PROJECT_LIST[1])
+    let pollId = await challengeApplication(PROJECT_LIST[1])
+    await voteForChallenge(pollId, VOTER1, VOTE_FOR, 200)
+    await voteForChallenge(pollId, VOTER2, AGAINST, 150)
+    await increaseTime(Parameterizer.paramDefaults.commitStageLength)
+
+    // Fast forward to reveal stage
+    const revealStage = await plcrVoting.revealStageActive(pollId)
+    revealStage.should.be.equal(true)
+
+    await revealVote(pollId, VOTER1, VOTE_FOR, 200)
+    await revealVote(pollId, VOTER2, AGAINST, 150)
+    await increaseTime(Parameterizer.paramDefaults.revealStageLength)
+
+    // Fast forward to end reveal stage
+    const endStage = await plcrVoting.pollEnded(pollId)
+    endStage.should.be.equal(true)
+
+    const isPassed = await plcrVoting.isPassed(pollId)
+    isPassed.should.be.equal(true)
+
+    const canBeWhitelisted =
+      await registry.canBeWhitelisted(PROJECT_LIST[1]).should.be.fulfilled
+    canBeWhitelisted.should.be.equal(false)
+
+    const challengeCanBeResolved =
+      await registry.challengeCanBeResolved(PROJECT_LIST[1]).should.be.fulfilled
+    challengeCanBeResolved.should.be.equal(true)
+
+    // update status and check reward
+    const { logs } = await registry.updateStatus(PROJECT_LIST[1]).should.be.fulfilled
+
+    const ChallengeFailedEvent = logs.find(e => e.event === "_ChallengeFailed")
+    should.exist(ChallengeFailedEvent)
+
+    const NewProjectWhitelistedEvent = logs.find(e => e.event === "_NewProjectWhitelisted")
+    should.exist(NewProjectWhitelistedEvent)
+
+    await voterReward(pollId, VOTER1, 200)
+    await voterReward(pollId, VOTER2, 150)
+
+    const projectHash = wweb3.utils.keccak256(PROJECT_LIST[1])
+    await mockTokenSale(projectHash, 5, projectToken)
+  }
+
   describe('The integration test for VTCR', function () {
-    it('challenge not pass', async function () {
-      const voter1BalPre = await vetXToken.balanceOf(VOTER1)
-      const voter2BalPre = await vetXToken.balanceOf(VOTER2)
-
-      await applyApplication(PROJECT_LIST[0])
-      let pollId = await challengeApplication(PROJECT_LIST[0])
-      await voteForChallenge(pollId, VOTER1, VOTE_FOR, 100)
-      await voteForChallenge(pollId, VOTER2, AGAINST, 150)
-      await increaseTime(Parameterizer.paramDefaults.commitStageLength)
-
-      // Fast forward to reveal stage
-      const revealStage = await plcrVoting.revealStageActive(pollId)
-      revealStage.should.be.equal(true)
-
-      await revealVote(pollId, VOTER1, VOTE_FOR, 100)
-      await revealVote(pollId, VOTER2, AGAINST, 150)
-      await increaseTime(Parameterizer.paramDefaults.revealStageLength)
-
-      // Fast forward to end reveal stage
-      const endStage = await plcrVoting.pollEnded(pollId)
-      endStage.should.be.equal(true)
-
-      const isPassed = await plcrVoting.isPassed(pollId)
-      isPassed.should.be.equal(false)
-
-      // update status and check reward
-      const challengerPre = await vetXToken.balanceOf(CHALLENGER)
-      const projectOwnerPre = await vetXToken.balanceOf(PROJECT_OWNER)
-      await registry.updateStatus(PROJECT_LIST[0]).should.be.fulfilled
-      const challengerPost = await vetXToken.balanceOf(CHALLENGER)
-      const projectOwnerPost = await vetXToken.balanceOf(PROJECT_OWNER)
-
-      challengerPost.minus(challengerPre).should.be.bignumber.equal(
-        CHALLENGE_REWARD + CHALLENGE_DEPOSIT)
-      projectOwnerPost.minus(projectOwnerPre).should.be.bignumber.equal(0)
-
-      await voterReward(pollId, VOTER1, 100)
-      await voterReward(pollId, VOTER2, 150)
-
-      const voter1BalPost = await vetXToken.balanceOf(VOTER1)
-      const voter2BalPost = await vetXToken.balanceOf(VOTER2)
-      voter1BalPost.minus(voter1BalPre).should.be.bignumber.equal(0)
-      voter2BalPost.minus(voter2BalPre)
-        .should.be.bignumber.equal(CHALLENGE_DEPOSIT - CHALLENGE_REWARD)
-    })
-
-    it('should be fulfilled', async function () {
-      await applyApplication(PROJECT_LIST[1])
-      let pollId = await challengeApplication(PROJECT_LIST[1])
-      await voteForChallenge(pollId, VOTER1, VOTE_FOR, 200)
-      await voteForChallenge(pollId, VOTER2, AGAINST, 150)
-      await increaseTime(Parameterizer.paramDefaults.commitStageLength)
-
-      // Fast forward to reveal stage
-      const revealStage = await plcrVoting.revealStageActive(pollId)
-      revealStage.should.be.equal(true)
-
-      await revealVote(pollId, VOTER1, VOTE_FOR, 200)
-      await revealVote(pollId, VOTER2, AGAINST, 150)
-      await increaseTime(Parameterizer.paramDefaults.revealStageLength)
-
-      // Fast forward to end reveal stage
-      const endStage = await plcrVoting.pollEnded(pollId)
-      endStage.should.be.equal(true)
-
-      const isPassed = await plcrVoting.isPassed(pollId)
-      isPassed.should.be.equal(true)
-
-      // update status and check reward
-      await registry.updateStatus(PROJECT_LIST[1]).should.be.fulfilled
-
-      await voterReward(pollId, VOTER1, 200)
-      await voterReward(pollId, VOTER2, 150)
-
-      const projectHash = wweb3.utils.keccak256(PROJECT_LIST[1])
-      await mockTokenSale(projectHash, 5, projectToken)
+    it('async test avoid race condition', async function () {
+      await challengeNotPassTest()
+      await mainTest()
     })
   })
 })
