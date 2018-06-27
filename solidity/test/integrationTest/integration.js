@@ -26,6 +26,13 @@ const AGAINST = 0
 const VOTE_NUMBER = 1000
 const PURCHASER_DEPOSIT = 1000
 
+const PROJECT_STATE_NOT_EXIST = 0
+const PROJECT_STATE_APP_SUBMITTED = 1
+const PROJECT_STATE_APP_ACCEPTED = 2
+const PROJECT_STATE_TOKEN_SALE = 3
+const PROJECT_STATE_MILESTONE = 4
+const PROJECT_STATE_COMPLETE = 5
+
 const CHALLENGE_DEPOSIT = Parameterizer.paramDefaults.minDeposit / 2
 const CHALLENGE_REWARD =
   CHALLENGE_DEPOSIT *
@@ -239,10 +246,20 @@ contract("Integration Test", function (accounts) {
   }
 
   let challengeNotPassTest = async function () {
+    const projectHash = wweb3.utils.keccak256(PROJECT_LIST[0])
+    let res;
+
     const voter1BalPre = await vetXToken.balanceOf(VOTER1)
     const voter2BalPre = await vetXToken.balanceOf(VOTER2)
 
     await applyApplication(PROJECT_LIST[0])
+
+    //get and check project info
+    res = await projectController.getProjectInfo(projectHash)
+
+    res[0].should.be.equal(true) // check exist
+    res[1].should.be.bignumber.equal(PROJECT_STATE_APP_SUBMITTED) // check state
+
     let pollId = await challengeApplication(PROJECT_LIST[0])
     await voteForChallenge(pollId, VOTER1, VOTE_FOR, 100)
     await voteForChallenge(pollId, VOTER2, AGAINST, 150)
@@ -277,6 +294,12 @@ contract("Integration Test", function (accounts) {
 
     const { logs } = await registry.updateStatus(PROJECT_LIST[0]).should.be.fulfilled
 
+    //get and check project info
+    res = await projectController.getProjectInfo(projectHash)
+
+    res[0].should.be.equal(false) // check exist
+    res[1].should.be.bignumber.equal(PROJECT_STATE_NOT_EXIST) // check state
+
     const ChallengeSucceededEvent = logs.find(e => e.event === "_ChallengeSucceeded")
     should.exist(ChallengeSucceededEvent)
 
@@ -301,7 +324,17 @@ contract("Integration Test", function (accounts) {
   }
 
   let mainTest = async function () {
+    const projectHash = wweb3.utils.keccak256(PROJECT_LIST[1])
+    let res;
+
     await applyApplication(PROJECT_LIST[1])
+
+    //get and check project info
+    res = await projectController.getProjectInfo(projectHash)
+
+    res[0].should.be.equal(true) // check exist
+    res[1].should.be.bignumber.equal(PROJECT_STATE_APP_SUBMITTED) // check state
+
     let pollId = await challengeApplication(PROJECT_LIST[1])
     await voteForChallenge(pollId, VOTER1, VOTE_FOR, 200)
     await voteForChallenge(pollId, VOTER2, AGAINST, 150)
@@ -339,11 +372,23 @@ contract("Integration Test", function (accounts) {
     const NewProjectWhitelistedEvent = logs.find(e => e.event === "_NewProjectWhitelisted")
     should.exist(NewProjectWhitelistedEvent)
 
+    //get and check project info
+    res = await projectController.getProjectInfo(projectHash)
+
+    res[0].should.be.equal(true) // check exist
+    res[1].should.be.bignumber.equal(PROJECT_STATE_APP_ACCEPTED) // check state
+
     await voterReward(pollId, VOTER1, 200)
     await voterReward(pollId, VOTER2, 150)
 
-    const projectHash = wweb3.utils.keccak256(PROJECT_LIST[1])
     await mockTokenSale(projectHash, 5, projectToken)
+
+    //get and check project info
+    res = await projectController.getProjectInfo(projectHash)
+
+    res[0].should.be.equal(true) // check exist
+    res[1].should.be.bignumber.equal(PROJECT_STATE_TOKEN_SALE) // check state
+
   }
 
   describe('The integration test for VTCR', function () {

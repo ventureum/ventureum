@@ -63,8 +63,7 @@ contract ProjectController is Module {
         external
         connected
     {
-        bool existing;
-        (existing,) = isExisting(namespace);
+        (bool existing,) = isExisting(namespace);
         require(!existing);
 
         projectControllerStore.setAddress(
@@ -125,9 +124,7 @@ contract ProjectController is Module {
     * @param namespace namespace of a project
     */
     function unregisterProject(bytes32 namespace) external connected {
-        bool existing;
-        address owner;
-        (existing, owner) = isExisting(namespace);
+        (bool existing, address owner) = isExisting(namespace);
         require(existing);
 
         projectControllerStore.setAddress(
@@ -157,9 +154,7 @@ contract ProjectController is Module {
     * @param projectState state of the project
     */
     function setState(bytes32 namespace, uint projectState) external connected {
-        bool existing;
-        address owner;
-        (existing, owner) = isExisting(namespace);
+        (bool existing, address owner) = isExisting(namespace);
         require(existing);
         require(projectState >= 0 && projectState <= uint(ProjectState.LENGTH));
 
@@ -170,14 +165,13 @@ contract ProjectController is Module {
 
         emit ProjectStateSet(msg.sender, namespace, projectState);
     }
+
     /**
     * @notice Set token address of a project
     * @param tokenAddress the token address for the project
     */
     function setTokenAddress(bytes32 namespace, address tokenAddress) external connected {
-        bool existing;
-        address owner;
-        (existing, owner) = isExisting(namespace);
+        (bool existing, address owner) = isExisting(namespace);
         require(existing);
 
         projectControllerStore.setAddress(
@@ -187,6 +181,7 @@ contract ProjectController is Module {
 
         emit ProjectTokenSet(msg.sender, namespace, tokenAddress);
     }
+
     /**
     * Bind with a storage contract
     *
@@ -214,8 +209,7 @@ contract ProjectController is Module {
     * @param namespace namespace of a project
     */
     function getTokenAddress(bytes32 namespace) public view returns (address) {
-        bool existing;
-        (existing,) = isExisting(namespace);
+        (bool existing,) = isExisting(namespace);
         require(existing);
 
         return projectControllerStore.getAddress(
@@ -224,13 +218,27 @@ contract ProjectController is Module {
     }
 
     /**
+    * Return the information of given project hash
+    *
+    * @param namespace namespace of a project
+    * @return 
+    *   bool: the boolean represent if given project exist 
+    *   uint: the project state 
+    */
+    function getProjectInfo(bytes32 namespace) public view returns (bool, uint) {
+        (bool existing,) = isExisting(namespace);
+        uint state = projectControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, PROJECT_STATE)))
+        return existing ? (true, state) : (false, 0);
+    }
+
+    /**
     * Return the project state for a project
     *
     * @param namespace namespace of a project
     */
     function getProjectState(bytes32 namespace) public view returns (uint) {
-        bool existing;
-        (existing,) = isExisting(namespace);
+        (bool existing,) = isExisting(namespace);
         require(existing);
 
         return uint(projectControllerStore.getUint(
