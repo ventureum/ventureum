@@ -228,7 +228,7 @@ contract ProjectController is Module {
     function getProjectInfo(bytes32 namespace) public view returns (bool, uint) {
         (bool existing,) = isExisting(namespace);
         uint state = projectControllerStore.getUint(
-            keccak256(abi.encodePacked(namespace, PROJECT_STATE)))
+            keccak256(abi.encodePacked(namespace, PROJECT_STATE)));
         return existing ? (true, state) : (false, 0);
     }
 

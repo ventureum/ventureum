@@ -54,8 +54,9 @@ contract MilestoneController is Module {
     bytes constant OBJS = "objs";
     bytes constant OBJ_TYPES = "objTypes";
     bytes constant OBJ_MAX_REGULATION_REWARDS = "objMaxRegulationRewards";
-    bytes constant CUMULATIVE_MAX_REWARDS = "CumulativeMaxRewards";
+    bytes constant CUMULATIVE_MAX_REGULATION_REWARDS = "CumulativeMaxRegulationRewards";
     bytes constant NUMBER_MILESTONES = "numberMilestones";
+    bytes constant MILESTONE_LENGTH = "milestoneLength";
     uint constant GLOBAL_MILESTONE_ID = uint(-1);
     uint constant MAX_REGULATION_REWARD_PERCENTAGE = 10;
 
@@ -81,6 +82,42 @@ contract MilestoneController is Module {
 
     constructor (address kernelAddr) Module(kernelAddr) public {
         CI = keccak256("MilestoneController");
+    }
+
+    /**
+    * Get the length of given milestone
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId the milestone id of a project
+    * @return the length of the given milestone
+    */
+    function getMilestoneLength (bytes32 namespace, uint milestoneId)
+        public
+        view
+        returns (uint)
+    {
+        // receive length 
+        return milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(
+                namespace, 
+                milestoneId, 
+                MILESTONE_LENGTH)));
+    }
+
+    /**
+    * Return true and the endTime if the milestone exists
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId milestoneId of a milestone of the project
+    */
+    function isExisting(bytes32 namespace, uint milestoneId) 
+        public 
+        view 
+        returns (bool, uint) 
+    {
+        uint endTime = milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, END_TIME)));
+        return endTime != 0 ? (true, endTime) : (false, 0);
     }
 
     /**
@@ -111,25 +148,20 @@ contract MilestoneController is Module {
             projectController != NULL &&
             tokenSale != NULL);
 
-        (uint milestoneId, uint lastEndTime) = verifyAddingMilestone(namespace);
+        uint milestoneId = verifyAddingMilestone(namespace);
 
-        milestoneControllerStore.setUint(
-            keccak256(abi.encodePacked(namespace, GLOBAL_MILESTONE_ID, CUMULATIVE_MAX_REWARDS)),
-            calCumulativeMaxRewards(namespace, objMaxRegulationRewards)
-        );
         milestoneControllerStore.setUint(
             keccak256(abi.encodePacked(namespace, GLOBAL_MILESTONE_ID, NUMBER_MILESTONES)),
-            milestoneId.add(1)
+            milestoneId
         );
 
-        addMilestoneHelper(
-            namespace, 
-            length, 
-            objs, 
-            objTypes, 
-            objMaxRegulationRewards, 
-            milestoneId, 
-            lastEndTime);
+        initMilestone(
+            namespace,
+            milestoneId,
+            length,
+            objs,
+            objTypes,
+            objMaxRegulationRewards);
     }
 
     /**
@@ -142,12 +174,11 @@ contract MilestoneController is Module {
     * @param milestoneId milestoneId of a milestone of the project
     * @param weiLocked the amount of wei locked in the milestone
     */
-    function activate(bytes32 namespace, uint milestoneId, uint weiLocked) external connected {
-        bool existing;
-        uint endTime;
-        (existing, endTime) = isExisting(namespace, milestoneId);
-        require(existing);
-        require(milestoneId == 0 || finalize(namespace, milestoneId.sub(1)));
+    function activate(bytes32 namespace, uint milestoneId, uint weiLocked)
+        external 
+        founderOnly(namespace) 
+    {
+        require(milestoneId == 1 || finalize(namespace, milestoneId.sub(1)));
 
         milestoneControllerStore.setUint(
             keccak256(abi.encodePacked(namespace, milestoneId, STATE)),
@@ -157,6 +188,22 @@ contract MilestoneController is Module {
             keccak256(abi.encodePacked(namespace, milestoneId, WEI_LOCKED)),
             weiLocked
         );
+
+        (uint startTime, uint endTime) = scheduleMilestone(namespace, milestoneId);
+
+        // update cumulative max regulation rewards
+        updateCumulativeMaxRegulationRewards (
+            namespace,
+            milestoneId,
+            startTime,
+            endTime);
+
+        // call reputation system to register poll request 
+        registerPollRequest (
+            namespace,
+            milestoneId,
+            startTime,
+            endTime);
     }
 
     /**
@@ -168,7 +215,10 @@ contract MilestoneController is Module {
     *  @param namespace namespace of a project
     *  @param milestoneId milestoneId of a milestone of the project
     */
-    function startRatingStage(bytes32 namespace, uint milestoneId) external founderOnly(namespace) {
+    function startRatingStage(bytes32 namespace, uint milestoneId) 
+        external 
+        founderOnly(namespace) 
+    {
         bool existing;
         uint endTime;
         (existing, endTime) = isExisting(namespace, milestoneId);
@@ -179,7 +229,9 @@ contract MilestoneController is Module {
         require(now >= startTime && now <= endTime.sub(30 days));
 
         milestoneControllerStore.setUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, STATE)), uint(MilestoneState.RS));
+            keccak256(
+                abi.encodePacked(namespace, milestoneId, STATE)), 
+                uint(MilestoneState.RS));
 
         bytes32[] memory objs = milestoneControllerStore.getArray(
             keccak256(abi.encodePacked(namespace, milestoneId, OBJS)));
@@ -216,7 +268,9 @@ contract MilestoneController is Module {
         require(now >= endTime.sub(1 weeks) && now < endTime);
 
         milestoneControllerStore.setUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, STATE)), uint(MilestoneState.RP));
+            keccak256(
+                abi.encodePacked(namespace, milestoneId, STATE)), 
+                uint(MilestoneState.RP));
     }
 
     /**
@@ -225,7 +279,11 @@ contract MilestoneController is Module {
     * @param namespace namespace of a project
     * @param milestoneId milestoneId of a milestone of the project
     */
-    function milestoneWeiLocked(bytes32 namespace, uint milestoneId) external view returns (uint) {
+    function milestoneWeiLocked(bytes32 namespace, uint milestoneId) 
+        external 
+        view 
+        returns (uint) 
+    {
         bool existing;
         (existing, ) = isExisting(namespace, milestoneId);
         require(existing);
@@ -253,7 +311,11 @@ contract MilestoneController is Module {
     {
         (bool existing, ) = isExisting(namespace, milestoneId);
         require(existing);
-        return regulatingRating.getRegulationRewardsForRegulator(namespace, milestoneId, obj, _addr);
+        return regulatingRating.getRegulationRewardsForRegulator(
+            namespace, 
+            milestoneId, 
+            obj, 
+            _addr);
     }
 
     /**
@@ -262,7 +324,11 @@ contract MilestoneController is Module {
     * @param namespace namespace of a project
     * @param milestoneId milestoneId of a milestone of the project
     */
-    function milestoneState(bytes32 namespace, uint milestoneId) public view returns (uint) {
+    function milestoneState(bytes32 namespace, uint milestoneId) 
+        public 
+        view 
+        returns (uint) 
+    {
         bool existing;
         (existing, ) = isExisting(namespace, milestoneId);
         require(existing);
@@ -322,8 +388,7 @@ contract MilestoneController is Module {
     *
     * @param namespace namespace of a project
     * @param milestoneId id of the milestone
-    * @param startTime  startTime of the milestone
-    * @param endTime  endTime of the milestone
+    * @param length  length(period) of the milestone
     * @param objs list of objectives' IPFS hash
     * @param objTypes list of objectives' type
     * @param objMaxRegulationRewards list of objectives' max regulation rewards
@@ -331,8 +396,7 @@ contract MilestoneController is Module {
     function initMilestone(
         bytes32 namespace,
         uint milestoneId,
-        uint startTime,
-        uint endTime,
+        uint length,
         bytes32[] objs,
         bytes32[] objTypes,
         uint[] objMaxRegulationRewards
@@ -340,12 +404,8 @@ contract MilestoneController is Module {
       internal
     {
         milestoneControllerStore.setUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, START_TIME)),
-            startTime
-        );
-        milestoneControllerStore.setUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, END_TIME)),
-            endTime
+            keccak256(abi.encodePacked(namespace, milestoneId, MILESTONE_LENGTH)),
+            length
         );
         milestoneControllerStore.setUint(
             keccak256(abi.encodePacked(namespace, milestoneId, STATE)),
@@ -373,27 +433,24 @@ contract MilestoneController is Module {
     *
     * @param namespace namespace of a project
     */
-    function verifyAddingMilestone(bytes32 namespace) internal view returns (uint, uint){
+    function verifyAddingMilestone(bytes32 namespace) internal view returns (uint) {
         uint numberMilestones = milestoneControllerStore.getUint(
             keccak256(abi.encodePacked(namespace, GLOBAL_MILESTONE_ID, NUMBER_MILESTONES)));
 
-        uint firstMilestoneState;
+        // first milestone state is INACTIVE if no milestone exist.
+        uint firstMilestoneState = uint(MilestoneState.INACTIVE);
         if (numberMilestones > 0) {
-            // get state for the first milestone
+            // get state for the first milestone (first milestone id should be 1)
             firstMilestoneState = milestoneControllerStore.getUint(
-                keccak256(abi.encodePacked(namespace, uint(0), STATE)));
+                keccak256(abi.encodePacked(namespace, uint(1), STATE)));
         }
         require(numberMilestones == 0 || firstMilestoneState == uint(MilestoneState.INACTIVE));
 
-        uint lastEndTime = numberMilestones == 0 ? now :
-        milestoneControllerStore.getUint(
-            keccak256(abi.encodePacked(namespace, numberMilestones.sub(1), END_TIME)));
-
-        uint milestoneId = numberMilestones;
+        uint milestoneId = numberMilestones + 1;
         bool existing;
         (existing,) = isExisting(namespace, milestoneId);
         require(!existing);
-        return (milestoneId, lastEndTime);
+        return milestoneId;
     }
 
     /**
@@ -411,7 +468,7 @@ contract MilestoneController is Module {
         returns (uint)
     {
         uint cumulativeMaxRewards = milestoneControllerStore.getUint(
-            keccak256(abi.encodePacked(namespace, GLOBAL_MILESTONE_ID, CUMULATIVE_MAX_REWARDS)));
+            keccak256(abi.encodePacked(namespace, GLOBAL_MILESTONE_ID, CUMULATIVE_MAX_REGULATION_REWARDS)));
         uint sum;
         for (uint i = 0; i < objMaxRegulationRewards.length; i++) {
             sum.add(objMaxRegulationRewards[i]);
@@ -447,63 +504,106 @@ contract MilestoneController is Module {
     }
 
     /**
-    * Return true and the endTime if the milestone exists
+    * The function to update Cumulative max regulation rewards
     *
     * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    */
-    function isExisting(bytes32 namespace, uint milestoneId) internal view returns (bool, uint) {
-        uint endTime = milestoneControllerStore.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, END_TIME)));
-        return endTime != 0 ? (true, endTime) : (false, 0);
-    }
-
-    /**
-    * The helper function for addMilestone
-    * Can only be called by addMilestone
-    * This function is separated from addMilestone, 
-    *  in order to avoid stack too deep error.
-    *
-    * @param namespace namespace of a project
-    * @param length length of the milestone, >= 60 days
-    * @param objs list of objectives' IPFS hash
-    * @param objTypes list of objectives' type
-    * @param objMaxRegulationRewards list of objectives' max regulation rewards
     * @param milestoneId the id for this milestone
-    * @param lastEndTime the last end time for this milestone
+    * @param startTime the start of time for this milestone
+    * @param endTime the end of time for this milestone
     */
-    function addMilestoneHelper (
+    function updateCumulativeMaxRegulationRewards (
         bytes32 namespace,
-        uint length,
-        bytes32[] objs,
-        bytes32[] objTypes,
-        uint[] objMaxRegulationRewards,
         uint256 milestoneId,
-        uint256 lastEndTime
+        uint startTime,
+        uint endTime
     )
         private
     {
-        initMilestone(
-            namespace,
-            milestoneId,
-            lastEndTime,
-            lastEndTime.add(length),
-            objs,
-            objTypes,
-            objMaxRegulationRewards);
+        uint256[] memory objMaxRegulationRewards = 
+            milestoneControllerStore.getUintArray(
+                keccak256(abi.encodePacked(namespace, milestoneId, OBJ_MAX_REGULATION_REWARDS)));
 
+        milestoneControllerStore.setUint(
+            keccak256(abi.encodePacked(namespace, GLOBAL_MILESTONE_ID, CUMULATIVE_MAX_REGULATION_REWARDS)),
+            calCumulativeMaxRewards(namespace, objMaxRegulationRewards)
+        );
+    }
+
+    /**
+    * Call reputation system function to register poll request 
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId the id for this milestone
+    * @param startTime the start of time for this milestone
+    * @param endTime the end of time for this milestone
+    */
+    function registerPollRequest (
+        bytes32 namespace,
+        uint256 milestoneId,
+        uint startTime,
+        uint endTime
+    ) 
+        private
+    {
+        bytes32[] memory objTypes = milestoneControllerStore.getArray(
+            keccak256(abi.encodePacked(namespace, milestoneId, OBJ_TYPES)));
         address tokenAddress = projectController.getTokenAddress(namespace);
-
         uint avgPrice = tokenSale.avgPrice(namespace);
 
         reputationSystem.registerPollRequest(
             keccak256(abi.encodePacked(namespace, milestoneId)),
-            lastEndTime,
-            lastEndTime.add(length),
+            startTime,
+            endTime,
             avgPrice,
             true,
             tokenAddress,
             objTypes
         );
+    }
+
+    /**
+    * Schedule milestone's start time and end time
+    * Calculate startTime, endTime and store them
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId the id for this milestone
+    */
+    function scheduleMilestone (bytes32 namespace, uint milestoneId)
+        internal
+        returns (uint, uint)
+    {
+        uint startTime;
+        // if activate first milestone (milestondId == 1)
+        if (milestoneId == 1) {
+            uint state = projectController.getProjectState(namespace);
+            // require refund stage 
+            require(state == uint(ProjectController.ProjectState.TokenSale));
+            (,,,bool finalized) = tokenSale.tokenInfo(namespace);
+            // require refund finalized
+            require(finalized);
+            // set stage to milestone
+            projectController.setState(
+                namespace, 
+                uint(ProjectController.ProjectState.Milestone));
+
+            startTime = now;
+        } else {
+            (bool existing, uint lastEndTime) = isExisting(namespace, milestoneId.sub(1));
+            startTime = lastEndTime;
+            require(existing);
+        }
+        uint length = getMilestoneLength(namespace, milestoneId);
+        uint endTime = startTime.add(length);
+
+        milestoneControllerStore.setUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, START_TIME)),
+            startTime
+        );
+        milestoneControllerStore.setUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, END_TIME)),
+            endTime
+        );
+
+        return (startTime, endTime);
     }
 }
