@@ -190,6 +190,9 @@ export default function (artifacts) {
   class TokenSale {}
   TokenSale.Self = artifacts.require('modules/token_sale/TokenSale')
   TokenSale.CI = Web3.utils.keccak256('TokenSale')
+  TokenSale.Sig = {
+    SetProjectController: SET_PROJECT_CONTROLLER
+  }
 
   // Token Collector
   class TokenCollector {}

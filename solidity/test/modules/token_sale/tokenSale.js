@@ -44,6 +44,14 @@ contract('TokenSaleTest', function (accounts) {
       TOTAL_SPEND_MONEY).should.be.fulfilled
   })
 
+  let registerAndAcceptProject = async function (namespace) {
+      await projectController.registerProject(
+        namespace, ROOT, vetXToken.address).should.be.fulfilled
+      await projectController.setState(
+        namespace,
+        ProjectController.State.AppAccepted).should.be.fulfilled
+  }
+
   describe('basic test', function () {
     it('should connected', async function () {
       let result = await tokenSale.isConnected.call()
@@ -77,13 +85,15 @@ contract('TokenSaleTest', function (accounts) {
 
   describe('basic functional test', function () {
     it('should start token sale', async function () {
-      projectController.registerProject(
-        PROJECT_TEST_CI, ROOT, vetXToken.address).should.be.fulfilled
+      await registerAndAcceptProject(PROJECT_TEST_CI)
 
       const { logs } = await tokenSale.startTokenSale(
         PROJECT_TEST_CI,
         RATE,
         vetXToken.address).should.be.fulfilled
+
+      const state = await projectController.getProjectState(PROJECT_TEST_CI).should.be.fulfilled
+      state.should.be.bignumber.equal(ProjectController.State.TokenSale)
       const event = logs.find(e => e.event === '_StartTokenSale')
       should.exist(event)
       event.args.namespace.should.be.equal(PROJECT_TEST_CI)
@@ -104,8 +114,7 @@ contract('TokenSaleTest', function (accounts) {
 
     it('should finalize success', async function () {
       const testCI1 = Web3.utils.keccak256('testCI1')
-      projectController.registerProject(
-        testCI1, ROOT, vetXToken.address).should.be.fulfilled
+      await registerAndAcceptProject(testCI1)
 
       await tokenSale.startTokenSale(
         testCI1, RATE, vetXToken.address).should.be.fulfilled
@@ -117,8 +126,7 @@ contract('TokenSaleTest', function (accounts) {
 
     it('should rejected cause project already finalized', async function () {
       const testCI2 = Web3.utils.keccak256('testCI2')
-      projectController.registerProject(
-        testCI2, ROOT, vetXToken.address).should.be.fulfilled
+      await registerAndAcceptProject(testCI2)
 
       await tokenSale.startTokenSale(
         testCI2, RATE, vetXToken.address).should.be.fulfilled
@@ -131,8 +139,7 @@ contract('TokenSaleTest', function (accounts) {
     it('should rejected cause finalize a finalized project',
       async function () {
         const testCI3 = Web3.utils.keccak256('testCI3')
-        projectController.registerProject(
-          testCI3, ROOT, vetXToken.address).should.be.fulfilled
+        await registerAndAcceptProject(testCI3)
 
         await tokenSale.startTokenSale(
           testCI3, RATE, vetXToken.address).should.be.fulfilled
@@ -150,8 +157,7 @@ contract('TokenSaleTest', function (accounts) {
 
     it('should buy token success', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced1')
-      projectController.registerProject(
-        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
+      await registerAndAcceptProject(PROJECT_CI)
 
       await tokenSale.startTokenSale(
         PROJECT_CI, RATE, vetXToken.address).should.be.fulfilled
@@ -189,8 +195,7 @@ contract('TokenSaleTest', function (accounts) {
 
     it('should receive avg price equal RATE', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced2')
-      projectController.registerProject(
-        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
+      await registerAndAcceptProject(PROJECT_CI)
 
       await tokenSale.startTokenSale(
         PROJECT_CI, RATE, vetXToken.address).should.be.fulfilled
@@ -215,8 +220,7 @@ contract('TokenSaleTest', function (accounts) {
 
     it('should receive avg price equal zero', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced3')
-      projectController.registerProject(
-        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
+      await registerAndAcceptProject(PROJECT_CI)
 
       await tokenSale.startTokenSale(
         PROJECT_CI, RATE, vetXToken.address).should.be.fulfilled
@@ -229,8 +233,7 @@ contract('TokenSaleTest', function (accounts) {
 
     it('should rejected cause project already exist', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced4')
-      projectController.registerProject(
-        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
+      await registerAndAcceptProject(PROJECT_CI)
 
       await tokenSale.startTokenSale(
         PROJECT_CI, RATE, vetXToken.address).should.be.fulfilled
@@ -242,8 +245,7 @@ contract('TokenSaleTest', function (accounts) {
 
     it('should rejected cause project not exist', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced5')
-      projectController.registerProject(
-        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
+      await registerAndAcceptProject(PROJECT_CI)
 
       await tokenSale.startTokenSale(
         PROJECT_CI, RATE, vetXToken.address)
@@ -256,8 +258,7 @@ contract('TokenSaleTest', function (accounts) {
 
     it('should rejected cause buy too large token', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced6')
-      projectController.registerProject(
-        PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
+      await registerAndAcceptProject(PROJECT_CI)
 
       await tokenSale.startTokenSale(
         PROJECT_CI, RATE, vetXToken.address)
@@ -279,8 +280,7 @@ contract('TokenSaleTest', function (accounts) {
     it('should rejected cause finalize a not exist project',
       async function () {
         const PROJECT_CI = Web3.utils.keccak256('advanced7')
-        projectController.registerProject(
-          PROJECT_CI, ROOT, vetXToken.address).should.be.fulfilled
+        await registerAndAcceptProject(PROJECT_CI)
 
         await tokenSale.startTokenSale(
           PROJECT_CI, RATE, vetXToken.address).should.be.fulfilled

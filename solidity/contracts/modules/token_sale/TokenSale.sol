@@ -41,20 +41,24 @@ contract TokenSale is Module {
 
     mapping(bytes32 => TokenInfo) public infoPoll;
 
-    bytes32 constant public TOKEN_COLLECTOR_CI = keccak256("TokenCollector");
-    bytes32 constant public PROJECT_CONTROLLER_CI = keccak256("ProjectController");
+    ProjectController public projectController;
 
     modifier founderOnly(bytes32 namespace) {
-        require(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI) != NULL);
-
-        ProjectController projectController=
-            ProjectController(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI));
+        require(projectController != NULL);
         require(projectController.verifyOwner(namespace, msg.sender));
         _;
     }
 
     constructor (address kernelAddr) Module(kernelAddr) public {
         CI = keccak256("TokenSale");
+    }
+
+    function setProjectController(address _projectController) 
+        external
+        connected
+    {
+        require (_projectController != NULL);
+        projectController = ProjectController(_projectController);
     }
 
     /**
@@ -68,7 +72,12 @@ contract TokenSale is Module {
         external
         founderOnly(namespace)
     {
+        require(projectController != NULL);
+
         require(!tokenInfoExist(namespace));
+        (bool existing, uint state) = projectController.getProjectInfo(namespace);
+        require(existing);
+        require(state == uint(ProjectController.ProjectState.AppAccepted));
 
         TokenInfo memory info = TokenInfo({
             namespace: namespace,
@@ -80,6 +89,8 @@ contract TokenSale is Module {
         });
 
         infoPoll[namespace] = info;
+
+        projectController.setState(namespace, uint(ProjectController.ProjectState.TokenSale));
 
         emit _StartTokenSale(msg.sender, namespace, rate, token);
     }
