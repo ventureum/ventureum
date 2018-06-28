@@ -68,7 +68,13 @@ contract TokenSale is Module {
         external
         founderOnly(namespace)
     {
+        ProjectController projectController=
+            ProjectController(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI));
+
         require(!tokenInfoExist(namespace));
+        (bool existing, uint state) = projectController.getProjectInfo(namespace);
+        require(existing);
+        require(state == uint(ProjectController.ProjectState.AppAccepted));
 
         TokenInfo memory info = TokenInfo({
             namespace: namespace,
@@ -80,6 +86,8 @@ contract TokenSale is Module {
         });
 
         infoPoll[namespace] = info;
+
+        projectController.setState(namespace, uint(ProjectController.ProjectState.TokenSale));
 
         emit _StartTokenSale(msg.sender, namespace, rate, token);
     }
