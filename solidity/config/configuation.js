@@ -427,6 +427,11 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     MilestoneController.Storage.CI,
     [Storage.Sig.SetUint, Storage.Sig.SetArray, Storage.Sig.SetUintArray])
 
+  await aclHandler.permit(
+    MilestoneController.CI,
+    ProjectController.CI,
+    [ProjectController.Sig.SetState])
+
   // Source: Ether Collector
   // Destination: Ether Collector Storage
   await aclHandler.permit(
