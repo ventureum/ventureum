@@ -41,14 +41,9 @@ contract TokenSale is Module {
 
     mapping(bytes32 => TokenInfo) public infoPoll;
 
-    bytes32 constant public TOKEN_COLLECTOR_CI = keccak256("TokenCollector");
-    bytes32 constant public PROJECT_CONTROLLER_CI = keccak256("ProjectController");
-
     ProjectController public projectController;
 
     modifier founderOnly(bytes32 namespace) {
-        require(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI) != NULL);
-
         require(projectController != NULL);
         require(projectController.verifyOwner(namespace, msg.sender));
         _;

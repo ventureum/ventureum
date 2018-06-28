@@ -461,9 +461,7 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await aclHandler.permit(
     Kernel.RootCI,
     TokenSale.CI,
-    [
-      TokenSale.Sig.SetProjectController
-    ])
+    [TokenSale.Sig.SetProjectController])
 
   /* ------------------------Set Storage------------------------- */
   /**
