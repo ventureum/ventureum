@@ -142,6 +142,15 @@ export default function (artifacts) {
       'modules/project_controller/ProjectControllerStorage'),
     CI: Web3.utils.keccak256('ProjectControllerStorage')
   }
+  ProjectController.State = {
+    NotExist: 0,
+    AppSubmitted: 1,
+    AppAccepted: 2,
+    TokenSale: 3,
+    Milestone: 4,
+    Complete: 5,
+    LENGTH: 6,
+  }
 
   // Milestone Controller
   class MilestoneController {}
@@ -168,6 +177,13 @@ export default function (artifacts) {
     Self: artifacts.require(
       'modules/milestone_controller/MilestoneControllerStorage'),
     CI: Web3.utils.keccak256('MilestoneControllerStorage')
+  }
+  MilestoneController.State = {
+    INACTIVE: 0,
+    IP: 1,
+    RS: 2,
+    RP: 3,
+    COMPLETION: 4
   }
 
   // Token Sale
