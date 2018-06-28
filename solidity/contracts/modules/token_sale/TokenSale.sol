@@ -44,17 +44,26 @@ contract TokenSale is Module {
     bytes32 constant public TOKEN_COLLECTOR_CI = keccak256("TokenCollector");
     bytes32 constant public PROJECT_CONTROLLER_CI = keccak256("ProjectController");
 
+    ProjectController public projectController;
+
     modifier founderOnly(bytes32 namespace) {
         require(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI) != NULL);
 
-        ProjectController projectController=
-            ProjectController(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI));
+        require(projectController != NULL);
         require(projectController.verifyOwner(namespace, msg.sender));
         _;
     }
 
     constructor (address kernelAddr) Module(kernelAddr) public {
         CI = keccak256("TokenSale");
+    }
+
+    function setProjectController(address _projectController) 
+        external
+        connected
+    {
+        require (_projectController != NULL);
+        projectController = ProjectController(_projectController);
     }
 
     /**
@@ -68,8 +77,7 @@ contract TokenSale is Module {
         external
         founderOnly(namespace)
     {
-        ProjectController projectController=
-            ProjectController(contractAddressHandler.contracts(PROJECT_CONTROLLER_CI));
+        require(projectController != NULL);
 
         require(!tokenInfoExist(namespace));
         (bool existing, uint state) = projectController.getProjectInfo(namespace);

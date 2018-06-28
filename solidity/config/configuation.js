@@ -440,6 +440,11 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     TokenSale.CI,
     TokenCollector.CI,
     [TokenCollector.Sig.Withdraw])
+  // given token sale permission to set project state
+  await aclHandler.permit(
+    TokenSale.CI,
+    ProjectController.CI,
+    [ProjectController.Sig.SetState])
 
   // Registry
   await aclHandler.permit(
@@ -450,6 +455,14 @@ const run = exports.run = async (instances, accounts, artifacts) => {
       ProjectController.Sig.UnregisterProject,
       ProjectController.Sig.SetState,
       ProjectController.Sig.SetTokenAddress
+    ])
+
+  // TokenSale
+  await aclHandler.permit(
+    Kernel.RootCI,
+    TokenSale.CI,
+    [
+      TokenSale.Sig.SetProjectController
     ])
 
   /* ------------------------Set Storage------------------------- */
@@ -488,6 +501,9 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   /* -------------------Regulating Rating set controllers-------------- */
   await regulatingRating.setReputationSystem(reputationSystem.address)
   await regulatingRating.setProjectController(projectController.address)
+
+  /* ------------------- Token Sale set controllers-------------- */
+  await tokenSale.setProjectController(projectController.address)
 
   /* -------------------Managers Connected to Controllers-------------- */
   // Refund Manager
