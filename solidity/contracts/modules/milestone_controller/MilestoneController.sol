@@ -85,6 +85,42 @@ contract MilestoneController is Module {
     }
 
     /**
+    * Get the length of given milestone
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId the milestone id of a project
+    * @return the length of the given milestone
+    */
+    function getLength (bytes32 namespace, uint milestoneId)
+        public
+        view
+        returns (uint)
+    {
+        // receive length 
+        return milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(
+                namespace, 
+                milestoneId, 
+                MILESTONE_LENGTH)));
+    }
+
+    /**
+    * Return true and the endTime if the milestone exists
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId milestoneId of a milestone of the project
+    */
+    function isExisting(bytes32 namespace, uint milestoneId) 
+        public 
+        view 
+        returns (bool, uint) 
+    {
+        uint endTime = milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, END_TIME)));
+        return endTime != 0 ? (true, endTime) : (false, 0);
+    }
+
+    /**
     * Add a milestone
     * Can only be called if the first milestone is INACTIVE or there is no milestones
     * If it is the first milestone to be added, set state to "INACTIVE" and endTime to
@@ -112,11 +148,11 @@ contract MilestoneController is Module {
             projectController != NULL &&
             tokenSale != NULL);
 
-        (uint milestoneId,) = verifyAddingMilestone(namespace);
+        uint milestoneId = verifyAddingMilestone(namespace);
 
         milestoneControllerStore.setUint(
             keccak256(abi.encodePacked(namespace, GLOBAL_MILESTONE_ID, NUMBER_MILESTONES)),
-            milestoneId.add(1)
+            milestoneId
         );
 
         initMilestone(
@@ -144,24 +180,27 @@ contract MilestoneController is Module {
     {
         uint startTime;
 
-        if (milestoneId == 0) {
+        // if activate first milestone (milestondId == 1)
+        if (milestoneId == 1) {
             uint state = projectController.getProjectState(namespace);
             // require refund stage 
-            require(state == 3);
+            require(state == uint(ProjectController.ProjectState.TokenSale));
             (,,,bool finalized) = tokenSale.tokenInfo(namespace);
             // require refund finalized
             require(finalized);
             // set stage to milestone
-            projectController.setState(namespace, 4);
+            projectController.setState(
+                namespace, 
+                uint(ProjectController.ProjectState.Milestone));
 
             startTime = now;
         } else {
-            bool existing;
-            (existing, startTime) = isExisting(namespace, milestoneId.sub(1));
+            (bool existing, uint lastEndTime) = isExisting(namespace, milestoneId.sub(1));
+            startTime = lastEndTime;
             require(existing);
         }
 
-        require(milestoneId == 0 || finalize(namespace, milestoneId.sub(1)));
+        require(milestoneId == 1 || finalize(namespace, milestoneId.sub(1)));
 
         milestoneControllerStore.setUint(
             keccak256(abi.encodePacked(namespace, milestoneId, STATE)),
@@ -172,12 +211,7 @@ contract MilestoneController is Module {
             weiLocked
         );
 
-        // receive length 
-        uint length = milestoneControllerStore.getUint(
-            keccak256(abi.encodePacked(
-                namespace, 
-                milestoneId, 
-                MILESTONE_LENGTH)));
+        uint length = getLength(namespace, milestoneId);
         uint endTime = startTime.add(length);
 
         activateHelper (
@@ -196,7 +230,10 @@ contract MilestoneController is Module {
     *  @param namespace namespace of a project
     *  @param milestoneId milestoneId of a milestone of the project
     */
-    function startRatingStage(bytes32 namespace, uint milestoneId) external founderOnly(namespace) {
+    function startRatingStage(bytes32 namespace, uint milestoneId) 
+        external 
+        founderOnly(namespace) 
+    {
         bool existing;
         uint endTime;
         (existing, endTime) = isExisting(namespace, milestoneId);
@@ -207,7 +244,9 @@ contract MilestoneController is Module {
         require(now >= startTime && now <= endTime.sub(30 days));
 
         milestoneControllerStore.setUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, STATE)), uint(MilestoneState.RS));
+            keccak256(
+                abi.encodePacked(namespace, milestoneId, STATE)), 
+                uint(MilestoneState.RS));
 
         bytes32[] memory objs = milestoneControllerStore.getArray(
             keccak256(abi.encodePacked(namespace, milestoneId, OBJS)));
@@ -244,7 +283,9 @@ contract MilestoneController is Module {
         require(now >= endTime.sub(1 weeks) && now < endTime);
 
         milestoneControllerStore.setUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, STATE)), uint(MilestoneState.RP));
+            keccak256(
+                abi.encodePacked(namespace, milestoneId, STATE)), 
+                uint(MilestoneState.RP));
     }
 
     /**
@@ -253,7 +294,11 @@ contract MilestoneController is Module {
     * @param namespace namespace of a project
     * @param milestoneId milestoneId of a milestone of the project
     */
-    function milestoneWeiLocked(bytes32 namespace, uint milestoneId) external view returns (uint) {
+    function milestoneWeiLocked(bytes32 namespace, uint milestoneId) 
+        external 
+        view 
+        returns (uint) 
+    {
         bool existing;
         (existing, ) = isExisting(namespace, milestoneId);
         require(existing);
@@ -281,7 +326,11 @@ contract MilestoneController is Module {
     {
         (bool existing, ) = isExisting(namespace, milestoneId);
         require(existing);
-        return regulatingRating.getRegulationRewardsForRegulator(namespace, milestoneId, obj, _addr);
+        return regulatingRating.getRegulationRewardsForRegulator(
+            namespace, 
+            milestoneId, 
+            obj, 
+            _addr);
     }
 
     /**
@@ -290,7 +339,11 @@ contract MilestoneController is Module {
     * @param namespace namespace of a project
     * @param milestoneId milestoneId of a milestone of the project
     */
-    function milestoneState(bytes32 namespace, uint milestoneId) public view returns (uint) {
+    function milestoneState(bytes32 namespace, uint milestoneId) 
+        public 
+        view 
+        returns (uint) 
+    {
         bool existing;
         (existing, ) = isExisting(namespace, milestoneId);
         require(existing);
@@ -395,27 +448,24 @@ contract MilestoneController is Module {
     *
     * @param namespace namespace of a project
     */
-    function verifyAddingMilestone(bytes32 namespace) internal view returns (uint, uint){
+    function verifyAddingMilestone(bytes32 namespace) internal view returns (uint) {
         uint numberMilestones = milestoneControllerStore.getUint(
             keccak256(abi.encodePacked(namespace, GLOBAL_MILESTONE_ID, NUMBER_MILESTONES)));
 
-        uint firstMilestoneState;
+        // first milestone state is INACTIVE if no milestone exist.
+        uint firstMilestoneState = uint(MilestoneState.INACTIVE);
         if (numberMilestones > 0) {
-            // get state for the first milestone
+            // get state for the first milestone (first milestone id should be 1)
             firstMilestoneState = milestoneControllerStore.getUint(
-                keccak256(abi.encodePacked(namespace, uint(0), STATE)));
+                keccak256(abi.encodePacked(namespace, uint(1), STATE)));
         }
         require(numberMilestones == 0 || firstMilestoneState == uint(MilestoneState.INACTIVE));
 
-        uint lastEndTime = numberMilestones == 0 ? now :
-        milestoneControllerStore.getUint(
-            keccak256(abi.encodePacked(namespace, numberMilestones.sub(1), END_TIME)));
-
-        uint milestoneId = numberMilestones;
+        uint milestoneId = numberMilestones + 1;
         bool existing;
         (existing,) = isExisting(namespace, milestoneId);
         require(!existing);
-        return (milestoneId, lastEndTime);
+        return milestoneId;
     }
 
     /**
@@ -466,18 +516,6 @@ contract MilestoneController is Module {
             return true;
         }
         return false;
-    }
-
-    /**
-    * Return true and the endTime if the milestone exists
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    */
-    function isExisting(bytes32 namespace, uint milestoneId) internal view returns (bool, uint) {
-        uint endTime = milestoneControllerStore.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, END_TIME)));
-        return endTime != 0 ? (true, endTime) : (false, 0);
     }
 
     /**
