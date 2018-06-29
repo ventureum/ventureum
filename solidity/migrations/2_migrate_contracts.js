@@ -59,6 +59,9 @@ const ReputationSystem = _thirdPartySolConstants.ReputationSystem
 const CarbonVoteXCore = _thirdPartySolConstants.CarbonVoteX.Core
 const CarbonVoteXNameSpace = _thirdPartySolConstants.NAME_SPACE
 
+// * Presale
+const Presale = _thirdPartySolConstants.Presale
+
 module.exports = function (deployer, network, accounts) {
   function migrationDeploy () {
     let instances = {}
@@ -73,6 +76,7 @@ module.exports = function (deployer, network, accounts) {
           PLCRVoting.Self,
           Challenge.Self,
           Registry.Self,
+          Presale.Self,
           Parameterizer.Self])
     }).then(async function () {
       // Deploy kernel
@@ -209,6 +213,13 @@ module.exports = function (deployer, network, accounts) {
         Parameterizer.Self.address,
         ProjectController.Self.address)
 
+      // Deploy Registry
+      await deployer.deploy(
+        Presale.Self,
+        accounts[0],
+        VetXToken.Self.address,
+        Presale.StartTime,
+        Presale.EndTime)
 
       // Instances
       instances.vetXToken = VetXToken.Self.at(VetXToken.Self.address)
