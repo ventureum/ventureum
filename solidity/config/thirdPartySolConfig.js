@@ -5,6 +5,7 @@ import EVMRevert from 'openzeppelin-solidity/test/helpers/EVMRevert'
 import { advanceBlock } from 'openzeppelin-solidity/test/helpers/advanceToBlock'
 
 const ThirdPartyJsConfig = require("../config/thirdPartyJsConfig.js")
+const moment = require("moment")
 
 export default function (artifacts) {
   const _thirdPartyJsConstants = ThirdPartyJsConfig.default()
@@ -56,12 +57,19 @@ export default function (artifacts) {
   CarbonVoteX.receiverFunctions = [Web3.utils.sha3('register')]
   CarbonVoteX.sendGas = Web3.utils.sha3('sendGas')
 
+  // Presale
+  class Presale {}
+  Presale.Self = artifacts.require("./Presale")
+  Presale.StartTime = moment().add(1, 'weeks').unix()
+  Presale.EndTime = moment().add(2, 'weeks').unix()
+
   return {
     'TimeSetter': TimeSetter,
     'Error': Error,
     'VetXToken': VetXToken,
     'SafeMath': SafeMath,
     'ReputationSystem': ReputationSystem,
-    'CarbonVoteX': CarbonVoteX
+    'CarbonVoteX': CarbonVoteX,
+    'Presale': Presale
   }
 }

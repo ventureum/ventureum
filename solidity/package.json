@@ -28,10 +28,12 @@
     "web3": "^1.0.0-beta.34"
   },
   "devDependencies": {
+    "@ventureum/sale": "^1.0.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
     "ethereumjs-abi": "^0.6.5",
+    "moment": "^2.22.2",
     "repsys": "^1.0.4",
     "solidity-coverage": "^0.5.4",
     "standard": "^11.0.1",
