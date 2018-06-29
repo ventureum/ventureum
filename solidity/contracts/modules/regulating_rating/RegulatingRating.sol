@@ -111,7 +111,7 @@ contract RegulatingRating is Module {
     }
 
     /**
-    * Start rating process: founderOnly
+    * Start rating process: called by MilestoneController
     *
     * @param namespace namespace of a project
     * @param milestoneId milestoneId of a milestone of the project
@@ -131,7 +131,7 @@ contract RegulatingRating is Module {
         uint[] objMaxRegulationRewards
     )
         external
-        founderOnly(namespace)
+        connected
     {
         require(
             objs.length > 0 &&
@@ -323,6 +323,40 @@ contract RegulatingRating is Module {
     }
 
     /**
+    * Update regulation rewards for an objective performed by a registered regulator
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId milestoneId of a milestone of the project
+    * @param obj an objective in a milestone of the project
+    * @param _addr address of the regulator
+    * @param amount amount withdrawn by regulator
+    */
+    function updateRegulationRewardsForRegulator(
+        bytes32 namespace,
+        uint milestoneId,
+        bytes32 obj,
+        address _addr,
+        uint amount
+    )
+        external
+        connected
+    {
+        uint rewards = regulatingRatingStorage.getUint(keccak256(abi.encodePacked(
+                namespace, milestoneId, objId, _addr, OBJ_REGULATION_REWARD))
+        );
+
+        uint balance = rewards.sub(amount);
+        require(balance >= 0);
+
+        uint objId = getObjId(namespace, milestoneId, obj);
+        regulatingRatingStorage.setUint(
+            keccak256(abi.encodePacked(
+                namespace, milestoneId, objId, _addr, OBJ_REGULATION_REWARD)),
+            balance
+        );
+    }
+
+    /**
     * Return basic objective Info for an objective
     *
     * @param namespace namespace of a project
@@ -332,7 +366,7 @@ contract RegulatingRating is Module {
     function getObjInfo(bytes32 namespace, uint milestoneId, bytes32 obj)
         external
         view
-        returns (uint, uint, bytes32)
+        returns (uint, bool, bytes32)
     {
         uint objId = getObjId(namespace, milestoneId, obj);
         require(objId > 0);
@@ -347,7 +381,7 @@ contract RegulatingRating is Module {
 
         return (
             objId,
-            finalized,
+            finalized == TRUE,
             objType
         );
     }

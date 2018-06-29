@@ -154,7 +154,7 @@ contract ProjectController is Module {
     * @param projectState state of the project
     */
     function setState(bytes32 namespace, uint projectState) external connected {
-        (bool existing, address owner) = isExisting(namespace);
+        (bool existing,) = isExisting(namespace);
         require(existing);
         require(projectState >= 0 && projectState <= uint(ProjectState.LENGTH));
 
@@ -171,7 +171,7 @@ contract ProjectController is Module {
     * @param tokenAddress the token address for the project
     */
     function setTokenAddress(bytes32 namespace, address tokenAddress) external connected {
-        (bool existing, address owner) = isExisting(namespace);
+        (bool existing,) = isExisting(namespace);
         require(existing);
 
         projectControllerStore.setAddress(

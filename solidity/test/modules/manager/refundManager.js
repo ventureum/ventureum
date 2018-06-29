@@ -93,9 +93,17 @@ contract('RefundManagerTest', function (accounts) {
       let info = await tokenSale.tokenInfo(ADVANCE_PROJECT_CI)
       info[3].should.be.equal(true)
 
-      await milestoneController.activate(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, 0)
-
       let currentTime = TimeSetter.latestTime()
+      const minStartTime = currentTime + TimeSetter.OneWeek;
+      const maxStartTime = minStartTime + TimeSetter.OneMonth;
+
+      await milestoneController.activate(
+        ADVANCE_PROJECT_CI,
+        FIRST_MILESTONE_ID,
+        0,
+        minStartTime,
+        maxStartTime)
+
       await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
 
       await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
@@ -141,9 +149,17 @@ contract('RefundManagerTest', function (accounts) {
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
 
-      await milestoneController.activate(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, 0)
-
       let currentTime = TimeSetter.latestTime()
+      const minStartTime = currentTime + TimeSetter.OneWeek;
+      const maxStartTime = minStartTime + TimeSetter.OneMonth;
+
+      await milestoneController.activate(
+        ADVANCE_PROJECT_CI,
+        FIRST_MILESTONE_ID,
+        0,
+        minStartTime,
+        maxStartTime)
+
       await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
       await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
         .should.be.fulfilled
@@ -198,10 +214,18 @@ contract('RefundManagerTest', function (accounts) {
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
 
-      await milestoneController.activate(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, 0)
+      let currentTime = TimeSetter.latestTime()
+      const minStartTime = currentTime + TimeSetter.OneWeek;
+      const maxStartTime = minStartTime + TimeSetter.OneMonth;
 
-      await TimeSetter.increaseTimeTo(
-        TimeSetter.latestTime() + LAST_WEEK_LENGTH)
+      await milestoneController.activate(
+        ADVANCE_PROJECT_CI,
+        FIRST_MILESTONE_ID,
+        0,
+        minStartTime,
+        maxStartTime)
+
+      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
 
       await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
         .should.be.fulfilled
@@ -239,9 +263,17 @@ contract('RefundManagerTest', function (accounts) {
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
 
-      await milestoneController.activate(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, 0)
-
       let currentTime = TimeSetter.latestTime()
+      const minStartTime = currentTime + TimeSetter.OneWeek;
+      const maxStartTime = minStartTime + TimeSetter.OneMonth;
+
+      await milestoneController.activate(
+        ADVANCE_PROJECT_CI,
+        FIRST_MILESTONE_ID,
+        0,
+        minStartTime,
+        maxStartTime)
+
       await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
 
       await refundManager.refund(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, refundValue)
@@ -271,9 +303,17 @@ contract('RefundManagerTest', function (accounts) {
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
 
-      await milestoneController.activate(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, 0)
-
       let currentTime = TimeSetter.latestTime()
+      const minStartTime = currentTime + TimeSetter.OneWeek;
+      const maxStartTime = minStartTime + TimeSetter.OneMonth;
+
+      await milestoneController.activate(
+        ADVANCE_PROJECT_CI,
+        FIRST_MILESTONE_ID,
+        0,
+        minStartTime,
+        maxStartTime)
+
       await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
       await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
         .should.be.fulfilled
@@ -309,9 +349,17 @@ contract('RefundManagerTest', function (accounts) {
 
       await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
 
-      await milestoneController.activate(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, 0)
-
       let currentTime = TimeSetter.latestTime()
+      const minStartTime = currentTime + TimeSetter.OneWeek;
+      const maxStartTime = minStartTime + TimeSetter.OneMonth;
+
+      await milestoneController.activate(
+        ADVANCE_PROJECT_CI,
+        FIRST_MILESTONE_ID,
+        0,
+        minStartTime,
+        maxStartTime)
+
       await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
       await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
         .should.be.fulfilled

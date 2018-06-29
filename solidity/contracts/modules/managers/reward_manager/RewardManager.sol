@@ -27,21 +27,23 @@ contract RewardManager is Manager {
      * @param obj an objective of a milestone of the project
      */
     function withdraw(bytes32 namespace, uint milestoneId, bytes32 obj) external {
-        require(address(tokenSale) != NULL);
+        require(address(milestoneController) != NULL);
 
-        // check milestone state
-        uint milestoneState = milestoneController.milestoneState(namespace, milestoneId);
-        require(milestoneState > uint(MilestoneController.MilestoneState.RS));
-
-        uint rewards = milestoneController.getRegulationRewardsForRegulator(
+        (bool finalized, uint rewards) = milestoneController.getRegulationRewardsForRegulator(
             namespace,
             milestoneId,
             obj,
             msg.sender
         );
-        require(rewards <= address(etherCollector).balance);
+        require(finalized && rewards > 0 && rewards <= address(etherCollector).balance);
         etherCollector.withdraw(msg.sender, rewards);
-
+        milestoneController.updateRegulationRewardsForRegulator(
+            namespace,
+            milestoneId,
+            obj,
+            msg.sender,
+            rewards
+        );
         emit RegulationRewardsWithdrawn(msg.sender, namespace, milestoneId, obj);
     }
 

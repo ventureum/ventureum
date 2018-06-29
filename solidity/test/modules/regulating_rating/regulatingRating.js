@@ -4,8 +4,6 @@ import {
 } from '../../constants'
 const shared = require('../../shared.js')
 
-const TRUE = 1
-const FALSE = 0
 const PROJECT_ONE = Web3.utils.keccak256('project1');
 const PROJECT_TWO = Web3.utils.keccak256('project2');
 const MILESTONE_ID_ONE = 1
@@ -164,7 +162,7 @@ contract('RegulatingRatingTest', function (accounts) {
         OBJS,
         OBJ_TYPES,
         OBJ_MAX_REGULATION_REWARDS,
-        {from: founder})
+        {from: ROOT})
 
       await TimeSetter.increaseTimeTo(startTimeForRegulatingRating
         + INTERVAL_FOR_RATING_STAGE)
@@ -182,7 +180,7 @@ contract('RegulatingRatingTest', function (accounts) {
       OBJS,
       OBJ_TYPES,
       OBJ_MAX_REGULATION_REWARDS,
-      {from: FOUNDER_ONE})
+      {from: ROOT})
 
     const globalObjInfo = await regulatingRating.getGlobalObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_ONE)
@@ -194,7 +192,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoOne = await regulatingRating.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_ONE, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
-    objInfoOne[1].should.be.bignumber.equal(FALSE)
+    objInfoOne[1].should.be.equal(false)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
     const objRegulationInfoOne = await regulatingRating
@@ -207,7 +205,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoTwo = await regulatingRating.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_ONE, OBJ_TWO)
     objInfoTwo[0].should.be.bignumber.equal(2)
-    objInfoTwo[1].should.be.bignumber.equal(FALSE)
+    objInfoTwo[1].should.be.equal(false)
     objInfoTwo[2].should.be.equal(OBJ_TYPE_TWO)
 
     const objRegulationInfoTwo = await regulatingRating
@@ -229,7 +227,7 @@ contract('RegulatingRatingTest', function (accounts) {
       OBJS,
       OBJ_TYPES,
       OBJ_MAX_REGULATION_REWARDS,
-      {from: FOUNDER_TWO})
+      {from: ROOT})
 
     await regulatingRating.start(
       PROJECT_TWO,
@@ -239,7 +237,7 @@ contract('RegulatingRatingTest', function (accounts) {
       OBJS,
       OBJ_TYPES,
       OBJ_MAX_REGULATION_REWARDS,
-      {from: FOUNDER_TWO}).should.be.rejectedWith(Error.EVMRevert)
+      {from: ROOT}).should.be.rejectedWith(Error.EVMRevert)
   })
 
   it('should bid for one objective successfully ' +
@@ -256,7 +254,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoOne = await regulatingRating.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_TWO, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
-    objInfoOne[1].should.be.bignumber.equal(FALSE)
+    objInfoOne[1].should.be.equal(false)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
     const objRegulationInfoOne = await regulatingRating
@@ -290,7 +288,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoOne = await regulatingRating.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_THREE, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
-    objInfoOne[1].should.be.bignumber.equal(FALSE)
+    objInfoOne[1].should.be.equal(false)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
     const objRegulationInfoOne = await regulatingRating
@@ -310,7 +308,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoTwo = await regulatingRating.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_THREE, OBJ_TWO)
     objInfoTwo[0].should.be.bignumber.equal(2)
-    objInfoTwo[1].should.be.bignumber.equal(FALSE)
+    objInfoTwo[1].should.be.equal(false)
     objInfoTwo[2].should.be.equal(OBJ_TYPE_TWO)
 
     const objRegulationInfoTwo = await regulatingRating
@@ -348,7 +346,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoOne = await regulatingRating.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
-    objInfoOne[1].should.be.bignumber.equal(FALSE)
+    objInfoOne[1].should.be.equal(false)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
     const objRegulationInfoOne = await regulatingRating
@@ -373,7 +371,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoTwo = await regulatingRating.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_TWO)
     objInfoTwo[0].should.be.bignumber.equal(2)
-    objInfoTwo[1].should.be.bignumber.equal(FALSE)
+    objInfoTwo[1].should.be.equal(false)
     objInfoTwo[2].should.be.equal(OBJ_TYPE_TWO)
 
     const objRegulationInfoTwo = await regulatingRating
@@ -421,7 +419,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoOne = await regulatingRating.getObjInfo.call(
       PROJECT_TWO, MILESTONE_ID_TWO, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
-    objInfoOne[1].should.be.bignumber.equal(FALSE)
+    objInfoOne[1].should.be.equal(false)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
     const objRegulationInfoOne = await regulatingRating
@@ -446,7 +444,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoTwo = await regulatingRating.getObjInfo.call(
       PROJECT_TWO, MILESTONE_ID_TWO, OBJ_TWO)
     objInfoTwo[0].should.be.bignumber.equal(2)
-    objInfoTwo[1].should.be.bignumber.equal(FALSE)
+    objInfoTwo[1].should.be.equal(false)
     objInfoTwo[2].should.be.equal(OBJ_TYPE_TWO)
 
     const objRegulationInfoTwo = await regulatingRating
@@ -492,7 +490,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoOne = await regulatingRating.getObjInfo.call(
       PROJECT_TWO, MILESTONE_ID_THREE, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
-    objInfoOne[1].should.be.bignumber.equal(TRUE)
+    objInfoOne[1].should.be.equal(true)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
     const expectedObjOneTotalReputationVotes =
@@ -552,7 +550,7 @@ contract('RegulatingRatingTest', function (accounts) {
       const objInfoOne = await regulatingRating.getObjInfo.call(
         PROJECT_TWO, MILESTONE_ID_FOUR, OBJ_ONE)
       objInfoOne[0].should.be.bignumber.equal(1)
-      objInfoOne[1].should.be.bignumber.equal(TRUE)
+      objInfoOne[1].should.be.equal(true)
       objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
       const expectedObjOneTotalReputationVotes =
@@ -621,7 +619,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoOne = await regulatingRating.getObjInfo.call(
       PROJECT_TWO, MILESTONE_ID_FIVE, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
-    objInfoOne[1].should.be.bignumber.equal(TRUE)
+    objInfoOne[1].should.be.equal(true)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
     const expectedObjOneTotalReputationVotes =
@@ -657,7 +655,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const objInfoTWO = await regulatingRating.getObjInfo.call(
       PROJECT_TWO, MILESTONE_ID_FIVE, OBJ_TWO)
     objInfoTWO[0].should.be.bignumber.equal(2)
-    objInfoTWO[1].should.be.bignumber.equal(TRUE)
+    objInfoTWO[1].should.be.equal(true)
     objInfoTWO[2].should.be.equal(OBJ_TYPE_TWO)
 
     const expectedObjTwoTotalReputationVotes =

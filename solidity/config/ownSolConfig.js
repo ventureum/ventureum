@@ -171,7 +171,13 @@ export default function (artifacts) {
     Activate: wweb3.eth.abi.encodeFunctionSignature(
       'activate(bytes32,uint256,uint256)'),
     AddMilestone: wweb3.eth.abi.encodeFunctionSignature(
-      'addMilestone(bytes32,uint256,bytes32[],bytes32[],uint256[])')
+      'addMilestone(bytes32,uint256,bytes32[],bytes32[],uint256[])'),
+    Finalize: wweb3.eth.abi.encodeFunctionSignature(
+      'finalize(bytes32,uint256)'),
+    UpdateMilestoneWeiLocked: wweb3.eth.abi.encodeFunctionSignature(
+      'updateMilestoneWeiLocked(bytes32,uint256,uint256)'),
+    UpdateRegulationRewardsForRegulator: wweb3.eth.abi.encodeFunctionSignature(
+      'UpdateRegulationRewardsForRegulator(bytes32,uint256,bytes32,address,uint256)')
   }
   MilestoneController.Storage = {
     Self: artifacts.require(
@@ -269,7 +275,9 @@ export default function (artifacts) {
       'backOutFromBid(bytes32,uint256,bytes32)'),
     SetStorage: SET_STORAGE_SIG,
     SetReputationSystem: SET_REPUTATION_SYSTEM,
-    SetProjectController: SET_PROJECT_CONTROLLER
+    SetProjectController: SET_PROJECT_CONTROLLER,
+    UpdateRegulationRewardsForRegulator: wweb3.eth.abi.encodeFunctionSignature(
+      'UpdateRegulationRewardsForRegulator(bytes32,uint256,bytes32,address,uint256)')
   }
   RegulatingRating.Storage = {
     Self: artifacts.require(
