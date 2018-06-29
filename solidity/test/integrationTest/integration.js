@@ -39,6 +39,17 @@ const CHALLENGE_REWARD =
   Parameterizer.paramDefaults.dispensationPct /
   100
 
+const ONE_YEAR = TimeSetter.OneYear
+
+/* ----- Milestone Mock Data --------- */
+const MILESTONE_LENGTH =
+  [ONE_YEAR, ONE_YEAR * 2, ONE_YEAR * 3, ONE_YEAR * 4, ONE_YEAR * 5]
+const MILESTONE_OBJS = [['obj1'], ['obj2'], ['obj3'], ['obj4'], ['obj5']]
+const MILESTONE_OBJ_TYPES = [['type1'], ['type2'], ['type3'], ['type4'], ['type5']]
+const MILESTONE_OBJ_MAX_REGULATION_REWARDS = [[100], [200], [300], [400], [500]]
+const MILESTONE_WEI_LOCKED = [10000, 20000, 30000, 40000, 50000]
+
+
 contract("Integration Test", function (accounts) {
   const ROOT = accounts[0]
   const PROJECT_OWNER = accounts[1]
@@ -57,6 +68,7 @@ contract("Integration Test", function (accounts) {
   let plcrVoting
 
   let projectController
+  let milestoneController
   let tokenCollector
   let tokenSale
 
@@ -67,6 +79,7 @@ contract("Integration Test", function (accounts) {
     projectController = await ProjectController.Self.deployed()
     tokenCollector = await TokenCollector.Self.deployed()
     tokenSale = await TokenSale.Self.deployed()
+    milestoneController = await MilestoneController.Self.deployed()
 
 
     // init project token and transfer all to project owner
@@ -245,6 +258,49 @@ contract("Integration Test", function (accounts) {
     avgPrice.should.be.bignumber.equal(rate)
   }
 
+  let mockAddMilestone = async function (projectHash) {
+    for (var i = 0; i < MILESTONE_OBJS.length; i++) {
+      await milestoneController.addMilestone(
+        projectHash,
+        MILESTONE_LENGTH[i],
+        MILESTONE_OBJS[i],
+        MILESTONE_OBJ_TYPES[i],
+        MILESTONE_OBJ_MAX_REGULATION_REWARDS[i],
+        {from: PROJECT_OWNER}).should.be.fulfilled
+    }
+  }
+
+  /*
+   * TODO (@b232wang)
+   * function `start` in `RegulatingRating` is `founderOnly`,
+   * but called by `MilestoneController` (line 244)
+   *
+  let reputationSystemRating = async function (projectHash, milestoneId) {
+    //await milestoneController.startRatingStage(
+    //  projectHahs,
+    //  milestoneId,
+    //  {from: PROJECT_OWNER}).should.be.fulfilled
+  }
+
+  let refund = async function (projectHash, milestoneId, startTime) {
+    await fastForwardToLastWeek(milestoneId, startTime)
+
+  }
+  */
+
+  let fastForwardToEndOfMilestone = async function (milestoneId, startTime) {
+    const endMilestone = startTime + MILESTONE_LENGTH[milestoneId - 1] + 100
+    await TimeSetter.increaseTimeTo(endMilestone)
+    await TimeSetter.advanceBlock()
+  }
+
+  let fastForwardToLastWeek = async function (milestoneId, startTime) {
+    const lastWeek = startTime + MILESTONE_LENGTH[milestoneId - 1] + 100 - TimeSetter.OneWeek
+    await TimeSetter.increaseTimeTo(lastWeek)
+    await TimeSetter.advanceBlock()
+  }
+
+
   let challengeNotPassTest = async function () {
     const projectHash = wweb3.utils.keccak256(PROJECT_LIST[0])
     let res;
@@ -327,6 +383,7 @@ contract("Integration Test", function (accounts) {
     const projectHash = wweb3.utils.keccak256(PROJECT_LIST[1])
     let res;
 
+    /* ---------- VTCR part -------------*/
     await applyApplication(PROJECT_LIST[1])
 
     //get and check project info
@@ -381,6 +438,10 @@ contract("Integration Test", function (accounts) {
     await voterReward(pollId, VOTER1, 200)
     await voterReward(pollId, VOTER2, 150)
 
+    /* ---------- Add milestone -------------*/
+    await mockAddMilestone(projectHash)
+
+    /* ---------- TokenSale part -------------*/
     await mockTokenSale(projectHash, 5, projectToken)
 
     //get and check project info
@@ -389,6 +450,28 @@ contract("Integration Test", function (accounts) {
     res[0].should.be.equal(true) // check exist
     res[1].should.be.bignumber.equal(PROJECT_STATE_TOKEN_SALE) // check state
 
+    /* ---------- Milestone Part (Rating and Refund)-------------*/
+    let startTime = TimeSetter.latestTime()
+    for (var i = 0; i < MILESTONE_OBJS.length; i++) {
+      let milestoneId = i + 1
+
+      // activate milestone
+      await milestoneController.activate(
+        projectHash,
+        milestoneId,
+        MILESTONE_WEI_LOCKED[i],
+        {from: PROJECT_OWNER})
+
+      // start repsys rating
+      await reputationSystemRating(projectHash, milestoneId)
+
+      // increase time to last week and then test refund stage
+      await refund(projectHash, milestoneId, startTime)
+
+      // increase time to end of this milestone, ready to activate next milestone
+      await fastForwardToEndOfMilestone(milestoneId, startTime)
+      startTime += MILESTONE_LENGTH[i]
+    }
   }
 
   describe('The integration test for VTCR', function () {
