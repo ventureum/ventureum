@@ -460,6 +460,8 @@ contract("Integration Test", function (accounts) {
         projectHash,
         milestoneId,
         MILESTONE_WEI_LOCKED[i],
+        startTime + TimeSetter.duration.days(1),
+        startTime + TimeSetter.duration.days(3),
         {from: PROJECT_OWNER})
 
       // start repsys rating

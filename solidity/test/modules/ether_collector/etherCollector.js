@@ -1,7 +1,7 @@
 import { Web3, Error, EtherCollector } from '../../constants'
 const shared = require('../../shared.js')
 
-const BALANCE_CI = Web3.utils.keccak256('balance')
+const BALANCE_CI = Web3.utils.keccak256('EtherBalance')
 const VALUE = 12345
 
 contract('EtherCollectorTest', function (accounts) {

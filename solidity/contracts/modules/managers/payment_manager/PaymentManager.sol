@@ -32,12 +32,15 @@ contract PaymentManager is Manager {
         uint milestoneState = milestoneController.milestoneState(namespace, milestoneId);
         require(milestoneState == uint(MilestoneController.MilestoneState.COMPLETION));
 
-        // check wei locked in the milestone
+        // check wei lock ETH_AMOUNTed in the milestone
         uint weiLocked = milestoneController.milestoneWeiLocked(namespace, milestoneId);
         require(weiLocked > 0);
 
         require(weiLocked <= address(etherCollector).balance);
         etherCollector.withdraw(msg.sender, weiLocked);
+
+        milestoneController.updateMilestoneWeiLocked(namespace, milestoneId, weiLocked);
+
         emit FundWithdrawnByFounder(msg.sender, namespace, milestoneId, weiLocked);
     }
 

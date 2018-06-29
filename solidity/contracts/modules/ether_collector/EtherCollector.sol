@@ -9,7 +9,7 @@ import "./EtherCollectorStorage.sol";
 contract EtherCollector is Module {
     using SafeMath for uint;
 
-    bytes32 constant balanceHash = keccak256("balance");
+    bytes32 constant ETHER_BALANCE = keccak256("EtherBalance");
     // Storage contract
     EtherCollectorStorage public store;
 
@@ -31,9 +31,9 @@ contract EtherCollector is Module {
       Deposit ethers into the contract
      */
     function deposit() external payable connected {
-        uint bal = store.getUint(balanceHash);
+        uint bal = store.getUint(ETHER_BALANCE);
         bal = bal.add(msg.value);
-        store.setUint(balanceHash, bal);
+        store.setUint(ETHER_BALANCE, bal);
     }
 
     /*
@@ -43,10 +43,10 @@ contract EtherCollector is Module {
       @param val amount of wei to transfer
      */
     function withdraw(address beneficiary, uint val) external connected {
-        uint bal = store.getUint(balanceHash);
+        uint bal = store.getUint(ETHER_BALANCE);
         require(val <= bal);
         bal = bal.sub(val);
-        store.setUint(balanceHash, bal);
+        store.setUint(ETHER_BALANCE, bal);
 
         beneficiary.transfer(val);
     }
