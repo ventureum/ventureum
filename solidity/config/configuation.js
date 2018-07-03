@@ -426,10 +426,7 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await aclHandler.permit(
     RewardManager.CI,
     MilestoneController.CI,
-    [
-      MilestoneController.Sig.Withdraw,
-      MilestoneController.Sig.UpdateRegulationRewardsForRegulator
-    ])
+    [MilestoneController.Sig.UpdateRegulationRewardsForRegulator])
 
   /**
    * Grant permits to controllers

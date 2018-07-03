@@ -390,6 +390,7 @@ contract MilestoneController is Module {
         external
         connected
     {
+        require(regulatingRating != NULL);
         require(amount > 0);
 
         (bool existing,) = isExisting(namespace, milestoneId);

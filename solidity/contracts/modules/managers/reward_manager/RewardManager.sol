@@ -35,7 +35,8 @@ contract RewardManager is Manager {
             obj,
             msg.sender
         );
-        require(finalized && rewards > 0 && rewards <= address(etherCollector).balance);
+        require(finalized);
+        require(rewards > 0 && rewards <= address(etherCollector).balance);
         etherCollector.withdraw(msg.sender, rewards);
         milestoneController.updateRegulationRewardsForRegulator(
             namespace,

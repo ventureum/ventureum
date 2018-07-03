@@ -341,6 +341,7 @@ contract RegulatingRating is Module {
         external
         connected
     {
+        uint objId = getObjId(namespace, milestoneId, obj);
         uint rewards = regulatingRatingStorage.getUint(keccak256(abi.encodePacked(
                 namespace, milestoneId, objId, _addr, OBJ_REGULATION_REWARD))
         );
@@ -348,7 +349,6 @@ contract RegulatingRating is Module {
         uint balance = rewards.sub(amount);
         require(balance >= 0);
 
-        uint objId = getObjId(namespace, milestoneId, obj);
         regulatingRatingStorage.setUint(
             keccak256(abi.encodePacked(
                 namespace, milestoneId, objId, _addr, OBJ_REGULATION_REWARD)),
