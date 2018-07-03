@@ -33,7 +33,7 @@ export default function (artifacts) {
   // VetXToken
   class VetXToken {}
   VetXToken.Self = artifacts.require('./VetXToken')
-  VetXToken.initAmount = '1000000000000000000'
+  VetXToken.initAmount = '1000000000000000000000000000'
   VetXToken.tokenName = 'VetX'
   VetXToken.decimalUnits = 18
   VetXToken.tokenSymbol = 'VTX'

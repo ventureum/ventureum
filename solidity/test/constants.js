@@ -44,6 +44,7 @@ const SafeMath = _thirdPartySolConstants.SafeMath
 const CarbonVoteX = _thirdPartySolConstants.CarbonVoteX
 const TimeSetter = _thirdPartySolConstants.TimeSetter
 const ReputationSystem = _thirdPartySolConstants.ReputationSystem
+const Presale = _thirdPartySolConstants.Presale
 
 export {
   Kernel,
@@ -78,5 +79,6 @@ export {
   PLCRVoting,
   Parameterizer,
   Registry,
-  saltHashVote
+  saltHashVote,
+  Presale
 }
