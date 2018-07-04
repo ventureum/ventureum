@@ -318,7 +318,7 @@ const run = exports.run = async (instances, accounts, artifacts) => {
       MilestoneController.Sig.SetTokenSale,
       MilestoneController.Sig.SetReputationSystem,
       MilestoneController.Sig.AddMilestone,
-      MilestoneController.Sig.Finalize
+      MilestoneController.Sig.AdminFinalize
     ])
   await aclHandler.permit(
     Kernel.RootCI,

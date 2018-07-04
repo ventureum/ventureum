@@ -100,7 +100,7 @@ contract('PaymentManagerTest', function (accounts) {
     currentTime = TimeSetter.latestTime()
     await TimeSetter.increaseTimeTo(currentTime + 3 * MILESTONE_LENGTH)
 
-    await milestoneController.finalize(
+    await milestoneController.adminFinalize(
       PROJECT_ONE, MILESTONE_ID_ONE);
 
     const milestoneState = await milestoneController.milestoneState.call(
@@ -150,7 +150,7 @@ contract('PaymentManagerTest', function (accounts) {
       currentTime = TimeSetter.latestTime()
       await TimeSetter.increaseTimeTo(currentTime + 3 * MILESTONE_LENGTH)
 
-      await milestoneController.finalize(
+      await milestoneController.adminFinalize(
         PROJECT_THREE, MILESTONE_ID_ONE);
 
       await paymentManager.withdraw(

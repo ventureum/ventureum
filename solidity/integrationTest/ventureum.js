@@ -281,12 +281,12 @@ contract("Integration Test", function (accounts) {
     //  milestoneId,
     //  {from: PROJECT_OWNER}).should.be.fulfilled
   }
+  */
 
   let refund = async function (projectHash, milestoneId, startTime) {
     await fastForwardToLastWeek(milestoneId, startTime)
-
+    // TODO (@b232wang)
   }
-  */
 
   let fastForwardToEndOfMilestone = async function (milestoneId, startTime) {
     const endMilestone = startTime + MILESTONE_LENGTH[milestoneId - 1] + 100
@@ -454,7 +454,6 @@ contract("Integration Test", function (accounts) {
     let startTime = TimeSetter.latestTime()
     for (var i = 0; i < MILESTONE_OBJS.length; i++) {
       let milestoneId = i + 1
-
       // activate milestone
       await milestoneController.activate(
         projectHash,
@@ -465,7 +464,9 @@ contract("Integration Test", function (accounts) {
         {from: PROJECT_OWNER})
 
       // start repsys rating
+      /* TODO (@b232wang)
       await reputationSystemRating(projectHash, milestoneId)
+      */
 
       // increase time to last week and then test refund stage
       await refund(projectHash, milestoneId, startTime)
