@@ -172,8 +172,8 @@ export default function (artifacts) {
       'activate(bytes32,uint256,uint256)'),
     AddMilestone: wweb3.eth.abi.encodeFunctionSignature(
       'addMilestone(bytes32,uint256,bytes32[],bytes32[],uint256[])'),
-    Finalize: wweb3.eth.abi.encodeFunctionSignature(
-      'finalize(bytes32,uint256)'),
+    AdminFinalize: wweb3.eth.abi.encodeFunctionSignature(
+      'adminFinalize(bytes32,uint256)'),
     UpdateMilestoneWeiLocked: wweb3.eth.abi.encodeFunctionSignature(
       'updateMilestoneWeiLocked(bytes32,uint256,uint256)'),
     UpdateRegulationRewardsForRegulator: wweb3.eth.abi.encodeFunctionSignature(

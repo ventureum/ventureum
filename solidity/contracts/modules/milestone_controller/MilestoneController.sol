@@ -504,17 +504,60 @@ contract MilestoneController is Module {
     }
 
     /**
+    * Only admin (connected) can call this function.
     * Return true and set the milestone's state to "COMPLETION"
     *     if a milestone is finalizable (now >= milestone's endTime)
     *
     * @param namespace namespace of a project
     * @param milestoneId milestoneId of a milestone of the project
     */
-    function finalize(bytes32 namespace, uint milestoneId) public connected returns (bool) {
+    function adminFinalize(bytes32 namespace, uint milestoneId) 
+        public 
+        connected 
+        returns (bool) 
+    {
+        return finalize(namespace, milestoneId);
+    }
+
+    /**
+    * Only founder can call this function
+    * Return true and set the milestone's state to "COMPLETION"
+    *     if a milestone is finalizable (now >= milestone's endTime)
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId milestoneId of a milestone of the project
+    */
+    function founderFinalize(bytes32 namespace, uint milestoneId) 
+        public 
+        founderOnly(namespace)
+        returns (bool) 
+    {
+        uint numberMilestones = milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, GLOBAL_MILESTONE_ID, NUMBER_MILESTONES)));
+        require (numberMilestones ==  milestoneId);
+        return finalize(namespace, milestoneId);
+    }
+
+    /**
+    * Return true and set the milestone's state to "COMPLETION"
+    *     if a milestone is finalizable (now >= milestone's endTime)
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId milestoneId of a milestone of the project
+    */
+    function finalize(bytes32 namespace, uint milestoneId) internal returns (bool) {
         bool existing;
         uint endTime;
         (existing, endTime) = isExisting(namespace, milestoneId);
         require(existing);
+
+        uint currentState = milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, STATE)));
+
+        if (currentState == uint(MilestoneState.COMPLETION)) {
+            return true;
+        }
+
         if (now >= endTime) {
             milestoneControllerStore.setUint(
                 keccak256(abi.encodePacked(namespace, milestoneId, STATE)),
