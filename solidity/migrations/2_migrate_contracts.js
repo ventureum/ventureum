@@ -6,6 +6,8 @@ const ThirdPartySolConfig = require('../config/thirdPartySolConfig.js')
 const Configuation = require('../config/configuation.js')
 const MigrationConfiguation = require('../config/migrationConfiguation.js')
 
+const duration = require('openzeppelin-solidity/test/helpers/increaseTime').duration
+
 // Get Constant
 const _ownSolConstants = OwnSolConfig.default(artifacts)
 const _thirdPartySolConstants = ThirdPartySolConfig.default(artifacts)
@@ -214,12 +216,14 @@ module.exports = function (deployer, network, accounts) {
         ProjectController.Self.address)
 
       // Deploy Registry
+      const startTime = web3.eth.getBlock('latest').timestamp + duration.weeks(1)
+      const endTime = web3.eth.getBlock('latest').timestamp + duration.weeks(2)
       await deployer.deploy(
         Presale.Self,
         accounts[0],
         VetXToken.Self.address,
-        Presale.StartTime,
-        Presale.EndTime)
+        startTime,
+        endTime)
 
       // Instances
       instances.vetXToken = VetXToken.Self.at(VetXToken.Self.address)

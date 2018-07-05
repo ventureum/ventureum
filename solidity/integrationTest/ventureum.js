@@ -217,7 +217,7 @@ contract("Integration Test", function (accounts) {
     tokenNum) {
       let secretHash = saltHashVote(choice, SALT)
 
-      vetXToken.approve(plcrVoting.address, tokenNum, {from: voter})
+      await vetXToken.approve(plcrVoting.address, tokenNum, {from: voter})
       await plcrVoting.requestVotingRights(
         tokenNum,
         {from: voter}).should.be.fulfilled
@@ -669,9 +669,6 @@ contract("Integration Test", function (accounts) {
         startTime + TimeSetter.duration.days(3),
         {from: PROJECT_OWNER})
 
-      // start repsys rating
-      /* TODO (@b232wang)
-      */
       await reputationSystemRating(projectHash, milestoneId, startTime)
 
       // increase time to last week and then test refund stage
