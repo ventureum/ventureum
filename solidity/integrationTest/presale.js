@@ -2,7 +2,7 @@ import {
   Presale,
   VetXToken,
   TimeSetter,
-  TokenSale} from "../constants.js"
+  TokenSale} from "../test/constants.js"
 
 const LOCKUP_DURATION = TimeSetter.OneMonth
 

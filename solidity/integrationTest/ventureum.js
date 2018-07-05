@@ -14,10 +14,18 @@ import {
   PLCRVoting,
   Registry,
   TokenCollector,
+  CarbonVoteX,
+  ReputationSystem,
+  RegulatingRating,
+  RewardManager,
   Parameterizer,
-  TokenSale} from "../constants.js"
+  TokenSale} from "../test/constants.js"
 
 const PROJECT_LIST = ["project0", "project1", "project2", "project3"]
+
+const ETH_AMOUNT = 1000000
+
+const TOKEN_SALE_RATE = 5
 
 const SALT = 12345
 const VOTE_FOR = 1
@@ -44,11 +52,32 @@ const ONE_YEAR = TimeSetter.OneYear
 /* ----- Milestone Mock Data --------- */
 const MILESTONE_LENGTH =
   [ONE_YEAR, ONE_YEAR * 2, ONE_YEAR * 3, ONE_YEAR * 4, ONE_YEAR * 5]
-const MILESTONE_OBJS = [['obj1'], ['obj2'], ['obj3'], ['obj4'], ['obj5']]
-const MILESTONE_OBJ_TYPES = [['type1'], ['type2'], ['type3'], ['type4'], ['type5']]
-const MILESTONE_OBJ_MAX_REGULATION_REWARDS = [[100], [200], [300], [400], [500]]
+const MILESTONE_OBJS =
+  [['obj10', 'obj11'],
+  ['obj20', 'obj21'],
+  ['obj30', 'obj31'],
+  ['obj40', 'obj41'],
+  ['obj50', 'obj51']]
+const MILESTONE_OBJ_TYPES =
+  [['type10', 'type11'],
+  ['type20', 'type21'],
+  ['type30', 'type31'],
+  ['type40', 'type41'],
+  ['type50', 'type51']]
+const MILESTONE_OBJ_MAX_REGULATION_REWARDS =
+  [[100, 100],
+  [200, 200],
+  [300, 300],
+  [400, 400],
+  [500, 500]]
 const MILESTONE_WEI_LOCKED = [10000, 20000, 30000, 40000, 50000]
 
+/* ----- RegulatingRating Data --------- */
+const LENGTH_FOR_RATING_STAGE = 4 * TimeSetter.OneWeek
+const INTERVAL_FOR_RATING_STAGE = 2 * TimeSetter.OneWeek
+const DELAY_LENGTH = 0
+const POLL_LENGTH = 7
+const TOTAL_VOTES_LIMIT = 1000
 
 contract("Integration Test", function (accounts) {
   const ROOT = accounts[0]
@@ -61,9 +90,17 @@ contract("Integration Test", function (accounts) {
   const PURCHASER2 = accounts[3]
   const PURCHASER3 = accounts[4]
 
+  const INVESTOR1 = accounts[2]
+  const INVESTOR2 = accounts[3]
+  const INVESTOR3 = accounts[4]
+  const REGULATOR1 = accounts[5]
+  const REGULATOR2 = accounts[6]
+
+  // Tokens
   let vetXToken
   let projectToken
 
+  // VTCR
   let registry
   let plcrVoting
 
@@ -71,15 +108,28 @@ contract("Integration Test", function (accounts) {
   let milestoneController
   let tokenCollector
   let tokenSale
+  let regulatingRating
+  let carbonVoteXCore
+  let reputationSystem
+  let etherCollector
+  let rewardManager
+
 
   before(async function () {
     vetXToken = await VetXToken.Self.deployed()
+
     registry = await Registry.Self.deployed()
     plcrVoting = await PLCRVoting.Self.deployed()
+
     projectController = await ProjectController.Self.deployed()
+    milestoneController = await MilestoneController.Self.deployed()
     tokenCollector = await TokenCollector.Self.deployed()
     tokenSale = await TokenSale.Self.deployed()
-    milestoneController = await MilestoneController.Self.deployed()
+    regulatingRating = await RegulatingRating.Self.deployed()
+    carbonVoteXCore = await CarbonVoteX.Core.deployed()
+    reputationSystem = await ReputationSystem.Self.deployed()
+    etherCollector = await EtherCollector.Self.deployed()
+    rewardManager = await RewardManager.Self.deployed()
 
 
     // init project token and transfer all to project owner
@@ -94,6 +144,9 @@ contract("Integration Test", function (accounts) {
     // Transfer VTX to voter
     await vetXToken.transfer(VOTER1, VOTE_NUMBER)
     await vetXToken.transfer(VOTER2, VOTE_NUMBER)
+
+    // Transfer Eth to rewardManager
+    await etherCollector.deposit({value: ETH_AMOUNT}).should.be.fulfilled
   })
 
   let deposit = async function (address, vetXTokenNum) {
@@ -270,18 +323,171 @@ contract("Integration Test", function (accounts) {
     }
   }
 
+  let repsysVote = async function (projectHash, pollId, voter, objType, regulatorAddress, votes) {
+    await carbonVoteXCore.writeAvailableVotes(
+      ReputationSystem.CI,
+      pollId,
+      voter,
+      TOTAL_VOTES_LIMIT).should.be.fulfilled
+
+    for (let i = 0; i < votes.length; i++) {
+      await reputationSystem.vote(
+        projectHash,
+        regulatorAddress[i],
+        objType[i],
+        pollId,
+        votes[i],
+        {from: voter}).should.be.fulfilled
+    }
+  }
+
   /*
    * TODO (@b232wang)
-   * function `start` in `RegulatingRating` is `founderOnly`,
-   * but called by `MilestoneController` (line 244)
    *
-  let reputationSystemRating = async function (projectHash, milestoneId) {
-    //await milestoneController.startRatingStage(
-    //  projectHahs,
-    //  milestoneId,
-    //  {from: PROJECT_OWNER}).should.be.fulfilled
-  }
   */
+  let reputationSystemRating = async function (projectHash, milestoneId, pollTime) {
+    const startTime = TimeSetter.latestTime()
+    const votesInvestor1 = [100, 200]
+    const votesInvestor2 = [150, 50]
+
+    //-------- set up reputation system vote -----------
+    const pollId = Web3.utils.soliditySha3(projectHash, milestoneId)
+
+    await TimeSetter.increaseTimeTo(pollTime + TimeSetter.duration.days(1))
+    await TimeSetter.advanceBlock()
+
+    await reputationSystem.startPoll(
+      projectHash,
+      pollId,
+      DELAY_LENGTH,
+      POLL_LENGTH).should.be.fulfilled
+
+    // CarbonVoteX vote for regulator
+    await repsysVote(
+      projectHash,
+      pollId,
+      INVESTOR1,
+      MILESTONE_OBJ_TYPES[milestoneId - 1],
+      [REGULATOR1, REGULATOR2],
+      votesInvestor1).should.be.fulfilled
+
+    await repsysVote(
+      projectHash,
+      pollId,
+      INVESTOR2,
+      MILESTONE_OBJ_TYPES[milestoneId - 1],
+      [REGULATOR2, REGULATOR1],
+      votesInvestor2).should.be.fulfilled
+
+    let votingResultForRegulator1Obj1 = await reputationSystem.getVotingResultForMember(
+      pollId,
+      REGULATOR1,
+      MILESTONE_OBJ_TYPES[milestoneId - 1][0])
+    votingResultForRegulator1Obj1
+      .should.be.bignumber.equal(votesInvestor1[0] * TOKEN_SALE_RATE)
+
+    let votingResultForRegulator2Obj1 = await reputationSystem.getVotingResultForMember(
+      pollId,
+      REGULATOR2,
+      MILESTONE_OBJ_TYPES[milestoneId - 1][0])
+    votingResultForRegulator2Obj1
+      .should.be.bignumber.equal(votesInvestor2[0] * TOKEN_SALE_RATE)
+
+    let votingResultForRegulator1Obj2 = await reputationSystem.getVotingResultForMember(
+      pollId,
+      REGULATOR1,
+      MILESTONE_OBJ_TYPES[milestoneId - 1][1])
+    votingResultForRegulator1Obj2
+      .should.be.bignumber.equal(votesInvestor2[1] * TOKEN_SALE_RATE)
+
+    let votingResultForRegulator2Obj2 = await reputationSystem.getVotingResultForMember(
+      pollId,
+      REGULATOR2,
+      MILESTONE_OBJ_TYPES[milestoneId - 1][1])
+    votingResultForRegulator2Obj2
+      .should.be.bignumber.equal(votesInvestor1[1] * TOKEN_SALE_RATE)
+
+    const expired = await reputationSystem.pollExpired.call(pollId)
+    expired.should.be.equal(true)
+
+    // --------- start -------------
+    await milestoneController.startRatingStage(
+      projectHash,
+      milestoneId,
+      {from: PROJECT_OWNER}).should.be.fulfilled
+
+    // increase time to starttime + interval for rating stage
+    await TimeSetter.increaseTimeTo(startTime + INTERVAL_FOR_RATING_STAGE)
+
+    await regulatingRating.bid(
+      projectHash,
+      milestoneId,
+      MILESTONE_OBJS[milestoneId - 1][0],
+      {from: REGULATOR1}).should.be.fulfilled
+
+    await regulatingRating.bid(
+      projectHash,
+      milestoneId,
+      MILESTONE_OBJS[milestoneId - 1][1],
+      {from: REGULATOR1}).should.be.fulfilled
+
+    await regulatingRating.bid(
+      projectHash,
+      milestoneId,
+      MILESTONE_OBJS[milestoneId - 1][0],
+      {from: REGULATOR2}).should.be.fulfilled
+
+    await regulatingRating.bid(
+      projectHash,
+      milestoneId,
+      MILESTONE_OBJS[milestoneId - 1][1],
+      {from: REGULATOR2}).should.be.fulfilled
+
+    // fastForwardToLastThreeWeek
+    const lastWeek = pollTime + MILESTONE_LENGTH[milestoneId - 1] + 100 - 3 * TimeSetter.OneWeek
+    await TimeSetter.increaseTimeTo(lastWeek)
+    await TimeSetter.advanceBlock()
+
+    // finalize bid  (founderOnly)
+    await regulatingRating.finalizeAllBids(
+      projectHash,
+      milestoneId,
+      {from: PROJECT_OWNER})
+
+    const regulator1Reward =
+      [votesInvestor1[0] /
+        (votesInvestor1[0] + votesInvestor2[0]) *
+        MILESTONE_OBJ_MAX_REGULATION_REWARDS[milestoneId - 1][0],
+      votesInvestor2[1] /
+        (votesInvestor1[1] + votesInvestor2[1]) *
+        MILESTONE_OBJ_MAX_REGULATION_REWARDS[milestoneId - 1][1]]
+
+    const regulator2Reward =
+      [votesInvestor2[0] /
+        (votesInvestor1[0] + votesInvestor2[0]) *
+        MILESTONE_OBJ_MAX_REGULATION_REWARDS[milestoneId - 1][0],
+      votesInvestor1[1] /
+        (votesInvestor1[1] + votesInvestor2[1]) *
+        MILESTONE_OBJ_MAX_REGULATION_REWARDS[milestoneId - 1][1]]
+
+    // test whole rating system and withdraw
+    let preBal, postBal
+    const REGULATORS = [REGULATOR1, REGULATOR2]
+    const REWARDS = [regulator1Reward, regulator2Reward]
+    for (let i = 0; i < 2; i++) {
+      for (let j = 0; j < 2; j++) {
+        preBal = await web3.eth.getBalance(etherCollector.address)
+        await rewardManager.withdraw(
+          projectHash,
+          milestoneId,
+          MILESTONE_OBJS[milestoneId - 1][i],
+          {from: REGULATORS[j]})
+        postBal = await web3.eth.getBalance(etherCollector.address)
+        preBal.minus(postBal).should.be.bignumber.equal(REWARDS[j][i])
+      }
+    }
+  }
+
 
   let refund = async function (projectHash, milestoneId, startTime) {
     await fastForwardToLastWeek(milestoneId, startTime)
@@ -442,7 +648,7 @@ contract("Integration Test", function (accounts) {
     await mockAddMilestone(projectHash)
 
     /* ---------- TokenSale part -------------*/
-    await mockTokenSale(projectHash, 5, projectToken)
+    await mockTokenSale(projectHash, TOKEN_SALE_RATE, projectToken)
 
     //get and check project info
     res = await projectController.getProjectInfo(projectHash)
@@ -465,8 +671,8 @@ contract("Integration Test", function (accounts) {
 
       // start repsys rating
       /* TODO (@b232wang)
-      await reputationSystemRating(projectHash, milestoneId)
       */
+      await reputationSystemRating(projectHash, milestoneId, startTime)
 
       // increase time to last week and then test refund stage
       await refund(projectHash, milestoneId, startTime)

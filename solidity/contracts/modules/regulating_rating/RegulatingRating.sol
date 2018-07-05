@@ -443,7 +443,6 @@ contract RegulatingRating is Module {
         view
         returns (uint, uint, uint)
     {
-
         uint startTime = regulatingRatingStorage.getUint(
             keccak256(abi.encodePacked(namespace, milestoneId, GLOBAL_OBJ_ID, NULL, START_TIME))
         );
@@ -745,7 +744,7 @@ contract RegulatingRating is Module {
     * @param milestoneId milestoneId of a milestone of the project
     */
     function calRewardPercentage(bytes32 namespace, uint milestoneId)
-        internal
+        public
         view
         returns (uint)
     {
@@ -838,7 +837,7 @@ contract RegulatingRating is Module {
     * @param objId objective id of a milestone of the project
     */
     function getObjTotalReputationVotes(bytes32 namespace, uint milestoneId, uint objId)
-        internal
+        public
         view
         returns (uint)
     {
