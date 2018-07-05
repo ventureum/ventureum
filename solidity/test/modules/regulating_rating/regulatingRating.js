@@ -83,27 +83,27 @@ contract('RegulatingRatingTest', function (accounts) {
       const pollId = Web3.utils.soliditySha3(projectId, milestoneId);
       const pseudoPrice = 1
       const priceGteOne = false
-      const minStartTimeForPOllRequest = currentTime
-      const maxStartTimeForPOllRequest = currentTime + TimeSetter.OneWeek
-      const startTimeForRegulatingRating = maxStartTimeForPOllRequest
+      const minStartTimeForPollRequest = currentTime
+      const maxStartTimeForPollRequest = currentTime + TimeSetter.OneWeek
+      const startTimeForRegulatingRating = maxStartTimeForPollRequest
         + TimeSetter.OneMonth
-      const endTimeForRegulatingRating  = startTimeForRegulatingRating
+      const endTimeForRegulatingRating = startTimeForRegulatingRating
         +  LENGTH_FOR_RATING_STAGE
 
       await reputationSystem.registerPollRequest(
         pollId,
-        minStartTimeForPOllRequest,
-        maxStartTimeForPOllRequest,
+        minStartTimeForPollRequest,
+        maxStartTimeForPollRequest,
         pseudoPrice,
         priceGteOne,
         vetXToken.address,
-        OBJ_TYPES);
+        OBJ_TYPES)
 
       await reputationSystem.startPoll(
         projectId,
         pollId,
         delayLength,
-        pollLength);
+        pollLength)
 
       // set up upper vote limit for voters
       await carbonVoteXCore.writeAvailableVotes(
