@@ -52,9 +52,16 @@ contract RefundManager is Manager {
      * @val amount of tokens to be returned
      */
     function refund(bytes32 namespace, uint milestoneId, uint val) external {
-        bytes32 ethAmountKey = keccak256(abi.encodePacked(namespace, milestoneId, ETH_AMOUNT));
-        bytes32 availableTimeKey = keccak256(
-            abi.encodePacked(namespace, milestoneId, AVAILABLE_TIME));
+        bytes32 ethAmountKey = keccak256(abi.encodePacked(
+            namespace,
+            milestoneId,
+            msg.sender,
+            ETH_AMOUNT));
+        bytes32 availableTimeKey = keccak256(abi.encodePacked(
+            namespace,
+            milestoneId,
+            msg.sender,
+            AVAILABLE_TIME));
 
         ERC20 token = (ERC20)(projectController.getTokenAddress(namespace));
 
@@ -94,9 +101,16 @@ contract RefundManager is Manager {
      * @param milestoneId id of a milestone
      */
     function withdraw(bytes32 namespace, uint milestoneId) external {
-        bytes32 ethAmountKey = keccak256(abi.encodePacked(namespace, milestoneId, ETH_AMOUNT));
-        bytes32 availableTimeKey = keccak256(
-            abi.encodePacked(namespace, milestoneId, AVAILABLE_TIME));
+        bytes32 ethAmountKey = keccak256(abi.encodePacked(
+            namespace, 
+            milestoneId, 
+            msg.sender, 
+            ETH_AMOUNT));
+        bytes32 availableTimeKey = keccak256(abi.encodePacked(
+            namespace, 
+            milestoneId, 
+            msg.sender, 
+            AVAILABLE_TIME));
 
         require(
             refundManagerStorage.getUint(availableTimeKey) != 0 && 
