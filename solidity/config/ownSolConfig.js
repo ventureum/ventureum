@@ -1,5 +1,9 @@
 const ThirdPartyJsConfig = require("../config/thirdPartyJsConfig.js")
 
+const toWei = function (num) {
+  return num.toString() + '0'.repeat(18)
+}
+
 export default function (artifacts) {
   const _thirdPartyJsConstants = ThirdPartyJsConfig.default()
 
@@ -35,8 +39,8 @@ export default function (artifacts) {
   class Parameterizer {}
   Parameterizer.Self = artifacts.require('modules/VTCR/Parameterizer')
   Parameterizer.paramDefaults = {
-    "minDeposit": 500000,
-    "pMinDeposit": 50000,
+    "minDeposit": toWei(50000),
+    "pMinDeposit": toWei(50000),
     "applyStageLength": 300,
     "pApplyStageLength": 60,
     "commitStageLength": 60,
@@ -47,7 +51,7 @@ export default function (artifacts) {
     "pDispensationPct": 50,
     "voteQuorum": 50,
     "pVoteQuorum": 50,
-    "initialTokenPurchase": 100000000
+    "initialTokenPurchase": toWei(100000000)
   }
 
   // Registry

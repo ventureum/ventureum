@@ -19,7 +19,7 @@ import {
   RewardManager,
   RefundManager,
   Parameterizer,
-  TokenSale} from "../test/constants.js"
+  TokenSale} from "../constants.js"
 
 const PROJECT_LIST = ["project0", "project1", "project2", "project3"]
 
