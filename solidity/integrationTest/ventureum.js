@@ -7,7 +7,6 @@ import {
   wweb3,
   should,
   VetXToken,
-  RefundManager,
   ProjectController,
   MilestoneController,
   EtherCollector,
@@ -18,12 +17,13 @@ import {
   ReputationSystem,
   RegulatingRating,
   RewardManager,
+  RefundManager,
   Parameterizer,
   TokenSale} from "../test/constants.js"
 
 const PROJECT_LIST = ["project0", "project1", "project2", "project3"]
 
-const ETH_AMOUNT = 1000000
+const ETH_AMOUNT = 10000000000
 
 const TOKEN_SALE_RATE = 5
 
@@ -32,7 +32,7 @@ const VOTE_FOR = 1
 const AGAINST = 0
 
 const VOTE_NUMBER = 1000
-const PURCHASER_DEPOSIT = 1000
+const PURCHASER_DEPOSIT = 10000
 
 const PROJECT_STATE_NOT_EXIST = 0
 const PROJECT_STATE_APP_SUBMITTED = 1
@@ -79,6 +79,11 @@ const DELAY_LENGTH = 0
 const POLL_LENGTH = 7
 const TOTAL_VOTES_LIMIT = 1000
 
+/* ----- RegulatingRating Data --------- */
+const PURCHASER1_REFUND = [100, 110, 120, 130, 140]
+const PURCHASER2_REFUND = [200, 210, 220, 230, 240]
+const PURCHASER3_REFUND = [300, 310, 320, 330, 340]
+
 contract("Integration Test", function (accounts) {
   const ROOT = accounts[0]
   const PROJECT_OWNER = accounts[1]
@@ -92,7 +97,6 @@ contract("Integration Test", function (accounts) {
 
   const INVESTOR1 = accounts[2]
   const INVESTOR2 = accounts[3]
-  const INVESTOR3 = accounts[4]
   const REGULATOR1 = accounts[5]
   const REGULATOR2 = accounts[6]
 
@@ -113,6 +117,7 @@ contract("Integration Test", function (accounts) {
   let reputationSystem
   let etherCollector
   let rewardManager
+  let refundManager
 
 
   before(async function () {
@@ -130,6 +135,7 @@ contract("Integration Test", function (accounts) {
     reputationSystem = await ReputationSystem.Self.deployed()
     etherCollector = await EtherCollector.Self.deployed()
     rewardManager = await RewardManager.Self.deployed()
+    refundManager = await RefundManager.Self.deployed()
 
 
     // init project token and transfer all to project owner
@@ -341,10 +347,6 @@ contract("Integration Test", function (accounts) {
     }
   }
 
-  /*
-   * TODO (@b232wang)
-   *
-  */
   let reputationSystemRating = async function (projectHash, milestoneId, pollTime) {
     const startTime = TimeSetter.latestTime()
     const votesInvestor1 = [100, 200]
@@ -491,7 +493,41 @@ contract("Integration Test", function (accounts) {
 
   let refund = async function (projectHash, milestoneId, startTime) {
     await fastForwardToLastWeek(milestoneId, startTime)
-    // TODO (@b232wang)
+
+    // any investor can start the refund stage
+    await milestoneController.startRefundStage(
+      projectHash,
+      milestoneId,
+      {from: PURCHASER1}).should.be.fulfilled
+
+    // purchasers  refund
+    const refundTable = [PURCHASER1_REFUND, PURCHASER2_REFUND, PURCHASER3_REFUND]
+    const purchasers = [PURCHASER1, PURCHASER2, PURCHASER3]
+    for (var i = 0; i < refundTable.length; i++) {
+      await projectToken.approve(
+        refundManager.address,
+        refundTable[i][milestoneId - 1],
+        {from: purchasers[i]}).should.be.fulfilled
+
+      await refundManager.refund(
+        projectHash,
+        milestoneId,
+        refundTable[i][milestoneId - 1],
+        {from: purchasers[i]}).should.be.fulfilled
+
+      // if not the first milestone, withdraw last milestone's refund
+      if (milestoneId != 1) {
+        const preBal = await web3.eth.getBalance(etherCollector.address)
+        await refundManager.withdraw(
+          projectHash,
+          milestoneId - 1,
+          {from: purchasers[i]}).should.be.fulfilled
+        const postBal = await web3.eth.getBalance(etherCollector.address)
+
+        preBal.minus(postBal).should.be.bignumber.equal(
+          refundTable[i][milestoneId - 2] / TOKEN_SALE_RATE)
+      }
+    }
   }
 
   let fastForwardToEndOfMilestone = async function (milestoneId, startTime) {
