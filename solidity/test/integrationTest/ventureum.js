@@ -21,6 +21,8 @@ import {
   Parameterizer,
   TokenSale} from "../constants.js"
 
+const BigNumber = require('bignumber.js')
+
 const PROJECT_LIST = ["project0", "project1", "project2", "project3"]
 
 const ETH_AMOUNT = 10000000000
@@ -41,11 +43,9 @@ const PROJECT_STATE_TOKEN_SALE = 3
 const PROJECT_STATE_MILESTONE = 4
 const PROJECT_STATE_COMPLETE = 5
 
-const CHALLENGE_DEPOSIT = Parameterizer.paramDefaults.minDeposit / 2
+const CHALLENGE_DEPOSIT = new BigNumber(Parameterizer.paramDefaults.minDeposit / 2)
 const CHALLENGE_REWARD =
-  CHALLENGE_DEPOSIT *
-  Parameterizer.paramDefaults.dispensationPct /
-  100
+  new BigNumber(CHALLENGE_DEPOSIT * Parameterizer.paramDefaults.dispensationPct / 100)
 
 const ONE_YEAR = TimeSetter.OneYear
 
@@ -608,7 +608,7 @@ contract("Integration Test", function (accounts) {
     const projectOwnerPost = await vetXToken.balanceOf(PROJECT_OWNER)
 
     challengerPost.minus(challengerPre).should.be.bignumber.equal(
-      CHALLENGE_REWARD + CHALLENGE_DEPOSIT)
+      CHALLENGE_DEPOSIT.plus(CHALLENGE_REWARD))
     projectOwnerPost.minus(projectOwnerPre).should.be.bignumber.equal(0)
 
     await voterReward(pollId, VOTER1, 100)
@@ -618,7 +618,7 @@ contract("Integration Test", function (accounts) {
     const voter2BalPost = await vetXToken.balanceOf(VOTER2)
     voter1BalPost.minus(voter1BalPre).should.be.bignumber.equal(0)
     voter2BalPost.minus(voter2BalPre)
-      .should.be.bignumber.equal(CHALLENGE_DEPOSIT - CHALLENGE_REWARD)
+      .should.be.bignumber.equal(CHALLENGE_DEPOSIT.minus(CHALLENGE_REWARD))
   }
 
   let mainTest = async function () {
