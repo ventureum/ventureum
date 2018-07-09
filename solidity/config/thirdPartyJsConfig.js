@@ -9,6 +9,7 @@ export default function () {
   const BigNumber = wweb3.BigNumber
   const should = require('chai')
     .use(require('chai-as-promised'))
+    .use(require('chai-string'))
     .use(require('chai-bignumber')(BigNumber))
     .should()
 

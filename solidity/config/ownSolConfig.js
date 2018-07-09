@@ -188,6 +188,10 @@ export default function (artifacts) {
       'modules/milestone_controller/MilestoneControllerStorage'),
     CI: Web3.utils.keccak256('MilestoneControllerStorage')
   }
+  MilestoneController.View = {
+    Self: artifacts.require(
+      'modules/milestone_controller/MilestoneControllerView')
+  }
   MilestoneController.State = {
     INACTIVE: 0,
     IP: 1,

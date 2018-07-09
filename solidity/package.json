@@ -23,7 +23,6 @@
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
     "dotenv": "^5.0.1",
-    "eth-gas-reporter": "^0.1.9",
     "openzeppelin-solidity": "^1.9.0",
     "vetx-token": "^1.0.0",
     "web3": "^1.0.0-beta.34"
@@ -32,6 +31,8 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
+    "chai-string": "^1.4.0",
+    "eth-gas-reporter": "^0.1.9",
     "ethereumjs-abi": "^0.6.5",
     "repsys": "^1.0.4",
     "solidity-coverage": "^0.5.4",

@@ -318,7 +318,7 @@ contract("Integration Test", function (accounts) {
   }
 
   let mockAddMilestone = async function (projectHash) {
-    for (var i = 0; i < MILESTONE_OBJS.length; i++) {
+    for (let i = 0; i < MILESTONE_OBJS.length; i++) {
       await milestoneController.addMilestone(
         projectHash,
         MILESTONE_LENGTH[i],
@@ -503,7 +503,7 @@ contract("Integration Test", function (accounts) {
     // purchasers  refund
     const refundTable = [PURCHASER1_REFUND, PURCHASER2_REFUND, PURCHASER3_REFUND]
     const purchasers = [PURCHASER1, PURCHASER2, PURCHASER3]
-    for (var i = 0; i < refundTable.length; i++) {
+    for (let i = 0; i < refundTable.length; i++) {
       await projectToken.approve(
         refundManager.address,
         refundTable[i][milestoneId - 1],
@@ -542,6 +542,42 @@ contract("Integration Test", function (accounts) {
     await TimeSetter.advanceBlock()
   }
 
+  let testMilestoneControllerView = async function (projectHash) {
+    const milestoneControllerView = await MilestoneController.View.Self.deployed()
+
+    const numMilestones = await milestoneControllerView.getNumberOfMilestones(projectHash)
+    numMilestones.should.be.bignumber.equal(MILESTONE_LENGTH.length)
+
+    for (let i = 0; i < numMilestones; i++) {
+      const milestoneId = i + 1
+
+      const infos = await milestoneControllerView.getMilestoneInfo(projectHash, milestoneId)
+      const objInfos = await milestoneControllerView.getMilestoneObjInfo(projectHash, milestoneId)
+      const length = infos[0]
+      const state = infos[1]
+      const startTime = infos[2]
+      const endTime = infos[3]
+      const weiLocked = infos[4]
+
+      const objs = objInfos[0]
+      const objTypes = objInfos[1]
+      const objMaxRegulationRewards = objInfos[2]
+
+      const expectState = await milestoneController.milestoneState(projectHash, milestoneId)
+
+      endTime.minus(startTime).should.be.bignumber.equal(length)
+      state.should.be.bignumber.equal(expectState)
+      weiLocked.should.be.bignumber.equal(MILESTONE_WEI_LOCKED[i])
+
+      objs.length.should.be.equal(MILESTONE_OBJS[i].length)
+      for (let j = 0; j < objs.length; j++) {
+
+        web3.toAscii(objs[j]).should.startWith(MILESTONE_OBJS[i][j])
+        web3.toAscii(objTypes[j]).should.startWith(MILESTONE_OBJ_TYPES[i][j])
+        objMaxRegulationRewards[j].should.be.bignumber.equal(MILESTONE_OBJ_MAX_REGULATION_REWARDS[i][j])
+      }
+    }
+  }
 
   let challengeNotPassTest = async function () {
     const projectHash = wweb3.utils.keccak256(PROJECT_LIST[0])
@@ -694,7 +730,7 @@ contract("Integration Test", function (accounts) {
 
     /* ---------- Milestone Part (Rating and Refund)-------------*/
     let startTime = TimeSetter.latestTime()
-    for (var i = 0; i < MILESTONE_OBJS.length; i++) {
+    for (let i = 0; i < MILESTONE_OBJS.length; i++) {
       let milestoneId = i + 1
       // activate milestone
       await milestoneController.activate(
@@ -714,6 +750,8 @@ contract("Integration Test", function (accounts) {
       await fastForwardToEndOfMilestone(milestoneId, startTime)
       startTime += MILESTONE_LENGTH[i]
     }
+
+    await testMilestoneControllerView(projectHash)
   }
 
   describe('The integration test for VTCR', function () {

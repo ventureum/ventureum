@@ -163,6 +163,9 @@ module.exports = function (deployer, network, accounts) {
         MilestoneController.Storage.Self,
         Kernel.Self.address)
 
+      // Deploy milestone controller view
+      await deployer.deploy(MilestoneController.View.Self, MilestoneController.Storage.Self.address)
+
       // Deploy ether collector
       await deployer.deploy(EtherCollector.Self, Kernel.Self.address)
 
