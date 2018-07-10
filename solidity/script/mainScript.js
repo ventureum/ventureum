@@ -9,6 +9,8 @@ const MigrationConfiguation = require('../config/migrationConfiguation.js')
 
 const duration = require('openzeppelin-solidity/test/helpers/increaseTime').duration
 
+const mockData = require("./mockData.js")
+
 module.exports = function (JumpId, MilestoneId, artifacts, accounts) {
   //Get Constant
   const _ownSolConstants = OwnSolConfig.default(artifacts)
@@ -43,76 +45,61 @@ module.exports = function (JumpId, MilestoneId, artifacts, accounts) {
 
   const BigNumber = require('bignumber.js')
 
-  const PROJECT_LIST = ["project0"]
+  const data = mockData(artifacts)
 
-  const ETH_AMOUNT = 10000000000
+  /* ------- MockData ---------- */
 
-  const TOKEN_SALE_RATE = 5
+  const PROJECT_LIST = data.PROJECT_LIST
 
-  const SALT = 12345
-  const VOTE_FOR = 1
-  const AGAINST = 0
+  const ETH_AMOUNT = data.ETH_AMOUNT
 
-  const VOTE_NUMBER = 1000
-  const PURCHASER_DEPOSIT = 10000
+  const TOKEN_SALE_RATE = data.TOKEN_SALE_RATE
 
-  const PROJECT_STATE_NOT_EXIST = 0
-  const PROJECT_STATE_APP_SUBMITTED = 1
-  const PROJECT_STATE_APP_ACCEPTED = 2
-  const PROJECT_STATE_TOKEN_SALE = 3
-  const PROJECT_STATE_MILESTONE = 4
-  const PROJECT_STATE_COMPLETE = 5
+  const SALT = data.SALT
+  const VOTE_FOR = data.VOTE_FOR
+  const AGAINST = data.AGAINST
 
-  const CHALLENGE_DEPOSIT = new BigNumber(Parameterizer.paramDefaults.minDeposit / 2)
-  const CHALLENGE_REWARD =
-    new BigNumber(CHALLENGE_DEPOSIT * Parameterizer.paramDefaults.dispensationPct / 100)
+  const VOTE_NUMBER = data.VOTE_NUMBER
+  const PURCHASER_DEPOSIT = data.PURCHASER_DEPOSIT
 
-  const ONE_YEAR = TimeSetter.OneYear
+  const PROJECT_STATE_NOT_EXIST = data.PROJECT_STATE.NOT_EXIST
+  const PROJECT_STATE_APP_SUBMITTED = data.PROJECT_STATE.APP_SUBMITTED
+  const PROJECT_STATE_APP_ACCEPTED = data.PROJECT_STATE.APP_ACCEPTED
+  const PROJECT_STATE_TOKEN_SALE = data.PROJECT_STATE.TOKEN_SALE
+  const PROJECT_STATE_MILESTONE = data.PROJECT_STATE.MILESTONE
+  const PROJECT_STATE_COMPLETE = data.PROJECT_STATE.COMPLETE
+
+  const CHALLENGE_DEPOSIT = data.CHALLENGE_DEPOSIT
+  const CHALLENGE_REWARD = data.CHALLENGE_REWARD
 
   /* ----- Milestone Mock Data --------- */
-  const MILESTONE_LENGTH =
-    [ONE_YEAR, ONE_YEAR * 2, ONE_YEAR * 3, ONE_YEAR * 4, ONE_YEAR * 5]
-  const MILESTONE_OBJS =
-    [['obj10', 'obj11'],
-      ['obj20', 'obj21'],
-      ['obj30', 'obj31'],
-      ['obj40', 'obj41'],
-      ['obj50', 'obj51']]
-  const MILESTONE_OBJ_TYPES =
-    [['type10', 'type11'],
-      ['type20', 'type21'],
-      ['type30', 'type31'],
-      ['type40', 'type41'],
-      ['type50', 'type51']]
-  const MILESTONE_OBJ_MAX_REGULATION_REWARDS =
-    [[100, 100],
-      [200, 200],
-      [300, 300],
-      [400, 400],
-      [500, 500]]
-  const MILESTONE_WEI_LOCKED = [10000, 20000, 30000, 40000, 50000]
+  const MILESTONE_LENGTH = data.MILESTONE_LENGTH
+  const MILESTONE_OBJS = data.MILESTONE_OBJS
+  const MILESTONE_OBJ_TYPES = data.MILESTONE_OBJ_TYPES
+  const MILESTONE_OBJ_MAX_REGULATION_REWARDS = data.MILESTONE_OBJ_MAX_REGULATION_REWARDS
+  const MILESTONE_WEI_LOCKED = data.MILESTONE_WEI_LOCKED
 
   /* ----- RegulatingRating Data --------- */
-  const LENGTH_FOR_RATING_STAGE = 4 * TimeSetter.OneWeek
-  const INTERVAL_FOR_RATING_STAGE = 2 * TimeSetter.OneWeek
-  const DELAY_LENGTH = 0
-  const POLL_LENGTH = 7
-  const TOTAL_VOTES_LIMIT = 1000
+  const LENGTH_FOR_RATING_STAGE = data.LENGTH_FOR_RATING_STAGE
+  const INTERVAL_FOR_RATING_STAGE = data.INTERVAL_FOR_RATING_STAGE
+  const DELAY_LENGTH = data.DELAY_LENGTH
+  const POLL_LENGTH = data.POLL_LENGTH
+  const TOTAL_VOTES_LIMIT = data.TOTAL_VOTES_LIMIT
 
   /* ----- RegulatingRating Data --------- */
-  const PURCHASER1_REFUND = [100, 110, 120, 130, 140]
-  const PURCHASER2_REFUND = [200, 210, 220, 230, 240]
-  const PURCHASER3_REFUND = [300, 310, 320, 330, 340]
+  const PURCHASER1_REFUND = data.PURCHASER1_REFUND
+  const PURCHASER2_REFUND = data.PURCHASER2_REFUND
+  const PURCHASER3_REFUND = data.PURCHASER3_REFUND
 
 
   /* ------- Jump info Data --------- */
-  const VTCR_WHITELIST = 1
-  const ADD_MILESTONE = 2
-  const TOKEN_SALE = 3
-  const MILESTONE_BEGIN = 4
-  const MILESTONE_ACTIVATE = 5
-  const MILESTONE_REGULATING = 6
-  const MILESTONE_REFUND = 7
+  const VTCR_WHITELIST = data.STATES.VTCR_WHITELIST
+  const ADD_MILESTONE = data.STATES.ADD_MILESTONE
+  const TOKEN_SALE = data.STATES.TOKEN_SALE
+  const MILESTONE_BEGIN = data.STATES.MILESTONE_BEGIN
+  const MILESTONE_ACTIVATE = data.STATES.MILESTONE_ACTIVATE
+  const MILESTONE_REGULATING = data.STATES.MILESTONE_REGULATING
+  const MILESTONE_REFUND = data.STATES.MILESTONE_REFUND
 
   const ROOT = accounts[0]
   const PROJECT_OWNER = accounts[1]
