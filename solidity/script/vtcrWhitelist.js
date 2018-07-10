@@ -1,7 +1,8 @@
 const main = require("./mainScript.js")
 
+VTCR_WHITELIST = 1
+MILESTONE_NULL_ID = 0
+
 module.exports = async function (callback) {
-  await main(1, 0, artifacts, web3.eth.accounts)
+  await main(VTCR_WHITELIST, MILESTONE_NULL_ID, artifacts, web3.eth.accounts)
 }
-
-
