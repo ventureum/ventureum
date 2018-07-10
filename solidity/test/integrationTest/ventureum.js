@@ -579,6 +579,38 @@ contract("Integration Test", function (accounts) {
     }
   }
 
+  let userRescueTokens = async function () {
+    const projectHash = wweb3.utils.keccak256(PROJECT_LIST[2])
+    let res;
+
+    await applyApplication(PROJECT_LIST[2])
+
+    //get and check project info
+    res = await projectController.getProjectInfo(projectHash)
+
+    res[0].should.be.equal(true) // check exist
+    res[1].should.be.bignumber.equal(PROJECT_STATE_APP_SUBMITTED) // check state
+
+    let pollId = await challengeApplication(PROJECT_LIST[2])
+    await voteForChallenge(pollId, VOTER1, VOTE_FOR, 100)
+    await increaseTime(Parameterizer.paramDefaults.commitStageLength)
+
+    // Fast forward to reveal stage
+    const revealStage = await plcrVoting.revealStageActive(pollId)
+    revealStage.should.be.equal(true)
+
+    await increaseTime(Parameterizer.paramDefaults.revealStageLength)
+
+    await plcrVoting.rescueTokens(pollId, {from: VOTER1})
+    const TOKEN_NUMBER_WITHDRAW = 50
+
+    const preBal = await vetXToken.balanceOf(VOTER1)
+    await plcrVoting.withdrawVotingRights(TOKEN_NUMBER_WITHDRAW, {from: VOTER1})
+      .should.be.fulfilled
+    const postBal = await vetXToken.balanceOf(VOTER1)
+    postBal.minus(preBal).should.be.bignumber.equal(TOKEN_NUMBER_WITHDRAW)
+  }
+
   let challengeNotPassTest = async function () {
     const projectHash = wweb3.utils.keccak256(PROJECT_LIST[0])
     let res;
@@ -758,6 +790,7 @@ contract("Integration Test", function (accounts) {
     it('async test avoid race condition', async function () {
       await challengeNotPassTest()
       await mainTest()
+      await userRescueTokens()
     })
   })
 })
