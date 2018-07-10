@@ -11,7 +11,11 @@ const duration = require('openzeppelin-solidity/test/helpers/increaseTime').dura
 
 const mockData = require("./mockData.js")
 
-module.exports = function (JumpId, MilestoneId, artifacts, accounts) {
+const latestTime = require('./../config/TimeSetter.js').latestTime
+const increaseTimeTo = require('./../config/TimeSetter.js').increaseTimeTo
+const advanceBlock = require('./../config/TimeSetter.js').advanceBlock
+
+module.exports = function (JumpId, MilestoneId, artifacts, accounts, web3) {
   //Get Constant
   const _ownSolConstants = OwnSolConfig.default(artifacts)
   const _thirdPartySolConstants = ThirdPartySolConfig.default(artifacts)
@@ -253,9 +257,10 @@ module.exports = function (JumpId, MilestoneId, artifacts, accounts) {
   }
 
   let increaseTime = async function (time) {
-    const afterCommit = TimeSetter.latestTime() + time + 1
-    await TimeSetter.increaseTimeTo(afterCommit)
-    await TimeSetter.advanceBlock()
+    //const afterCommit = latestTime(web3) + time + 1
+    const afterCommit = web3.eth.getBlock('latest').timestamp + time + 1
+    await increaseTimeTo(web3, afterCommit)
+    await advanceBlock(web3)
   }
 
   let revealVote = async function (
@@ -364,15 +369,15 @@ module.exports = function (JumpId, MilestoneId, artifacts, accounts) {
   }
 
   let reputationSystemRating = async function (projectHash, milestoneId, pollTime) {
-    const startTime = TimeSetter.latestTime()
+    const startTime = latestTime(web3)
     const votesInvestor1 = [100, 200]
     const votesInvestor2 = [150, 50]
 
     //-------- set up reputation system vote -----------
     const pollId = Web3.utils.soliditySha3(projectHash, milestoneId)
 
-    await TimeSetter.increaseTimeTo(pollTime + TimeSetter.duration.days(1))
-    await TimeSetter.advanceBlock()
+    await increaseTimeTo(web3, pollTime + TimeSetter.duration.days(1))
+    await advanceBlock(web3)
 
     await reputationSystem.startPoll(
       projectHash,
@@ -435,7 +440,7 @@ module.exports = function (JumpId, MilestoneId, artifacts, accounts) {
       {from: PROJECT_OWNER}).should.be.fulfilled
 
     // increase time to starttime + interval for rating stage
-    await TimeSetter.increaseTimeTo(startTime + INTERVAL_FOR_RATING_STAGE)
+    await increaseTimeTo(web3, startTime + INTERVAL_FOR_RATING_STAGE)
 
     await regulatingRating.bid(
       projectHash,
@@ -463,8 +468,8 @@ module.exports = function (JumpId, MilestoneId, artifacts, accounts) {
 
     // fastForwardToLastThreeWeek
     const lastWeek = pollTime + MILESTONE_LENGTH[milestoneId - 1] + 100 - 3 * TimeSetter.OneWeek
-    await TimeSetter.increaseTimeTo(lastWeek)
-    await TimeSetter.advanceBlock()
+    await increaseTimeTo(web3, lastWeek)
+    await advanceBlock(web3)
 
     // finalize bid  (founderOnly)
     await regulatingRating.finalizeAllBids(
@@ -548,14 +553,14 @@ module.exports = function (JumpId, MilestoneId, artifacts, accounts) {
 
   let fastForwardToEndOfMilestone = async function (milestoneId, startTime) {
     const endMilestone = startTime + MILESTONE_LENGTH[milestoneId - 1] + 100
-    await TimeSetter.increaseTimeTo(endMilestone)
-    await TimeSetter.advanceBlock()
+    await increaseTimeTo(web3, endMilestone)
+    await advanceBlock(web3)
   }
 
   let fastForwardToLastWeek = async function (milestoneId, startTime) {
     const lastWeek = startTime + MILESTONE_LENGTH[milestoneId - 1] + 100 - TimeSetter.OneWeek
-    await TimeSetter.increaseTimeTo(lastWeek)
-    await TimeSetter.advanceBlock()
+    await increaseTimeTo(web3, lastWeek)
+    await advanceBlock(web3)
   }
 
   let main = async function () {
@@ -639,7 +644,7 @@ module.exports = function (JumpId, MilestoneId, artifacts, accounts) {
 
     if (JumpId === MILESTONE_BEGIN) return
     /* ---------- Milestone Part (Rating and Refund)-------------*/
-    let startTime = TimeSetter.latestTime()
+    let startTime = latestTime(web3)
     for (var i = 0; i < MILESTONE_OBJS.length; i++) {
       let milestoneId = i + 1
       // activate milestone
