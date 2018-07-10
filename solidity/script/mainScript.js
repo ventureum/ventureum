@@ -103,6 +103,7 @@ module.exports = function (JumpId, MilestoneId, artifacts, accounts, web3) {
   const MILESTONE_BEGIN = data.STATES.MILESTONE_BEGIN
   const MILESTONE_ACTIVATE = data.STATES.MILESTONE_ACTIVATE
   const MILESTONE_REGULATING = data.STATES.MILESTONE_REGULATING
+
   const MILESTONE_REFUND = data.STATES.MILESTONE_REFUND
 
   const ROOT = accounts[0]
@@ -657,10 +658,10 @@ module.exports = function (JumpId, MilestoneId, artifacts, accounts, web3) {
         startTime + TimeSetter.duration.days(3),
         {from: PROJECT_OWNER})
 
-      if (JumpId === MILESTONE_REPUTATING && MilestoneId === milestoneId) return
+      if (JumpId === MILESTONE_REGULATING && MilestoneId === milestoneId) return
       await reputationSystemRating(projectHash, milestoneId, startTime)
 
-      if (JumpId === MILESTONE_REPUTATING && MilestoneId === milestoneId) return
+      if (JumpId === MILESTONE_REGULATING && MilestoneId === milestoneId) return
       // increase time to last week and then test refund stage
       await refund(projectHash, milestoneId, startTime)
 
