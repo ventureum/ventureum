@@ -579,6 +579,91 @@ contract("Integration Test", function (accounts) {
     }
   }
 
+  let userRescueTokens = async function () {
+    const projectHash = wweb3.utils.keccak256(PROJECT_LIST[2])
+    const VOTER1_VOTE = 100
+    const VOTER2_VOTE = 200
+    const VOTER1_REVEAL = 0
+    const VOTER2_REVEAL = 150
+    let res
+
+    await applyApplication(PROJECT_LIST[2])
+
+    //get and check project info
+    res = await projectController.getProjectInfo(projectHash)
+
+    res[0].should.be.equal(true) // check exist
+    res[1].should.be.bignumber.equal(PROJECT_STATE_APP_SUBMITTED) // check state
+
+    let pollId = await challengeApplication(PROJECT_LIST[2])
+    await voteForChallenge(pollId, VOTER1, VOTE_FOR, 100)
+    await voteForChallenge(pollId, VOTER2, VOTE_FOR, 200)
+    // Fast forward to reveal stage
+    await increaseTime(Parameterizer.paramDefaults.commitStageLength)
+
+    // Only voter2 reveal vote for 150
+    await revealVote(pollId, VOTER2, VOTE_FOR, 150)
+
+    // check reveal stage
+    const revealStage = await plcrVoting.revealStageActive(pollId)
+    revealStage.should.be.equal(true)
+
+    // Fast forward to the end of reveal stage
+    await increaseTime(Parameterizer.paramDefaults.revealStageLength)
+
+    // update status and check reward
+    const { logs } = await registry.updateStatus(PROJECT_LIST[2]).should.be.fulfilled
+
+    // check challenge should failed
+    const ChallengeFailedEvent = logs.find(e => e.event === "_ChallengeFailed")
+    should.exist(ChallengeFailedEvent)
+
+    // check new project should be whitelisted
+    const NewProjectWhitelistedEvent = logs.find(e => e.event === "_NewProjectWhitelisted")
+    should.exist(NewProjectWhitelistedEvent)
+
+    //check(get) project info
+    res = await projectController.getProjectInfo(projectHash)
+    res[0].should.be.equal(true) // check exist
+    res[1].should.be.bignumber.equal(PROJECT_STATE_APP_ACCEPTED) // check state
+    // project already in whitelisted
+
+    /*
+     * Rescue check
+     */
+    // Calculate locked token
+    const VOTER1_TOKEN_NUMBER_CAN_BE_WITHDRAW = VOTER1_VOTE - VOTER1_REVEAL
+    const VOTER2_TOKEN_NUMBER_CAN_BE_WITHDRAW = VOTER2_VOTE - VOTER2_REVEAL
+
+    // Check locked token before resuce
+    const lockedTokenVoter1 = await plcrVoting.getLockedTokens(VOTER1)
+    lockedTokenVoter1.should.be.bignumber.equal(VOTER1_TOKEN_NUMBER_CAN_BE_WITHDRAW)
+
+    // Rescue tokens
+    await plcrVoting.rescueTokens(pollId, {from: VOTER1})
+
+    // Check locked token after resuce
+    const lockedTokenAfterResuceVoter1 = await plcrVoting.getLockedTokens(VOTER1)
+    lockedTokenAfterResuceVoter1.should.be.bignumber.equal(0)
+
+    // Check with draw token after resuce
+    const balance = await plcrVoting.voteTokenBalance(VOTER1)
+    balance.minus(lockedTokenAfterResuceVoter1)
+      .should.be.bignumber.equal(VOTER1_TOKEN_NUMBER_CAN_BE_WITHDRAW)
+
+    const preBal1 = await vetXToken.balanceOf(VOTER1)
+    await plcrVoting.withdrawVotingRights(VOTER1_TOKEN_NUMBER_CAN_BE_WITHDRAW, {from: VOTER1})
+      .should.be.fulfilled
+    const postBal1 = await vetXToken.balanceOf(VOTER1)
+    postBal1.minus(preBal1).should.be.bignumber.equal(VOTER1_TOKEN_NUMBER_CAN_BE_WITHDRAW)
+
+    const preBal2 = await vetXToken.balanceOf(VOTER2)
+    await plcrVoting.withdrawVotingRights(VOTER2_TOKEN_NUMBER_CAN_BE_WITHDRAW, {from: VOTER2})
+      .should.be.fulfilled
+    const postBal2 = await vetXToken.balanceOf(VOTER2)
+    postBal2.minus(preBal2).should.be.bignumber.equal(VOTER2_TOKEN_NUMBER_CAN_BE_WITHDRAW)
+  }
+
   let challengeNotPassTest = async function () {
     const projectHash = wweb3.utils.keccak256(PROJECT_LIST[0])
     let res;
@@ -673,27 +758,34 @@ contract("Integration Test", function (accounts) {
     let pollId = await challengeApplication(PROJECT_LIST[1])
     await voteForChallenge(pollId, VOTER1, VOTE_FOR, 200)
     await voteForChallenge(pollId, VOTER2, AGAINST, 150)
-    await increaseTime(Parameterizer.paramDefaults.commitStageLength)
 
     // Fast forward to reveal stage
+    await increaseTime(Parameterizer.paramDefaults.commitStageLength)
+
+    // Check reveal stage active
     const revealStage = await plcrVoting.revealStageActive(pollId)
     revealStage.should.be.equal(true)
 
     await revealVote(pollId, VOTER1, VOTE_FOR, 200)
     await revealVote(pollId, VOTER2, AGAINST, 150)
+
+    // Fast forward to the end of reveal stage
     await increaseTime(Parameterizer.paramDefaults.revealStageLength)
 
-    // Fast forward to end reveal stage
+    // Check poll ended
     const endStage = await plcrVoting.pollEnded(pollId)
     endStage.should.be.equal(true)
 
+    // Check poll passed
     const isPassed = await plcrVoting.isPassed(pollId)
     isPassed.should.be.equal(true)
 
+    // Check poll can be whitelisted
     const canBeWhitelisted =
       await registry.canBeWhitelisted(PROJECT_LIST[1]).should.be.fulfilled
     canBeWhitelisted.should.be.equal(false)
 
+    // Check poll challenge can be resolved
     const challengeCanBeResolved =
       await registry.challengeCanBeResolved(PROJECT_LIST[1]).should.be.fulfilled
     challengeCanBeResolved.should.be.equal(true)
@@ -758,6 +850,7 @@ contract("Integration Test", function (accounts) {
     it('async test avoid race condition', async function () {
       await challengeNotPassTest()
       await mainTest()
+      await userRescueTokens()
     })
   })
 })
