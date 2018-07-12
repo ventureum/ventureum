@@ -64,6 +64,9 @@ const CarbonVoteXNameSpace = _thirdPartySolConstants.NAME_SPACE
 // * Presale
 const Presale = _thirdPartySolConstants.Presale
 
+// * Conversion
+const Conversion = _thirdPartySolConstants.Conversion
+
 module.exports = function (deployer, network, accounts) {
   function migrationDeploy () {
     let instances = {}
@@ -81,6 +84,11 @@ module.exports = function (deployer, network, accounts) {
           Presale.Self,
           Parameterizer.Self])
     }).then(async function () {
+
+      // deploy Conversion and linked to Library.DLL
+      await deployer.deploy(Conversion.Self)
+      await deployer.link(Conversion.Self, [Library.DLL])
+
       // Deploy kernel
       await deployer.deploy(Kernel.Self)
 
@@ -276,6 +284,15 @@ module.exports = function (deployer, network, accounts) {
       // Configuration
       await Configuation.run(instances, accounts, artifacts)
       await MigrationConfiguation.initMockData(instances, accounts, artifacts)
+
+      const presale = Presale.Self.at(Presale.Self.address)
+      const vetXToken = VetXToken.Self.at(VetXToken.Self.address)
+
+      // Note: the VetXToken owner (which is ROOT) auto transfer half
+      // of his vtx to Presale contract
+      const bal = await vetXToken.balanceOf(accounts[0])
+      await vetXToken.transfer(presale.address, bal / 2)
+      const presaleBal = await vetXToken.balanceOf(presale.address)
     })
   }
   migrationDeploy()

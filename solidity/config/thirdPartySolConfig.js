@@ -60,6 +60,10 @@ export default function (artifacts) {
   class Presale {}
   Presale.Self = artifacts.require("./Presale")
 
+  // Conversion
+  class Conversion {}
+  Conversion.Self = artifacts.require("./Conversion")
+
   return {
     'TimeSetter': TimeSetter,
     'Error': Error,
@@ -67,6 +71,7 @@ export default function (artifacts) {
     'SafeMath': SafeMath,
     'ReputationSystem': ReputationSystem,
     'CarbonVoteX': CarbonVoteX,
-    'Presale': Presale
+    'Presale': Presale,
+    'Conversion': Conversion
   }
 }

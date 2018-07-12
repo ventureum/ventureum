@@ -8,5 +8,6 @@ module.exports = async function (callback) {
     data.STATES.VTCR_WHITELIST,
     data.STATES.DEFAULT_MILESTONE_ID,
     artifacts,
-    web3.eth.accounts)
+    web3.eth.accounts,
+    web3)
 }
