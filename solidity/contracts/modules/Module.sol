@@ -2,11 +2,8 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-//import "../handlers/IContractAddressHandler.sol";
 import "@ventureum/kingston/contracts/handlers/IContractAddressHandler.sol";
-//import "../handlers/IACLHandler.sol";
 import "@ventureum/kingston/contracts/handlers/IACLHandler.sol";
-//import '../base/Base.sol';
 import "@ventureum/kingston/contracts/base/Base.sol";
 
 

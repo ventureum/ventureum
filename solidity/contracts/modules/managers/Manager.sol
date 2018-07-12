@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-//import "../IModule.sol";
 import "@ventureum/kingston/contracts/modules/IModule.sol";
 import "../Module.sol";
 import "../project_controller/ProjectController.sol";
