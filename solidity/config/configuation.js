@@ -12,16 +12,12 @@ const run = exports.run = async (instances, accounts, artifacts) => {
 
   /* ------- receive objects  -------- */
   // own solidity
-  const Kernel = _ownSolConstants.Kernel
-  const ACLHandler = _ownSolConstants.ACLHandler
-  const ContractAddressHandler = _ownSolConstants.ContractAddressHandler
   const RefundManager = _ownSolConstants.RefundManager
   const ProjectController = _ownSolConstants.ProjectController
   const MilestoneController = _ownSolConstants.MilestoneController
   const EtherCollector = _ownSolConstants.EtherCollector
   const TokenCollector = _ownSolConstants.TokenCollector
   const TokenSale = _ownSolConstants.TokenSale
-  const Storage = _ownSolConstants.Storage
   const RegulatingRating = _ownSolConstants.RegulatingRating
   const RewardManager = _ownSolConstants.RewardManager
   const PaymentManager = _ownSolConstants.PaymentManager
@@ -30,6 +26,10 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   // third party solidity solidity
   const ReputationSystem = _thirdPartySolConstants.ReputationSystem
   const CarbonVoteX = _thirdPartySolConstants.CarbonVoteX
+  const Kernel = _thirdPartySolConstants.Kernel
+  const ACLHandler = _thirdPartySolConstants.ACLHandler
+  const ContractAddressHandler = _thirdPartySolConstants.ContractAddressHandler
+  const Storage = _thirdPartySolConstants.Storage
 
 
   /* ------- receive instances  -------- */
@@ -39,12 +39,12 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   // Kernel
   const kernel = instances.kernel
 
-  // Register
-  const registry = instances.registry
-
   // Handlers
   const aclHandler = instances.aclHandler
   const contractAddressHandler = instances.contractAddressHandler
+
+  // Register
+  const registry = instances.registry
 
   // Refund Manager
   const refundManager = instances.refundManager

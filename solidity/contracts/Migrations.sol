@@ -2,6 +2,10 @@ pragma solidity ^0.4.24;
 
 import "@ventureum/sale/solidity/contracts/Presale.sol";
 
+import "@ventureum/kingston/contracts/kernel/Kernel.sol";
+import "@ventureum/kingston/contracts/handlers/ContractAddressHandler.sol";
+import "@ventureum/kingston/contracts/handlers/ACLHandler.sol";
+
 
 contract Migrations {
     address public owner;

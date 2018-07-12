@@ -20,13 +20,6 @@ const Challenge = _ownSolConstants.Challenge
 const Parameterizer = _ownSolConstants.Parameterizer
 const Registry = _ownSolConstants.Registry
 
-//* Kernel
-const Kernel = _ownSolConstants.Kernel
-
-//* Handlers
-const ACLHandler = _ownSolConstants.ACLHandler
-const ContractAddressHandler = _ownSolConstants.ContractAddressHandler
-
 //* Module
 // * Manager
 const RefundManager = _ownSolConstants.RefundManager
@@ -66,6 +59,14 @@ const Presale = _thirdPartySolConstants.Presale
 
 // * Conversion
 const Conversion = _thirdPartySolConstants.Conversion
+
+//* Kernel
+const Kernel = _thirdPartySolConstants.Kernel
+
+//* Handlers
+const ACLHandler = _thirdPartySolConstants.ACLHandler
+const ContractAddressHandler = _thirdPartySolConstants.ContractAddressHandler
+
 
 module.exports = function (deployer, network, accounts) {
   function migrationDeploy () {
