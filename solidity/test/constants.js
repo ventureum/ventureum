@@ -7,9 +7,6 @@ const _thirdPartySolConstants = ThirdPartySolConfig.default(artifacts)
 const _thirdPartyJsConstants = ThirdPartyJsConfig.default()
 
 // Own contracts:
-const Kernel = _ownSolConstants.Kernel
-const ACLHandler = _ownSolConstants.ACLHandler
-const ContractAddressHandler = _ownSolConstants.ContractAddressHandler
 const RefundManager = _ownSolConstants.RefundManager
 const ProjectController = _ownSolConstants.ProjectController
 const MockedProjectController = _ownSolConstants.MockedProjectController
@@ -18,7 +15,6 @@ const MilestoneController = _ownSolConstants.MilestoneController
 const EtherCollector = _ownSolConstants.EtherCollector
 const TokenCollector = _ownSolConstants.TokenCollector
 const TokenSale = _ownSolConstants.TokenSale
-const Storage = _ownSolConstants.Storage
 const MockedSale = _ownSolConstants.MockedSale
 const RegulatingRating = _ownSolConstants.RegulatingRating
 const RewardManager = _ownSolConstants.RewardManager
@@ -45,6 +41,10 @@ const CarbonVoteX = _thirdPartySolConstants.CarbonVoteX
 const TimeSetter = _thirdPartySolConstants.TimeSetter
 const ReputationSystem = _thirdPartySolConstants.ReputationSystem
 const Presale = _thirdPartySolConstants.Presale
+const Kernel = _thirdPartySolConstants.Kernel
+const ACLHandler = _thirdPartySolConstants.ACLHandler
+const ContractAddressHandler = _thirdPartySolConstants.ContractAddressHandler
+const Storage = _thirdPartySolConstants.Storage
 
 export {
   Kernel,
