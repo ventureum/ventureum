@@ -109,6 +109,10 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
         .should.be.fulfilled
 
+      const refundInfoBeforeRefund = await refundManager.getRefundInfo(
+        ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID).should.be.fulfilled
+      refundInfoBeforeRefund[0].should.be.equal(false)
+
       const { logs } = await refundManager.refund(
         ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, refundValue).should.be.fulfilled
       const event = logs.find(e => e.event === 'Refund')
@@ -167,6 +171,11 @@ contract('RefundManagerTest', function (accounts) {
       await refundManager.refund(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, refundValue)
         .should.be.fulfilled
 
+      const refundInfoJustAfterRefund = await refundManager.getRefundInfo(
+        ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID).should.be.fulfilled
+      refundInfoJustAfterRefund[0].should.be.equal(false)
+      refundInfoJustAfterRefund[1].should.be.bignumber.equal(refundValue / RATE)
+
       // withdraw
       await refundManager.withdraw(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
         .should.be.rejectedWith(Error.EVMRevert)
@@ -174,6 +183,11 @@ contract('RefundManagerTest', function (accounts) {
         .should.be.rejectedWith(Error.EVMRevert)
       await TimeSetter.increaseTimeTo(
         TimeSetter.latestTime() + TimeSetter.OneMonth)
+
+      const refundInfoOneMonthAfterRefund = await refundManager.getRefundInfo(
+        ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID).should.be.fulfilled
+      refundInfoOneMonthAfterRefund[0].should.be.equal(true)
+      refundInfoOneMonthAfterRefund[1].should.be.bignumber.equal(refundValue / RATE)
 
       const { logs } = await refundManager.withdraw(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
         .should.be.fulfilled
