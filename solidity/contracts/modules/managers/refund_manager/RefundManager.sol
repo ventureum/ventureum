@@ -127,6 +127,37 @@ contract RefundManager is Manager {
         );
     }
 
+    /*
+     * get the refund info for the given milestone 
+     *
+     * @param namespace namespace of the project
+     * @param milestoneId id of a milestone
+     */
+    function getRefundInfo(bytes32 namespace, uint milestoneId) 
+        external 
+        view
+        returns (bool, uint, uint)
+    {
+        bytes32 ethAmountKey = keccak256(abi.encodePacked(
+            namespace, 
+            milestoneId, 
+            msg.sender, 
+            ETH_AMOUNT));
+        bytes32 availableTimeKey = keccak256(abi.encodePacked(
+            namespace, 
+            milestoneId, 
+            msg.sender, 
+            AVAILABLE_TIME));
+
+        uint availableTime = refundManagerStorage.getUint(availableTimeKey);
+        uint ethRefund = refundManagerStorage.getUint(ethAmountKey);
+        bool canWithdraw = availableTime != 0 && 
+            availableTime <= now &&
+            ethRefund > 0;
+
+        return (canWithdraw, ethRefund, availableTime);
+    }
+
     function setStorage(address store) public connected {
         super.setStorage(store);
         refundManagerStorage = RefundManagerStorage(store);
