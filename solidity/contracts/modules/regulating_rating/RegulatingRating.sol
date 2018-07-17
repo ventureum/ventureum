@@ -189,7 +189,7 @@ contract RegulatingRating is Module {
 
         for (uint i = 0; i < objLength; i++) {
             uint objId = i.add(1);
-            if(isObjFinalized(namespace, milestoneId, objId)) {
+            if(isObjIdFinalized(namespace, milestoneId, objId)) {
                 continue;
             }
             finalizeBidForObjId(namespace, milestoneId, pollId, objId, rewardPercentage);
@@ -787,7 +787,7 @@ contract RegulatingRating is Module {
 
         require(now >= startTime && now <= endTime);
 
-        require(!isObjFinalized(namespace, milestoneId, objId));
+        require(!isObjIdFinalized(namespace, milestoneId, objId));
 
         return objId;
     }
@@ -798,9 +798,26 @@ contract RegulatingRating is Module {
     *
     * @param namespace namespace of a project
     * @param milestoneId milestoneId of a milestone of the project
+    * @param obj objective of a milestone of the project
+    */
+    function isObjFinalized(bytes32 namespace, uint milestoneId, bytes32 obj)
+        public
+        view
+        returns (bool)
+    {
+        uint objId = getObjId(namespace, milestoneId, obj);
+        return isObjIdFinalized(namespace, milestoneId, objId);
+    }
+
+    /**
+    * Return true if the objective in a milestone is finalized. If it not finalize and time
+    *    expires, force to finalize it.
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId milestoneId of a milestone of the project
     * @param objId objective id of a milestone of the project
     */
-    function isObjFinalized(bytes32 namespace, uint milestoneId, uint objId)
+    function isObjIdFinalized(bytes32 namespace, uint milestoneId, uint objId)
         internal
         view
         returns (bool)
