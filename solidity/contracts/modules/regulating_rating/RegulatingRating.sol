@@ -433,6 +433,25 @@ contract RegulatingRating is Module {
     }
 
     /**
+    * Return the boolean shows if the given regulator bid the given object
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId milestoneId of a milestone of the project
+    * @param obj objective of a milestone of the project
+    * @param regulator the address for regulator
+    */
+    function isRegulatorBid(bytes32 namespace, uint milestoneId, bytes32 obj, address regulator) 
+        public
+        view
+        returns (bool)
+    {
+        uint objId = verifyObj(namespace, milestoneId, obj);
+        uint registered = regulatingRatingStorage.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, objId, regulator, REGULATOR_BID)));
+        return registered == TRUE;
+    }
+
+    /**
     * Return global objective Info for an milestone
     *
     * @param namespace namespace of a project
