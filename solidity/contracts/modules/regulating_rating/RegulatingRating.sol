@@ -445,7 +445,7 @@ contract RegulatingRating is Module {
         view
         returns (bool)
     {
-        uint objId = verifyObj(namespace, milestoneId, obj);
+        uint objId = getObjId(namespace, milestoneId, obj);
         uint registered = regulatingRatingStorage.getUint(
             keccak256(abi.encodePacked(namespace, milestoneId, objId, regulator, REGULATOR_BID)));
         return registered == TRUE;
