@@ -445,6 +445,19 @@ contract("Integration Test", function (accounts) {
       MILESTONE_OBJS[milestoneId - 1][1],
       {from: REGULATOR2}).should.be.fulfilled
 
+    // test backOutFromBid
+    await regulatingRating.backOutFromBid(
+      projectHash,
+      milestoneId,
+      MILESTONE_OBJS[milestoneId - 1][1],
+      {from: REGULATOR2}).should.be.fulfilled
+    await regulatingRating.bid(
+      projectHash,
+      milestoneId,
+      MILESTONE_OBJS[milestoneId - 1][1],
+      {from: REGULATOR2}).should.be.fulfilled
+
+
     // fastForwardToLastThreeWeek
     const lastWeek = pollTime + MILESTONE_LENGTH[milestoneId - 1] + 100 - 3 * TimeSetter.OneWeek
     await TimeSetter.increaseTimeTo(lastWeek)
@@ -471,6 +484,14 @@ contract("Integration Test", function (accounts) {
       votesInvestor1[1] /
         (votesInvestor1[1] + votesInvestor2[1]) *
         MILESTONE_OBJ_MAX_REGULATION_REWARDS[milestoneId - 1][1]]
+
+    // test getRegulationRewardForRegulator
+    if (milestoneId != 1) {
+      regulatingRating.getRegulationRewardsForRegulator(
+        projectHash, milestoneId - 1,
+        MILESTONE_OBJS[milestoneId - 2][0],
+        REGULATOR1).should.be.fulfilled
+    }
 
     // test whole rating system and withdraw
     let preBal, postBal
