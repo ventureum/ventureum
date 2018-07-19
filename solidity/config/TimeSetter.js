@@ -59,6 +59,6 @@ export async function advanceToBlock (web3, number) {
   }
 
   while (web3.eth.blockNumber < number) {
-    await advanceBlock();
+    await advanceBlock(web3);
   }
 }
