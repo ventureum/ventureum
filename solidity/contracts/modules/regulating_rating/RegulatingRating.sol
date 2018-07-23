@@ -906,7 +906,11 @@ contract RegulatingRating is Module {
     {
         uint objTotalReputationVotes = getObjTotalReputationVotes(namespace, milestoneId, objId);
         uint regulatorVotes = reputationSystem.getVotingResultForMember(pollId, _addr, objType);
-        require(objTotalReputationVotes > 0);
+
+        if (objTotalReputationVotes == 0) {
+            return 0;
+        }
+
         return regulatorVotes.mul(PERCENTAGE_BASE).div(objTotalReputationVotes);
     }
 }
