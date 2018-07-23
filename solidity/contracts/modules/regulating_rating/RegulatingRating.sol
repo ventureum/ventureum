@@ -323,6 +323,30 @@ contract RegulatingRating is Module {
     }
 
     /**
+    * check if an address is a regulator
+    *
+    * @param namespace namespace of a project
+    * @param milestoneId milestoneId of a milestone of the project
+    * @param obj an objective in a milestone of the project
+    * @param _addr address of the regulator
+    */
+    function isRegulator(
+        bytes32 namespace, 
+        uint milestoneId, 
+        bytes32 obj, 
+        address _addr) 
+        external 
+        view 
+        returns(bool) 
+    {
+        uint objId = getObjId(namespace, milestoneId, obj);
+        uint registered = regulatingRatingStorage.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, objId, _addr, REGULATOR_BID))
+        );
+        return registered == TRUE;
+    }
+
+    /**
     * Update regulation rewards for an objective performed by a registered regulator
     *
     * @param namespace namespace of a project
