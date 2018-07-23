@@ -5,6 +5,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "../Module.sol";
 import "../token_collector/TokenCollector.sol";
+import "../ether_collector/EtherCollector.sol";
 import "../project_controller/ProjectController.sol";
 
 
@@ -167,9 +168,14 @@ contract TokenSale is Module {
         TokenCollector tokenCollector =
             TokenCollector(contractAddressHandler.contracts(TOKEN_COLLECTOR_CI));
 
+        EtherCollector etherCollector =
+            EtherCollector(contractAddressHandler.contracts(ETHER_COLLECTOR_CI));
+
         require(tokenNum <= tokenCollector.balanceOf(infoPoll[namespace].token));
 
         tokenCollector.withdraw(infoPoll[namespace].token, msg.sender, tokenNum);
+
+        etherCollector.deposit.value(msg.value);
 
         infoPoll[namespace].totalTokenSold = infoPoll[namespace].totalTokenSold.add(tokenNum);
         infoPoll[namespace].totalEth = infoPoll[namespace].totalEth.add(msg.value);
