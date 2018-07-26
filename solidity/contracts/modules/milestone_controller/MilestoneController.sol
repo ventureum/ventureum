@@ -60,15 +60,6 @@ contract MilestoneController is Module {
         uint endTime
     );
 
-    event MilestoneWeiLockedUpdated(
-        address indexed sender,
-        bytes32 namespace,
-        uint milestoneId,
-        uint amount,
-        uint balance
-    );
-
-
     // Can only add state in order
     // Do not delete or rearrange states
     // If you want to depreciate a state, add comment
@@ -245,6 +236,14 @@ contract MilestoneController is Module {
             minStartTime,
             maxStartTime);
 
+        // use insideTransfer to lock weiLock.
+        EtherCollector etherCollector = 
+            EtherCollector(contractAddressHandler.contracts(ETHER_COLLECTOR_CI));
+        bytes32 fromKey = keccak256(abi.encodePacked(namespace, PROJECT_ETHER_BALANCE));
+        bytes32 toKey = keccak256(
+            abi.encodePacked(namespace, milestoneId, MILESTONE_ETHER_WEILOCKED));
+        etherCollector.insideTransfer(fromKey, toKey, weiLocked);
+
         emit MilestoneActivated(
             msg.sender,
             namespace,
@@ -371,43 +370,6 @@ contract MilestoneController is Module {
     }
 
     /**
-    * Update regulation rewards for an objective performed by a registered regulator
-    * only used after an objective is finalized.
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param obj an objective in a milestone of the project
-    * @param _addr address of the regulator
-    * @param amount amount withdrawn by regulator
-    */
-    function updateRegulationRewardsForRegulator(
-        bytes32 namespace,
-        uint milestoneId,
-        bytes32 obj,
-        address _addr,
-        uint amount
-    )
-        external
-        connected
-    {
-        require(regulatingRating != NULL);
-        require(amount > 0);
-
-        (bool existing,) = isExisting(namespace, milestoneId);
-        require(existing);
-
-        (, bool finalized, ) = regulatingRating.getObjInfo(namespace, milestoneId, obj);
-        require(finalized);
-
-        regulatingRating.updateRegulationRewardsForRegulator(
-            namespace,
-            milestoneId,
-            obj,
-            _addr,
-            amount);
-    }
-
-    /**
     * Bind with a storage contract
     * Create a new storage contract if _store == 0x0
     *
@@ -470,37 +432,6 @@ contract MilestoneController is Module {
         require(existing);
         return milestoneControllerStore.getUint(
             keccak256(abi.encodePacked(namespace, milestoneId, WEI_LOCKED)));
-    }
-
-    /**
-    * Update wei amount locked in the milestone after withdraw.
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param amount the amount withdrawn by regulator
-    */
-    function updateMilestoneWeiLocked(bytes32 namespace, uint milestoneId, uint amount)
-        public
-        connected
-    {
-        require(amount > 0);
-        uint weiLocked = milestoneWeiLocked(namespace, milestoneId);
-        uint balance = weiLocked.sub(amount);
-        require(balance >= 0);
-
-
-        milestoneControllerStore.setUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, WEI_LOCKED)),
-            balance
-        );
-
-        emit MilestoneWeiLockedUpdated(
-            msg.sender,
-            namespace,
-            milestoneId,
-            amount,
-            balance
-        );
     }
 
     /**
@@ -670,7 +601,25 @@ contract MilestoneController is Module {
             keccak256(abi.encodePacked(namespace, milestoneId, OBJ_MAX_REGULATION_REWARDS)),
             objMaxRegulationRewards
         );
+
+        /*
+        * Transfer (lock) total max regulation rewards
+        */
+        // calculator the total max rewards
+        uint totalMaxRewards = 0;
+        for (uint i = 0; i < objMaxRegulationRewards.length; i++) {
+            totalMaxRewards = totalMaxRewards.add(objMaxRegulationRewards[i]);
+        }
+
+        // use insideTransfer to lock those ether
+        EtherCollector etherCollector = 
+            EtherCollector(contractAddressHandler.contracts(ETHER_COLLECTOR_CI));
+        bytes32 fromKey = keccak256(abi.encodePacked(namespace, PROJECT_ETHER_BALANCE));
+        bytes32 toKey = keccak256(
+            abi.encodePacked(namespace, milestoneId, MILESTONE_MAX_REWARDS));
+        etherCollector.insideTransfer(fromKey, toKey, totalMaxRewards);
     }
+
 
 
     /**

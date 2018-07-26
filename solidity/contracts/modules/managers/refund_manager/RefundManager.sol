@@ -27,7 +27,7 @@ contract RefundManager is Manager {
 
     bytes32 constant public REFUND_MANAGER_STORAGE_CI = keccak256("RefundManagerStorage");
 
-    bytes32 constant ETH_AMOUNT = "ethAmount";
+    bytes32 constant MILESTONE_ETHER_REFUND_LOCKED = "milestoneEtherRefundLocked";
     bytes32 constant AVAILABLE_TIME = "availableTime";
 
     uint constant public MILESTONE_RP = 3;
@@ -52,11 +52,9 @@ contract RefundManager is Manager {
      * @val amount of tokens to be returned
      */
     function refund(bytes32 namespace, uint milestoneId, uint val) external {
-        bytes32 ethAmountKey = keccak256(abi.encodePacked(
-            namespace,
-            milestoneId,
-            msg.sender,
-            ETH_AMOUNT));
+        // require milestone is Refund Stage
+        require(milestoneController.milestoneState(namespace, milestoneId) == MILESTONE_RP);
+
         bytes32 availableTimeKey = keccak256(abi.encodePacked(
             namespace,
             milestoneId,
@@ -65,27 +63,47 @@ contract RefundManager is Manager {
 
         ERC20 token = (ERC20)(projectController.getTokenAddress(namespace));
 
+        // check if already refund
         require(refundManagerStorage.getUint(availableTimeKey) == 0);
-        require(milestoneController.milestoneState(namespace, milestoneId) == MILESTONE_RP);
-
-        //token approve 
-        token.approve(tokenCollector, val);
 
         // trans token from user to this
         token.transferFrom(msg.sender, this, val);
 
         // trans token from this to tokenCollector
-        tokenCollector.deposit(token, val);
+        token.approve(tokenCollector, val);
+        tokenCollector.deposit(
+            keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)), 
+            token, 
+            val);
 
+        // calculate the refund amount
         require(tokenSale.avgPrice(namespace) != 0);
         uint amount = val.div(tokenSale.avgPrice(namespace));
+
+        // set the lock duration to one month
         uint availableTime = ONE_MONTH.add(now);
 
+        // use insideTransfer to lock amount ether from weiLocked
+        bytes32 fromKey= keccak256(abi.encodePacked(
+            namespace,
+            milestoneId,
+            MILESTONE_ETHER_WEILOCKED));
+        bytes32 toKey= keccak256(abi.encodePacked(
+            namespace,
+            milestoneId,
+            msg.sender,
+            MILESTONE_ETHER_REFUND_LOCKED));
+        etherCollector.insideTransfer(fromKey, toKey, amount);
+
+        // record how many ether this investor refund in this milestone.
+        // Note: this number will never change, just for record, 
+        //       delete it if no need
         refundManagerStorage.setUint(
-            ethAmountKey,
+            toKey,
             amount
         );
 
+        // store the available time (IMPORTANT!)
         refundManagerStorage.setUint(
             availableTimeKey,
             availableTime
@@ -101,29 +119,37 @@ contract RefundManager is Manager {
      * @param milestoneId id of a milestone
      */
     function withdraw(bytes32 namespace, uint milestoneId) external {
-        bytes32 ethAmountKey = keccak256(abi.encodePacked(
-            namespace, 
-            milestoneId, 
-            msg.sender, 
-            ETH_AMOUNT));
         bytes32 availableTimeKey = keccak256(abi.encodePacked(
             namespace, 
             milestoneId, 
             msg.sender, 
             AVAILABLE_TIME));
 
+        // require this refund exist and already pass the lock time.
         require(
             refundManagerStorage.getUint(availableTimeKey) != 0 && 
             refundManagerStorage.getUint(availableTimeKey) <= now);
-        require(refundManagerStorage.getUint(ethAmountKey) <= address(etherCollector).balance);
 
-        etherCollector.withdraw(msg.sender, refundManagerStorage.getUint(ethAmountKey));
+        bytes32 ethAmountKey = keccak256(abi.encodePacked(
+            namespace, 
+            milestoneId, 
+            msg.sender, 
+            MILESTONE_ETHER_REFUND_LOCKED));
+
+        // get the total amount ether that can withdraw
+        uint amount = etherCollector.getDepositValue(ethAmountKey);
+
+        // withdraw ether
+        etherCollector.withdraw(
+            ethAmountKey,
+            msg.sender, 
+            amount);
 
         emit Withdraw(
             msg.sender, 
             namespace, 
             milestoneId, 
-            refundManagerStorage.getUint(ethAmountKey)
+            amount
         );
     }
 
@@ -132,17 +158,23 @@ contract RefundManager is Manager {
      *
      * @param namespace namespace of the project
      * @param milestoneId id of a milestone
+     * @return :
+     *    bool, to check if msg.sender can withdraw or not
+     *    uint, the number of ether(wei) that can be withdraw if available
+     *    uint, the availableTime
+     *    uint, the total number of ether(wei) in this refund 
+     *        (Note: total = canBeWithdrawn + withdrawn)
      */
     function getRefundInfo(bytes32 namespace, uint milestoneId) 
         external 
         view
-        returns (bool, uint, uint)
+        returns (bool, uint, uint, uint)
     {
         bytes32 ethAmountKey = keccak256(abi.encodePacked(
             namespace, 
             milestoneId, 
             msg.sender, 
-            ETH_AMOUNT));
+            MILESTONE_ETHER_REFUND_LOCKED));
         bytes32 availableTimeKey = keccak256(abi.encodePacked(
             namespace, 
             milestoneId, 
@@ -150,12 +182,13 @@ contract RefundManager is Manager {
             AVAILABLE_TIME));
 
         uint availableTime = refundManagerStorage.getUint(availableTimeKey);
-        uint ethRefund = refundManagerStorage.getUint(ethAmountKey);
+        uint totalEther = refundManagerStorage.getUint(ethAmountKey);
+        uint availableEther = etherCollector.getDepositValue(ethAmountKey);
         bool canWithdraw = availableTime != 0 && 
             availableTime <= now &&
-            ethRefund > 0;
+            availableEther > 0;
 
-        return (canWithdraw, ethRefund, availableTime);
+        return (canWithdraw, availableEther, availableTime, totalEther);
     }
 
     function setStorage(address store) public connected {

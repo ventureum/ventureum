@@ -9,7 +9,6 @@ import "./EtherCollectorStorage.sol";
 contract EtherCollector is Module {
     using SafeMath for uint;
 
-    bytes32 constant ETHER_BALANCE = keccak256("EtherBalance");
     // Storage contract
     EtherCollectorStorage public store;
 
@@ -27,26 +26,60 @@ contract EtherCollector is Module {
         store = EtherCollectorStorage(storeAddr);
     }
 
+
     /*
       Deposit ethers into the contract
+
+    * @param key the key of a stored value
      */
-    function deposit() external payable connected {
-        uint bal = store.getUint(ETHER_BALANCE);
+    function deposit(bytes32 key) external payable connected {
+        uint bal = store.getUint(key);
         bal = bal.add(msg.value);
-        store.setUint(ETHER_BALANCE, bal);
+        store.setUint(key, bal);
+    }
+
+    /**
+    * get deposit info
+    *
+    * @param key the key of a stored value
+    */
+    function getDepositValue(bytes32 key) public view returns(uint) {
+        return store.getUint(key);
+    }
+    
+    /**
+    * Transfer ether inside this contract
+    *
+    * @param from the key for from
+    * @param to the key for to
+    * @param val the value to transfer 
+    */
+    function insideTransfer(bytes32 from, bytes32 to, uint val) external connected {
+        uint fromBal = store.getUint(from);
+        uint toBal = store.getUint(to);
+        require(fromBal >= val);
+
+        fromBal = fromBal.sub(val);
+        toBal = toBal.add(val);
+
+        store.setUint(from, fromBal);
+        store.setUint(to, toBal);
     }
 
     /*
       Withdraw ethers to a beneficiary
 
+      @param key the key of a stored value
       @param beneficiary address of beneficiary
       @param val amount of wei to transfer
      */
-    function withdraw(address beneficiary, uint val) external connected {
-        uint bal = store.getUint(ETHER_BALANCE);
+    function withdraw(bytes32 key, address beneficiary, uint val) external connected {
+        require(beneficiary != NULL);
+
+        uint bal = store.getUint(key);
         require(val <= bal);
         bal = bal.sub(val);
-        store.setUint(ETHER_BALANCE, bal);
+        store.setUint(key, bal);
 
         beneficiary.transfer(val);
     }

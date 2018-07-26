@@ -185,6 +185,11 @@ export default function (artifacts) {
   TokenSale.CI = Web3.utils.keccak256('TokenSale')
   TokenSale.Sig = {
     SetProjectController: SET_PROJECT_CONTROLLER
+    SetStorage: SET_STORAGE_SIG
+  }
+  TokenSale.Storage = {
+    Self: artifacts.require('modules/token_sale/TokenSaleStorage'),
+    CI: Web3.utils.keccak256('TokenSaleStorage')
   }
 
   // Token Collector
@@ -194,9 +199,14 @@ export default function (artifacts) {
   TokenCollector.CI = Web3.utils.keccak256('TokenCollector')
   TokenCollector.Sig = {
     Deposit: wweb3.eth.abi.encodeFunctionSignature(
-      'deposit(address,uint256)'),
+      'deposit(bytes32,address,uint256)'),
     Withdraw: wweb3.eth.abi.encodeFunctionSignature(
-      'withdraw(address,address,uint256)')
+      'withdraw(bytes32,address,address,uint256)')
+    SetStorage: SET_STORAGE_SIG
+  }
+  TokenCollector.Storage = {
+    Self: artifacts.require('modules/token_collector/TokenCollectorStorage'),
+    CI: Web3.utils.keccak256('TokenCollectorStorage')
   }
 
   // Ether Collector
@@ -205,9 +215,9 @@ export default function (artifacts) {
     'modules/ether_collector/EtherCollector')
   EtherCollector.CI = Web3.utils.keccak256('EtherCollector')
   EtherCollector.Sig = {
-    Deposit: wweb3.eth.abi.encodeFunctionSignature('deposit()'),
+    Deposit: wweb3.eth.abi.encodeFunctionSignature('deposit(bytes32)'),
     Withdraw: wweb3.eth.abi.encodeFunctionSignature(
-      'withdraw(address,uint256)'),
+      'withdraw(bytes32,address,uint256)'),
     SetStorage: SET_STORAGE_SIG
   }
   EtherCollector.Storage = {
