@@ -64,9 +64,11 @@ const run = exports.run = async (instances, accounts, artifacts) => {
 
   // Token Collector
   const tokenCollector = instances.tokenCollector
+  const tokenCollectorStorage = instances.tokenCollectorStorage
 
   // Token Sale
   const tokenSale = instances.tokenSale
+  const tokenSaleStorage = instances.tokenSaleStorage
 
   // Regulating Rating
   const regulatingRating = instances.regulatingRating
@@ -192,6 +194,9 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await kernel.connect(
     tokenSale.address,
     [ACLHandler.CI, ContractAddressHandler.CI])
+  await kernel.connect(
+    tokenSaleStorage.address,
+    [ACLHandler.CI, ContractAddressHandler.CI])
 
   /* ---------------ContractAddressHandler Registers Contracts--------------- */
   /**
@@ -270,11 +275,17 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await contractAddressHandler.registerContract(
     TokenCollector.CI,
     tokenCollector.address)
+  await contractAddressHandler.registerContract(
+    TokenCollector.Storage.CI,
+    tokenCollectorStorage.address)
 
   // Token Sale
   await contractAddressHandler.registerContract(
     TokenSale.CI,
     tokenSale.address)
+  await contractAddressHandler.registerContract(
+    TokenSale.Storage.CI,
+    tokenSaleStorage.address)
 
   // Reputation System
   await contractAddressHandler.registerContract(
@@ -307,6 +318,15 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     ProjectController.Storage.CI,
     [Storage.Sig.SetUint, Storage.Sig.SetAddress, Storage.Sig.SetBytes32])
 
+  // Destination: Reward Manager
+  await aclHandler.permit(
+    Kernel.RootCI,
+    TokenSale.CI,
+    [
+      TokenSale.Sig.SetStorage,
+      TokenSale.Sig.SetProjectController
+    ])
+
   // Destination: Milestone Controller
   await aclHandler.permit(
     Kernel.RootCI,
@@ -329,7 +349,11 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await aclHandler.permit(
     Kernel.RootCI,
     TokenCollector.CI,
-    [TokenCollector.Sig.Withdraw, TokenCollector.Sig.Deposit])
+    [
+      EtherCollector.Sig.SetStorage,
+      TokenCollector.Sig.Withdraw,
+      TokenCollector.Sig.Deposit
+    ])
 
   // Destination: Ether Collector
   await aclHandler.permit(
@@ -399,7 +423,7 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await aclHandler.permit(
     RefundManager.CI,
     EtherCollector.CI,
-    [EtherCollector.Sig.Withdraw])
+    [EtherCollector.Sig.Withdraw, EtherCollector.Sig.insideTransfer])
 
   // Source: Payment Manager
   // Destination: Ether Collector
@@ -411,22 +435,19 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await aclHandler.permit(
     PaymentManager.CI,
     MilestoneController.CI,
-    [
-      MilestoneController.Sig.Withdraw,
-      MilestoneController.Sig.UpdateMilestoneWeiLocked
-    ])
+    [MilestoneController.Sig.Withdraw])
 
   // Source: Reward Manager
+  // Destination: Reward Manager Storage
+  await aclHandler.permit(
+    RewardManager.CI,
+    RewardManager.Storage.CI,
+    [Storage.Sig.SetUint])
   // Destination: Ether Collector
   await aclHandler.permit(
     RewardManager.CI,
     EtherCollector.CI,
     [EtherCollector.Sig.Withdraw])
-  // Destination: Milestone Controller
-  await aclHandler.permit(
-    RewardManager.CI,
-    MilestoneController.CI,
-    [MilestoneController.Sig.UpdateRegulationRewardsForRegulator])
 
   /**
    * Grant permits to controllers
@@ -454,9 +475,13 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     MilestoneController.CI,
     RegulatingRating.CI,
     [
-      RegulatingRating.Sig.UpdateRegulationRewardsForRegulator,
       RegulatingRating.Sig.Start
     ])
+  // Destination: Ether Collector
+  await aclHandler.permit(
+    MilestoneController.CI,
+    EtherCollector.CI,
+    [EtherCollector.Sig.insideTransfer])
 
   // Source: Ether Collector
   // Destination: Ether Collector Storage
@@ -470,12 +495,23 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await aclHandler.permit(
     TokenSale.CI,
     TokenCollector.CI,
-    [TokenCollector.Sig.Withdraw])
+    [
+      TokenCollector.Sig.Deposit,
+      TokenCollector.Sig.Withdraw
+    ])
   // given token sale permission to set project state
   await aclHandler.permit(
     TokenSale.CI,
     ProjectController.CI,
     [ProjectController.Sig.SetState])
+  // Destination: TokenSaleStorage
+  await aclHandler.permit(
+    TokenSale.CI,
+    TokenSale.Storage.CI,
+    [
+      Storage.Sig.SetUint,
+      Storage.Sig.SetAddress
+    ])
 
   // Registry
   await aclHandler.permit(
@@ -488,11 +524,6 @@ const run = exports.run = async (instances, accounts, artifacts) => {
       ProjectController.Sig.SetTokenAddress
     ])
 
-  // TokenSale
-  await aclHandler.permit(
-    Kernel.RootCI,
-    TokenSale.CI,
-    [TokenSale.Sig.SetProjectController])
 
   /* ------------------------Set Storage------------------------- */
   /**
@@ -512,6 +543,12 @@ const run = exports.run = async (instances, accounts, artifacts) => {
 
   // Ether Collector
   await etherCollector.setStorage(etherCollectorStorage.address)
+
+  // Token Collector
+  await tokenCollector.setStorage(tokenCollectorStorage.address)
+
+  // Token Sale
+  await tokenSale.setStorage(tokenSaleStorage.address)
 
   // Regulating Rating
   await regulatingRating.setStorage(regulatingRatingStorage.address)
@@ -579,7 +616,9 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     etherCollector,
     etherCollectorStorage,
     tokenCollector,
+    tokenCollectorStorage,
     tokenSale,
+    tokenSaleStorage,
     carbonVoteXCore,
     reputationSystem,
     paymentManager,

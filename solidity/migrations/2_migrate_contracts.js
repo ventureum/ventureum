@@ -160,13 +160,11 @@ module.exports = function (deployer, network, accounts) {
       await deployer.deploy(ProjectController.Self, Kernel.Self.address)
       await deployer.deploy(ProjectController.Storage.Self, Kernel.Self.address)
 
-      // Deploy milestone controller and storage
+      // Deploy milestone controller and storage and view
       await deployer.deploy(MilestoneController.Self, Kernel.Self.address)
       await deployer.deploy(
         MilestoneController.Storage.Self,
         Kernel.Self.address)
-
-      // Deploy milestone controller view
       await deployer.deploy(MilestoneController.View.Self, MilestoneController.Storage.Self.address)
 
       // Deploy token sale and storage
@@ -243,7 +241,10 @@ module.exports = function (deployer, network, accounts) {
         EtherCollector.Self.address)
       instances.tokenCollector = TokenCollector.Self.at(
         TokenCollector.Self.address)
+      instances.tokenCollectorStorage = TokenCollector.Storage.Self.at(
+        TokenCollector.Storage.Self.address)
       instances.tokenSale = TokenSale.Self.at(TokenSale.Self.address)
+      instances.tokenSaleStorage = TokenSale.Storage.Self.at(TokenSale.Storage.Self.address)
       instances.projectControllerStorage = ProjectController.Storage.Self.at(
         ProjectController.Storage.Self.address)
       instances.milestoneControllerStorage =
