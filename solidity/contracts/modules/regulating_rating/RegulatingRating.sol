@@ -347,40 +347,6 @@ contract RegulatingRating is Module {
     }
 
     /**
-    * Update regulation rewards for an objective performed by a registered regulator
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param obj an objective in a milestone of the project
-    * @param _addr address of the regulator
-    * @param amount amount withdrawn by regulator
-    */
-    function updateRegulationRewardsForRegulator(
-        bytes32 namespace,
-        uint milestoneId,
-        bytes32 obj,
-        address _addr,
-        uint amount
-    )
-        external
-        connected
-    {
-        uint objId = getObjId(namespace, milestoneId, obj);
-        uint rewards = regulatingRatingStorage.getUint(keccak256(abi.encodePacked(
-                namespace, milestoneId, objId, _addr, OBJ_REGULATION_REWARD))
-        );
-
-        uint balance = rewards.sub(amount);
-        require(balance >= 0);
-
-        regulatingRatingStorage.setUint(
-            keccak256(abi.encodePacked(
-                namespace, milestoneId, objId, _addr, OBJ_REGULATION_REWARD)),
-            balance
-        );
-    }
-
-    /**
     * Return basic objective Info for an objective
     *
     * @param namespace namespace of a project

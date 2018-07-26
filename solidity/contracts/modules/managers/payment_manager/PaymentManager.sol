@@ -22,6 +22,8 @@ contract PaymentManager is Manager {
     /**
     *  Release funds from a milestone to project founders
     *  The milestone should be in COMPLETE state
+    *  The refundValue should be 
+    *      init weiLocked - total refund in refundStage
     *
     *  @param namespace namespace of the project]
     *  @param milestoneId the id of a milestone
@@ -33,15 +35,16 @@ contract PaymentManager is Manager {
         require(milestoneState == uint(MilestoneController.MilestoneState.COMPLETION));
 
         // check wei lock ETH_AMOUNTed in the milestone
-        uint weiLocked = milestoneController.milestoneWeiLocked(namespace, milestoneId);
-        require(weiLocked > 0);
+        uint restWeiLocked = etherCollector.getDepositValue(
+            keccak256(abi.encodePacked(namespace, milestoneId, MILESTONE_ETHER_WEILOCKED)));
+        require(restWeiLocked > 0);
 
-        require(weiLocked <= address(etherCollector).balance);
-        etherCollector.withdraw(msg.sender, weiLocked);
+        etherCollector.withdraw(
+            keccak256(abi.encodePacked(namespace, MILESTONE_ETHER_WEILOCKED)),
+            msg.sender, 
+            restWeiLocked);
 
-        milestoneController.updateMilestoneWeiLocked(namespace, milestoneId, weiLocked);
-
-        emit FundWithdrawnByFounder(msg.sender, namespace, milestoneId, weiLocked);
+        emit FundWithdrawnByFounder(msg.sender, namespace, milestoneId, restWeiLocked);
     }
 
     /**

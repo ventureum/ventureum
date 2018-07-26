@@ -152,22 +152,16 @@ module.exports = function (deployer, network, accounts) {
       // Deploy contract address handler
       await deployer.deploy(ContractAddressHandler.Self, Kernel.Self.address)
 
-      // Deploy refund Manager
+      // Deploy refund Manager and Storage
       await deployer.deploy(RefundManager.Self, Kernel.Self.address)
-
-      // Deploy refund Manager Storage
       await deployer.deploy(RefundManager.Storage.Self, Kernel.Self.address)
 
-      // Deploy project controller
+      // Deploy project controller and storage
       await deployer.deploy(ProjectController.Self, Kernel.Self.address)
-
-      // Deploy project controller storage
       await deployer.deploy(ProjectController.Storage.Self, Kernel.Self.address)
 
-      // Deploy milestone controller
+      // Deploy milestone controller and storage
       await deployer.deploy(MilestoneController.Self, Kernel.Self.address)
-
-      // Deploy milestone controller storage
       await deployer.deploy(
         MilestoneController.Storage.Self,
         Kernel.Self.address)
@@ -175,35 +169,29 @@ module.exports = function (deployer, network, accounts) {
       // Deploy milestone controller view
       await deployer.deploy(MilestoneController.View.Self, MilestoneController.Storage.Self.address)
 
-      // Deploy ether collector
-      await deployer.deploy(EtherCollector.Self, Kernel.Self.address)
+      // Deploy token sale and storage
+      await deployer.deploy(TokenSale.Self, Kernel.Self.address)
+      await deployer.deploy(TokenSale.Storage.Self, Kernel.Self.address)
 
-      // Deploy ether collector storage
+      // Deploy token collector and storage
+      await deployer.deploy(TokenCollector.Self, Kernel.Self.address)
+      await deployer.deploy(TokenCollector.Storage.Self, Kernel.Self.address)
+
+      // Deploy ether collector and storage
+      await deployer.deploy(EtherCollector.Self, Kernel.Self.address)
       await deployer.deploy(EtherCollector.Storage.Self, Kernel.Self.address)
 
-      // Deploy ether regulating rating
+      // Deploy ether regulating rating and storage
       await deployer.deploy(RegulatingRating.Self, Kernel.Self.address)
-
-      // Deploy ether regulating rating storage
       await deployer.deploy(RegulatingRating.Storage.Self, Kernel.Self.address)
 
-      // Deploy ether reward manager
+      // Deploy ether reward manager and storage
       await deployer.deploy(RewardManager.Self, Kernel.Self.address)
-
-      // Deploy ether reward manager storage
       await deployer.deploy(RewardManager.Storage.Self, Kernel.Self.address)
 
-      // Deploy ether payment manager
+      // Deploy ether payment manager and storage
       await deployer.deploy(PaymentManager.Self, Kernel.Self.address)
-
-      // Deploy ether payment manager storage
       await deployer.deploy(PaymentManager.Storage.Self, Kernel.Self.address)
-
-      // Deploy token collector
-      await deployer.deploy(TokenCollector.Self, Kernel.Self.address)
-
-      // Deploy token sale
-      await deployer.deploy(TokenSale.Self, Kernel.Self.address)
 
       // Deploy carbon vote x
       await deployer.deploy(CarbonVoteXCore, accounts[0])

@@ -7,6 +7,7 @@ import "../Module.sol";
 import "../token_collector/TokenCollector.sol";
 import "../ether_collector/EtherCollector.sol";
 import "../project_controller/ProjectController.sol";
+import "./TokenSaleStorage.sol";
 
 
 contract TokenSale is Module {
@@ -27,22 +28,30 @@ contract TokenSale is Module {
         uint ethNum
     );
 
+    event WithdrawToken (
+        address indexed founder,
+        bytes32 indexed namespace,
+        uint tokenNum,
+        uint timestamp
+    );
+
     event _Finalized (address indexed sender, bytes32 indexed namespace);
 
     address constant NULL = address(0x0);
 
-    struct TokenInfo {
-        bytes32 namespace;
-        uint rate;
-        ERC20 token;
-        uint totalTokenSold;
-        uint totalEth;
-        bool finalized;
-    }
+    string constant RATE = "rate";
+    string constant TOKEN_ADDRESS  = "tokenAddress";
+    string constant TOTAL_TOKEN_FOR_SALE = "totalTokenForSale";
+    string constant TOTAL_TOKEN_SOLD = "totalTokenSold";
+    string constant TOTAL_ETH_RECEIVED = "totalEthReceived";
+    string constant FINALIZED = "finalized";
+    string constant AVERAGE_PRICE = "averagePrice";
 
-    mapping(bytes32 => TokenInfo) public infoPoll;
+    uint256 constant FALSE = 0;
+    uint256 constant TRUE = 1;
 
     ProjectController public projectController;
+    TokenSaleStorage public tokenSaleStore;
 
     modifier founderOnly(bytes32 namespace) {
         require(projectController != NULL);
@@ -67,33 +76,67 @@ contract TokenSale is Module {
      *
      * @param namespace namespace of the project
      * @param rate (uint) of token sale
-     * @param token address of the project token
+     * @param tokenAddress address of the project token
+     * @param totalToken the initial amount of token for token sale
      */
-    function startTokenSale(bytes32 namespace, uint rate, address token) 
+    function startTokenSale(bytes32 namespace, uint rate, address tokenAddress, uint totalToken) 
         external
         founderOnly(namespace)
     {
         require(projectController != NULL);
 
-        require(!tokenInfoExist(namespace));
+        // require project exist and already in whitelist
         (bool existing, uint state) = projectController.getProjectInfo(namespace);
         require(existing);
         require(state == uint(ProjectController.ProjectState.AppAccepted));
 
-        TokenInfo memory info = TokenInfo({
-            namespace: namespace,
-            rate: rate,
-            token: ERC20(token),
-            totalTokenSold: 0,
-            totalEth: 0,
-            finalized: false
-        });
+        // require project not token sale before
+        require(!tokenInfoExist(namespace));
 
-        infoPoll[namespace] = info;
+        // Initial token info
+        tokenSaleStore.setUint(
+            keccak256(abi.encodePacked(namespace, RATE)),
+            rate
+        );
+        tokenSaleStore.setAddress(
+            keccak256(abi.encodePacked(namespace, TOKEN_ADDRESS)),
+            tokenAddress
+        ) ;
+        tokenSaleStore.setUint(
+            keccak256(abi.encodePacked(namespace, TOTAL_TOKEN_FOR_SALE)),
+            totalToken
+        );
+        tokenSaleStore.setUint(
+            keccak256(abi.encodePacked(namespace, TOTAL_TOKEN_SOLD)),
+            0
+        );
+        tokenSaleStore.setUint(
+            keccak256(abi.encodePacked(namespace, TOTAL_ETH_RECEIVED)),
+            0
+        );
+        tokenSaleStore.setUint(
+            keccak256(abi.encodePacked(namespace, FINALIZED)),
+            FALSE
+        );
 
+        /*
+        * Founder transfer token to TokenCollector
+        */
+        (TokenCollector tokenCollector,) = getCollectors();
+        // transfer token to this(self) first
+        require(ERC20(tokenAddress).transferFrom(msg.sender, this, totalToken));
+        // approve that tokenCollector can transfer token from this(self)
+        require(ERC20(tokenAddress).approve(tokenCollector, totalToken));
+        // deposit token to TokenCollector
+        tokenCollector.deposit(
+            keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)), 
+            tokenAddress, 
+            totalToken);
+
+        // All set, change the state to TokenSale
         projectController.setState(namespace, uint(ProjectController.ProjectState.TokenSale));
 
-        emit _StartTokenSale(msg.sender, namespace, rate, token);
+        emit _StartTokenSale(msg.sender, namespace, rate, tokenAddress);
     }
 
     /**
@@ -105,11 +148,83 @@ contract TokenSale is Module {
      * @param namespace namespace of the project
      */
     function finalize(bytes32 namespace) external founderOnly(namespace) {
-        require(tokenInfoExist(namespace) && infoPoll[namespace].finalized == false);
+        uint256 finalized = tokenSaleStore.getUint(
+            keccak256(abi.encodePacked(namespace, FINALIZED)));
 
-        infoPoll[namespace].finalized = true;
+        // require token sale exist and not finalize yet
+        require(tokenInfoExist(namespace) && finalized == FALSE);
 
+        (TokenCollector tokenCollector, EtherCollector etherCollector)  = getCollectors();
+
+        // get token balance and ether balance and store it
+        uint256 totalTokenForSale= tokenSaleStore.getUint(
+            keccak256(abi.encodePacked(namespace, TOTAL_TOKEN_FOR_SALE)));
+        uint256 projectTokenBalance= tokenCollector.getDepositValue(
+            keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)));
+        uint256 totalEthReceived = etherCollector.getDepositValue(
+            keccak256(abi.encodePacked(namespace, PROJECT_ETHER_BALANCE)));
+        uint256 totalTokenSold = totalTokenForSale - projectTokenBalance;
+        tokenSaleStore.setUint(
+            keccak256(abi.encodePacked(namespace, TOTAL_ETH_RECEIVED)),
+            totalEthReceived);
+        tokenSaleStore.setUint(
+            keccak256(abi.encodePacked(namespace, TOTAL_TOKEN_SOLD)),
+            totalTokenSold);
+
+        // calculate average price and store it.
+        uint avg = 0;
+        if (totalEthReceived != 0) {
+            avg = totalTokenSold.div(totalEthReceived);
+        }
+        tokenSaleStore.setUint(
+            keccak256(abi.encodePacked(namespace, AVERAGE_PRICE)),
+            avg);
+
+        // set finalized to be true
+        tokenSaleStore.setUint(
+            keccak256(abi.encodePacked(namespace, FINALIZED)),
+            TRUE
+        );
         emit _Finalized(msg.sender, namespace);
+    }
+
+    /**
+    * The project founder can withdraw tokens that has not been sold out after finalize
+    * require project token sale finalize
+    * Note: the frond-end can receive token number from TokenCollector
+    *   PROJECT_TOKEN_BALANCE = string("projectTokenBalance")
+    *   uint tokenNum = tokenCollector.getDepositValue(
+    *       keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)));
+    *
+    * @param namespace namespace of the project
+    */
+    function withdrawToken(bytes32 namespace) external founderOnly(namespace) {
+        // require token exist and finalized
+        uint256 finalized = tokenSaleStore.getUint(
+            keccak256(abi.encodePacked(namespace, FINALIZED)));
+        require(tokenInfoExist(namespace) && finalized == TRUE);
+
+        (TokenCollector tokenCollector,) = getCollectors();
+
+        // get token number will withdraw
+        uint tokenNum = tokenCollector.getDepositValue(
+            keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)));
+        if (tokenNum != 0) {
+            address tokenAddress = tokenSaleStore.getAddress(
+                keccak256(abi.encodePacked(namespace, TOKEN_ADDRESS)));
+
+            tokenCollector.withdraw(
+                keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)),
+                tokenAddress,
+                msg.sender,
+                tokenNum);
+        }
+
+        emit WithdrawToken(
+            msg.sender,
+            namespace,
+            tokenNum,
+            now);
     }
 
     /**
@@ -119,12 +234,39 @@ contract TokenSale is Module {
      */
     function tokenInfo(bytes32 namespace) external view returns (uint, uint, uint, bool) {
         require(tokenInfoExist(namespace));
+        bool finalized = 
+            tokenSaleStore.getUint(keccak256(abi.encodePacked(namespace, RATE))) == TRUE;
+        uint totalTokenSold = tokenSaleStore.getUint(
+            keccak256(abi.encodePacked(namespace, TOTAL_TOKEN_SOLD)));
+        uint totalEthReceived = tokenSaleStore.getUint(
+            keccak256(abi.encodePacked(namespace, TOTAL_ETH_RECEIVED)));
+        // if the token sale is not finalized, totalTokenSold, and totalEthReceived will be 0
+        // get the current sale information from TokenCollector and etherColector.
+        if (!finalized) {
+            (TokenCollector tokenCollector, EtherCollector etherCollector)  = getCollectors();
+
+            totalTokenSold = tokenCollector.getDepositValue(
+                keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)));
+            totalEthReceived = etherCollector.getDepositValue(
+                keccak256(abi.encodePacked(namespace, PROJECT_ETHER_BALANCE)));
+        }
         return (
-        infoPoll[namespace].rate,
-        infoPoll[namespace].totalTokenSold,
-        infoPoll[namespace].totalEth,
-        infoPoll[namespace].finalized
-        );
+            tokenSaleStore.getUint(keccak256(abi.encodePacked(namespace, RATE))),
+            totalTokenSold,
+            totalEthReceived,
+            finalized);
+    }
+
+    /**
+    * Bind with a storage contract
+    *
+    * @param store the address of a storage contract
+    */
+    function setStorage(address store)  public connected {
+        super.setStorage(store);
+        tokenSaleStore = TokenSaleStorage(storeAddr);
+
+        //emit TokenSaleStoreSet(msg.sender, CI, tokenSaleStore.CI(), store);
     }
 
     /**
@@ -135,11 +277,16 @@ contract TokenSale is Module {
      * exist, otherwise returns the average price
      */
     function avgPrice(bytes32 namespace) public view returns (uint) {
-        require(tokenInfoExist(namespace) && infoPoll[namespace].finalized);
-        uint avg = 0;
-        if (infoPoll[namespace].totalEth != 0) {
-            avg = infoPoll[namespace].totalTokenSold.div(infoPoll[namespace].totalEth);
-        }
+        uint256 finalized = tokenSaleStore.getUint(
+            keccak256(abi.encodePacked(namespace, FINALIZED)));
+
+        // require token exist and finalized
+        require(tokenInfoExist(namespace) && finalized == TRUE);
+
+
+        uint256 avg = tokenSaleStore.getUint(
+            keccak256(abi.encodePacked(namespace, AVERAGE_PRICE)));
+
         return avg;
     }
 
@@ -150,7 +297,9 @@ contract TokenSale is Module {
      * @return true if this project already have token sale.
      */
     function tokenInfoExist(bytes32 namespace) public view returns (bool) {
-        return infoPoll[namespace].namespace == namespace && infoPoll[namespace].rate != 0;
+        address tokenAddress = tokenSaleStore.getAddress(
+            keccak256(abi.encodePacked(namespace, TOKEN_ADDRESS)));
+        return tokenAddress != NULL;
     }
 
     /**
@@ -162,24 +311,45 @@ contract TokenSale is Module {
      * @param namespace namespace of the project
      */
     function buyTokens(bytes32 namespace) public payable {
-        require(tokenInfoExist(namespace) && infoPoll[namespace].finalized == false);
-        uint tokenNum = msg.value.mul(infoPoll[namespace].rate);
+        // require this tokenSale exist and not finalize
+        bool finalized = 
+            tokenSaleStore.getUint(keccak256(abi.encodePacked(namespace, FINALIZED))) == TRUE;
+        require(tokenInfoExist(namespace) && !finalized);
 
+        // calculate the token number that msg.sender will receive.
+        uint rate = tokenSaleStore.getUint(keccak256(abi.encodePacked(namespace, RATE)));
+        uint tokenNum = msg.value.mul(rate);
+
+        (TokenCollector tokenCollector, EtherCollector etherCollector)  = getCollectors();
+
+        // withdraw token from TokenCollector
+        address tokenAddress = tokenSaleStore.getAddress(
+            keccak256(abi.encodePacked(namespace, TOKEN_ADDRESS)));
+        tokenCollector.withdraw(
+            keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)),
+            tokenAddress,
+            msg.sender, 
+            tokenNum);
+
+        // deposit ether to EtherCollector
+        etherCollector.deposit.value(msg.value)(
+            keccak256(abi.encodePacked(namespace, PROJECT_ETHER_BALANCE)));
+
+
+        emit _BuyTokens(msg.sender, namespace, tokenNum, msg.value);
+    }
+
+    /**
+    * get the TokenCollector and EtherCollector
+    *
+    * @return tokenCollector. etherCollector
+    */
+    function getCollectors() internal view returns(TokenCollector, EtherCollector) {
         TokenCollector tokenCollector =
             TokenCollector(contractAddressHandler.contracts(TOKEN_COLLECTOR_CI));
 
-        EtherCollector etherCollector =
+        EtherCollector etherCollector  =
             EtherCollector(contractAddressHandler.contracts(ETHER_COLLECTOR_CI));
-
-        require(tokenNum <= tokenCollector.balanceOf(infoPoll[namespace].token));
-
-        tokenCollector.withdraw(infoPoll[namespace].token, msg.sender, tokenNum);
-
-        etherCollector.deposit.value(msg.value);
-
-        infoPoll[namespace].totalTokenSold = infoPoll[namespace].totalTokenSold.add(tokenNum);
-        infoPoll[namespace].totalEth = infoPoll[namespace].totalEth.add(msg.value);
-
-        emit _BuyTokens(msg.sender, namespace, tokenNum, msg.value);
+        return (tokenCollector, etherCollector);
     }
 }

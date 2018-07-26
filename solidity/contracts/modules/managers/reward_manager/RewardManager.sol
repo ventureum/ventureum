@@ -13,7 +13,11 @@ contract RewardManager is Manager {
         bytes32 obj
     );
 
-    RewardManagerStorage private rewardManagerStorage;
+    RewardManagerStorage private rewardManagerStore;
+
+    bytes32 constant public ALREADY_WITHDRAWN = "alreadyWithdrawn";
+    uint constant public TRUE = 1;
+    uint constant public FALSE = 0;
 
     constructor (address kernelAddr) Manager(kernelAddr) public {
         CI = keccak256("RewardManager");
@@ -27,8 +31,17 @@ contract RewardManager is Manager {
      * @param obj an objective of a milestone of the project
      */
     function withdraw(bytes32 namespace, uint milestoneId, bytes32 obj) external {
-        require(address(milestoneController) != NULL);
+        bytes32 alreadyWithdrawnKey = keccak256(abi.encodePacked(
+            namespace,
+            milestoneId,
+            obj,
+            msg.sender,
+            ALREADY_WITHDRAWN));
 
+        // require msg.sender never withdraw for this obj
+        require(rewardManagerStore.getUint(alreadyWithdrawnKey) == FALSE);
+
+        // check milestone regulation finalized and rewards greater than 0
         (bool finalized, uint rewards) = milestoneController.getRegulationRewardsForRegulator(
             namespace,
             milestoneId,
@@ -36,20 +49,23 @@ contract RewardManager is Manager {
             msg.sender
         );
         require(finalized);
-        require(rewards > 0 && rewards <= address(etherCollector).balance);
-        etherCollector.withdraw(msg.sender, rewards);
-        milestoneController.updateRegulationRewardsForRegulator(
+        require(rewards > 0);
+
+        // set the already store to true
+        rewardManagerStore.setUint(alreadyWithdrawnKey, TRUE);
+
+        // withdraw rewards
+        bytes32 withdrawKey = keccak256(abi.encodePacked(
             namespace,
             milestoneId,
-            obj,
-            msg.sender,
-            rewards
-        );
+            MILESTONE_MAX_REWARDS));
+        etherCollector.withdraw(withdrawKey, msg.sender, rewards);
+
         emit RegulationRewardsWithdrawn(msg.sender, namespace, milestoneId, obj);
     }
 
     function setStorage(address store) public connected {
         super.setStorage(store);
-        rewardManagerStorage = RewardManagerStorage(store);
+        rewardManagerStore = RewardManagerStorage(store);
     }
 }
