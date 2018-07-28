@@ -40,7 +40,7 @@ contract PaymentManager is Manager {
         require(restWeiLocked > 0);
 
         etherCollector.withdraw(
-            keccak256(abi.encodePacked(namespace, MILESTONE_ETHER_WEILOCKED)),
+            keccak256(abi.encodePacked(namespace, milestoneId, MILESTONE_ETHER_WEILOCKED)),
             msg.sender, 
             restWeiLocked);
 
