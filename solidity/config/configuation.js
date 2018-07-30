@@ -181,6 +181,9 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await kernel.connect(
     tokenCollector.address,
     [ACLHandler.CI, ContractAddressHandler.CI])
+  await kernel.connect(
+    tokenCollectorStorage.address,
+    [ACLHandler.CI, ContractAddressHandler.CI])
 
   // RegulatingRating
   await kernel.connect(
@@ -488,6 +491,13 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await aclHandler.permit(
     EtherCollector.CI,
     EtherCollector.Storage.CI,
+    [Storage.Sig.SetUint])
+
+  // Source: Token Collector
+  // Destination: Token Collector Storage
+  await aclHandler.permit(
+    TokenCollector.CI,
+    TokenCollector.Storage.CI,
     [Storage.Sig.SetUint])
 
   // Source: Token Sale
