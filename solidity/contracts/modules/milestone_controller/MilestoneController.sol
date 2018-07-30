@@ -682,7 +682,7 @@ contract MilestoneController is Module {
             sum.add(objMaxRegulationRewards[i]);
         }
         require(address(tokenSale) != NULL);
-        ( , , uint totalEth, ) = tokenSale.tokenInfo(namespace);
+        ( , , uint totalEth, ,) = tokenSale.tokenInfo(namespace);
         require(
             cumulativeMaxRewards.add(sum) <=
             totalEth.mul(MAX_REGULATION_REWARD_PERCENTAGE).div(100));
@@ -764,7 +764,7 @@ contract MilestoneController is Module {
             uint state = projectController.getProjectState(namespace);
             // require refund stage 
             require(state == uint(ProjectController.ProjectState.TokenSale));
-            (,,,bool finalized) = tokenSale.tokenInfo(namespace);
+            (,,,bool finalized,) = tokenSale.tokenInfo(namespace);
             // require refund finalized
             require(finalized);
             // set stage to milestone

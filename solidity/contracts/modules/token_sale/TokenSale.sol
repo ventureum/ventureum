@@ -155,7 +155,7 @@ contract TokenSale is Module {
         // require token sale exist and not finalize yet
         require(tokenInfoExist(namespace) && finalized == FALSE);
 
-        (TokenCollector tokenCollector, EtherCollector etherCollector)  = getCollectors();
+        (TokenCollector tokenCollector, EtherCollector etherCollector) = getCollectors();
 
         // get token balance and ether balance and store it
         uint256 totalTokenForSale= tokenSaleStore.getUint(
@@ -241,30 +241,48 @@ contract TokenSale is Module {
      * Return token info if this token sale info exist.
      *
      * @param namespace namespace of the project
+     * @return
+     *      uint the rate of this token sale
+     *      uint the number of token already sold
+     *      uint the number of ether received in this token sale (current)
+     *      bool `True` means this token sale is finalized, `False` otherwise.
+     *      uint the number of rest token that can purchase 
+     *           if not finalized: restToken + tokenAlreadySold == TotalTokenForSale
      */
-    function tokenInfo(bytes32 namespace) external view returns (uint, uint, uint, bool) {
+    function tokenInfo(bytes32 namespace) external view returns (uint, uint, uint, bool, uint) {
         require(tokenInfoExist(namespace));
         bool finalized = 
-            tokenSaleStore.getUint(keccak256(abi.encodePacked(namespace, RATE))) == TRUE;
+            tokenSaleStore.getUint(keccak256(abi.encodePacked(namespace, FINALIZED))) == TRUE;
+
         uint totalTokenSold = tokenSaleStore.getUint(
             keccak256(abi.encodePacked(namespace, TOTAL_TOKEN_SOLD)));
         uint totalEthReceived = tokenSaleStore.getUint(
             keccak256(abi.encodePacked(namespace, TOTAL_ETH_RECEIVED)));
+
+        (TokenCollector tokenCollector, EtherCollector etherCollector)  = getCollectors();
+
+        // get number token left, if finalized, can be withdrawn, else can be purchased. 
+        uint numTokenLeft = tokenCollector.getDepositValue(
+                keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)));
+
+        // get the total token for sale
+        uint totalTokenForSale = tokenSaleStore.getUint(
+            keccak256(abi.encodePacked(namespace, TOTAL_TOKEN_FOR_SALE)));
+
         // if the token sale is not finalized, totalTokenSold, and totalEthReceived will be 0
         // get the current sale information from TokenCollector and etherColector.
         if (!finalized) {
-            (TokenCollector tokenCollector, EtherCollector etherCollector)  = getCollectors();
-
-            totalTokenSold = tokenCollector.getDepositValue(
-                keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)));
+            totalTokenSold = totalTokenForSale - numTokenLeft;
             totalEthReceived = etherCollector.getDepositValue(
                 keccak256(abi.encodePacked(namespace, PROJECT_ETHER_BALANCE)));
         }
+
         return (
             tokenSaleStore.getUint(keccak256(abi.encodePacked(namespace, RATE))),
             totalTokenSold,
             totalEthReceived,
-            finalized);
+            finalized,
+            numTokenLeft);
     }
 
     /**

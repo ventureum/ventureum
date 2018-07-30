@@ -13,7 +13,7 @@ const TEST_NAMESPACE3 = wweb3.utils.keccak256('TEST_NAMESPACE3')
 const TEST_NAMESPACE4 = wweb3.utils.keccak256('TEST_NAMESPACE4')
 const TEST_NAMESPACE5 = wweb3.utils.keccak256('TEST_NAMESPACE5')
 
-contract('Project Handler', function (accounts) {
+contract('Project Controller', function (accounts) {
   const TEST_ACCOUNT1 = accounts[1]
   const TEST_ACCOUNT2 = accounts[2]
   const TEST_ACCOUNT3 = accounts[3]
