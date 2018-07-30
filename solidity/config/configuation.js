@@ -522,6 +522,13 @@ const run = exports.run = async (instances, accounts, artifacts) => {
       Storage.Sig.SetUint,
       Storage.Sig.SetAddress
     ])
+  // Destination: EtherCollector
+  await aclHandler.permit(
+    TokenSale.CI,
+    EtherCollector.CI,
+    [
+      EtherCollector.Sig.InsideTransfer
+    ])
 
   // Registry
   await aclHandler.permit(

@@ -214,7 +214,7 @@ export default function (artifacts) {
     Deposit: wweb3.eth.abi.encodeFunctionSignature('deposit(bytes32)'),
     Withdraw: wweb3.eth.abi.encodeFunctionSignature(
       'withdraw(bytes32,address,uint256)'),
-    insideTransfer: wweb3.eth.abi.encodeFunctionSignature(
+    InsideTransfer: wweb3.eth.abi.encodeFunctionSignature(
       'insideTransfer(bytes32,bytes32,uint256)'),
     SetStorage: SET_STORAGE_SIG
   }
