@@ -82,9 +82,13 @@ const run = exports.run = async (accounts) => {
   // Token Collector
   instances.tokenCollector = await TokenCollector.Self.new(
     instances.kernel.address)
+  instances.tokenCollectorStorage = await TokenCollector.Storage.Self.new(
+    instances.kernel.address)
 
   // Token Sale
   instances.tokenSale = await TokenSale.Self.new(instances.kernel.address)
+  instances.tokenSaleStorage = await TokenSale.Storage.Self.new(
+    instances.kernel.address)
 
   // Reward Manager
   instances.rewardManager = await RewardManager.Self.new(

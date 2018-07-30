@@ -44,10 +44,10 @@ contract TokenCollector is Module {
      * @param token the address of token
      * @param val the amount of token will deposit
      */
-    function deposit(bytes32 key, address token, uint val) external connected {
-        uint bal = store.getUint(key);
+    function deposit(bytes32 key, address token, uint256 val) external connected {
+        uint256 bal = store.getUint(key);
         bal = bal.add(val);
-        store.setUint(key, val);
+        store.setUint(key, bal);
 
         ERC20(token).transferFrom(msg.sender, this, val);
     }
