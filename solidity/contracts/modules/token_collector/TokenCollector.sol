@@ -78,9 +78,8 @@ contract TokenCollector is Module {
         uint bal = store.getUint(key);
         require(bal >= val);
         bal = bal.sub(val);
-        store.setUint(key, val);
+        store.setUint(key, bal);
 
         ERC20(token).transfer(beneficiary, val);
     }
-
 }

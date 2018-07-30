@@ -527,7 +527,8 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     TokenSale.CI,
     EtherCollector.CI,
     [
-      EtherCollector.Sig.InsideTransfer
+      EtherCollector.Sig.InsideTransfer,
+      EtherCollector.Sig.Deposit
     ])
 
   // Registry
