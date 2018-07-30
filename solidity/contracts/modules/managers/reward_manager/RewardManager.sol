@@ -57,8 +57,7 @@ contract RewardManager is Manager {
         // withdraw rewards
         bytes32 withdrawKey = keccak256(abi.encodePacked(
             namespace,
-            milestoneId,
-            MILESTONE_MAX_REWARDS));
+            PROJECT_TOTAL_REGULATOR_REWARDS));
         etherCollector.withdraw(withdrawKey, msg.sender, rewards);
 
         emit RegulationRewardsWithdrawn(msg.sender, namespace, milestoneId, obj);
