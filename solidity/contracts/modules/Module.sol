@@ -19,7 +19,7 @@ contract Module is Base, Ownable {
     bytes32 constant public PROJECT_TOKEN_BALANCE = "projectTokenBalance";
     bytes32 constant public PROJECT_ETHER_BALANCE = "projectEtherBalance";
     bytes32 constant public MILESTONE_ETHER_WEILOCKED = "milestoneEtherWeilocked";
-    bytes32 constant public MILESTONE_MAX_REWARDS = "milestoneMaxRewards";
+    bytes32 constant public PROJECT_TOTAL_REGULATOR_REWARDS = "projectTotalRegulatorRewards";
 
     uint constant PERCENTAGE_BASE = 1e18;
 

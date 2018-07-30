@@ -603,21 +603,33 @@ contract MilestoneController is Module {
         );
 
         /*
-        * Transfer (lock) total max regulation rewards
+        * Calculator and store total max regulation rewards
         */
         // calculator the total max rewards
         uint totalMaxRewards = 0;
         for (uint i = 0; i < objMaxRegulationRewards.length; i++) {
             totalMaxRewards = totalMaxRewards.add(objMaxRegulationRewards[i]);
         }
+        require(totalMaxRewards != 0);
+        // store the total max rewards
+        uint projectTotalRewards = milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, PROJECT_TOTAL_REGULATOR_REWARDS)));
+        projectTotalRewards = projectTotalRewards.add(totalMaxRewards);
+        milestoneControllerStore.setUint(
+            keccak256(abi.encodePacked(namespace, PROJECT_TOTAL_REGULATOR_REWARDS)),
+            projectTotalRewards
+        );
+    }
 
-        // use insideTransfer to lock those ether
-        EtherCollector etherCollector = 
-            EtherCollector(contractAddressHandler.contracts(ETHER_COLLECTOR_CI));
-        bytes32 fromKey = keccak256(abi.encodePacked(namespace, PROJECT_ETHER_BALANCE));
-        bytes32 toKey = keccak256(
-            abi.encodePacked(namespace, milestoneId, MILESTONE_MAX_REWARDS));
-        etherCollector.insideTransfer(fromKey, toKey, totalMaxRewards);
+    /**
+    * Get the project total regulator rewards
+    *
+    * @param namespace namespace of a project
+    * @return the project total regulator rewards
+    */
+    function getProjectTotalRegulatorRewards(bytes32 namespace) public view returns(uint) {
+        return milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, PROJECT_TOTAL_REGULATOR_REWARDS)));
     }
 
 

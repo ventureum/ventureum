@@ -7,6 +7,7 @@ import "../Module.sol";
 import "../token_collector/TokenCollector.sol";
 import "../ether_collector/EtherCollector.sol";
 import "../project_controller/ProjectController.sol";
+import "../milestone_controller/MilestoneController.sol";
 import "./TokenSaleStorage.sol";
 
 
@@ -185,6 +186,15 @@ contract TokenSale is Module {
             keccak256(abi.encodePacked(namespace, FINALIZED)),
             TRUE
         );
+
+        // lock the project total max regulator rewards
+        MilestoneController milestoneController = 
+            MilestoneController(contractAddressHandler.contracts(MILESTONE_CONTROLLER_CI));
+        bytes32 fromKey = keccak256(abi.encodePacked(namespace, PROJECT_ETHER_BALANCE));
+        bytes32 toKey = keccak256(abi.encodePacked(namespace, PROJECT_TOTAL_REGULATOR_REWARDS));
+        uint totalMaxRewards = milestoneController.getProjectTotalRegulatorRewards(namespace);
+        etherCollector.insideTransfer(fromKey, toKey, totalMaxRewards);
+
         emit _Finalized(msg.sender, namespace);
     }
 
