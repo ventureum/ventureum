@@ -2,6 +2,7 @@ import { Web3, Error, EtherCollector } from '../../constants'
 const shared = require('../../shared.js')
 
 const BALANCE_CI = Web3.utils.keccak256('EtherBalance')
+const TEST_KEY = "0x6b6579"
 const VALUE = 12345
 
 contract('EtherCollectorTest', function (accounts) {
@@ -50,24 +51,24 @@ contract('EtherCollectorTest', function (accounts) {
 
   describe('composite test', function () {
     it('should deposit success', async function () {
-      let pre = await etherCollectorStorage.getUint.call(BALANCE_CI)
-      await etherCollector.deposit({value: VALUE})
+      let pre = await etherCollectorStorage.getUint.call(TEST_KEY)
+      await etherCollector.deposit(TEST_KEY, {value: VALUE})
         .should.be.fulfilled
 
-      let post = await etherCollectorStorage.getUint.call(BALANCE_CI)
+      let post = await etherCollectorStorage.getUint.call(TEST_KEY)
       post.minus(pre).should.be.bignumber.equal(VALUE)
     })
 
     it('should withdraw success', async function () {
       const withdrawAmount = 10000
 
-      await etherCollector.deposit({value: VALUE})
+      await etherCollector.deposit(TEST_KEY, {value: VALUE})
         .should.be.fulfilled
 
-      let pre = await etherCollectorStorage.getUint.call(BALANCE_CI)
-      await etherCollector.withdraw(TEST_ACCOUNT1, withdrawAmount)
+      let pre = await etherCollectorStorage.getUint.call(TEST_KEY)
+      await etherCollector.withdraw(TEST_KEY, TEST_ACCOUNT1, withdrawAmount)
         .should.be.fulfilled
-      let post = await etherCollectorStorage.getUint.call(BALANCE_CI)
+      let post = await etherCollectorStorage.getUint.call(TEST_KEY)
 
       pre.minus(post).should.be.bignumber.equal(withdrawAmount)
     })
@@ -75,9 +76,8 @@ contract('EtherCollectorTest', function (accounts) {
 
   describe('branch test', function () {
     it('should rejected withdraw', async function () {
-      let currentBalance = await etherCollectorStorage.getUint.call(
-        BALANCE_CI)
-      await etherCollector.withdraw(TEST_ACCOUNT1, 1 + currentBalance)
+      let currentBalance = await etherCollectorStorage.getUint.call(TEST_KEY)
+      await etherCollector.withdraw(TEST_KEY, TEST_ACCOUNT1, 1 + currentBalance)
         .should.be.rejectedWith(Error.EVMRevert)
     })
   })

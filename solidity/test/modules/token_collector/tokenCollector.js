@@ -10,6 +10,7 @@ const shared = require('../../shared.js')
 const NULL_ADDRESS = '0x0'
 const TOTAL_SPEND_MONEY = 1000000
 const VALUE = 10000
+const TEST_KEY = "0x6b6579"
 
 contract('TokenCollectorTest', function (accounts) {
   const ROOT = accounts[0]
@@ -81,7 +82,7 @@ contract('TokenCollectorTest', function (accounts) {
         vetXToken.address,
         NULL_ADDRESS,
         0).should.be.rejectedWith(Error.EVMRevert)
-      tokenCollector.deposit(NULL_ADDRESS, 0)
+      tokenCollector.deposit(TEST_KEY, NULL_ADDRESS, 0)
         .should.be.rejectedWith(Error.EVMRevert)
     })
 
@@ -112,8 +113,8 @@ contract('TokenCollectorTest', function (accounts) {
 
     it('should deposit success', async function () {
       const pre = await vetXToken.balanceOf.call(ROOT)
-      await tokenCollector.deposit(
-        vetXToken.address, VALUE).should.be.fulfilled
+      await tokenCollector.deposit(TEST_KEY, vetXToken.address, VALUE)
+        .should.be.fulfilled
       const post = await vetXToken.balanceOf.call(ROOT)
       pre.minus(post).should.be.bignumber.equal(VALUE)
     })
@@ -122,12 +123,13 @@ contract('TokenCollectorTest', function (accounts) {
       const withdrawAmount = 200
 
       const pre = await vetXToken.balanceOf.call(TEST_ACCOUNT)
-      await tokenCollector.deposit(
-        vetXToken.address, VALUE).should.be.fulfilled
+      await tokenCollector.deposit(TEST_KEY, vetXToken.address, VALUE)
+        .should.be.fulfilled
       const storeBalance = await tokenCollector.balanceOf.call(
         vetXToken.address)
 
       await tokenCollector.withdraw(
+        TEST_KEY,
         vetXToken.address,
         TEST_ACCOUNT, withdrawAmount).should.be.fulfilled
       const post = await vetXToken.balanceOf.call(TEST_ACCOUNT)
