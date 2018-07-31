@@ -87,7 +87,7 @@ contract TokenSale is Module {
         require(projectController != NULL);
 
         // require project exist and already in whitelist
-        (bool existing, uint state) = projectController.getProjectInfo(namespace);
+        (bool existing, uint state,) = projectController.getProjectInfo(namespace);
         require(existing);
         require(state == uint(ProjectController.ProjectState.AppAccepted));
 
@@ -136,6 +136,9 @@ contract TokenSale is Module {
 
         // All set, change the state to TokenSale
         projectController.setState(namespace, uint(ProjectController.ProjectState.TokenSale));
+
+        // Set project controller token address
+        projectController.setTokenAddress(namespace, tokenAddress);
 
         emit _StartTokenSale(msg.sender, namespace, rate, tokenAddress);
     }

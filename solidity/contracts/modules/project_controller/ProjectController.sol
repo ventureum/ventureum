@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "../Module.sol";
 import "./ProjectControllerStorage.sol";
+import "../ether_collector/EtherCollector.sol";
 
 
 contract ProjectController is Module {
@@ -224,12 +225,23 @@ contract ProjectController is Module {
     * @return 
     *   bool: the boolean represent if given project exist 
     *   uint: the project state 
+    *   uint: the number of ether that can lock(wei_lock)
     */
-    function getProjectInfo(bytes32 namespace) public view returns (bool, uint) {
+    function getProjectInfo(bytes32 namespace) public view returns (bool, uint, uint) {
         (bool existing,) = isExisting(namespace);
-        uint state = projectControllerStore.getUint(
-            keccak256(abi.encodePacked(namespace, PROJECT_STATE)));
-        return existing ? (true, state) : (false, 0);
+
+        uint state = 0;
+        if (existing) {
+            state = projectControllerStore.getUint(
+                keccak256(abi.encodePacked(namespace, PROJECT_STATE)));
+        }
+
+        EtherCollector etherCollector = 
+            EtherCollector(contractAddressHandler.contracts(ETHER_COLLECTOR_CI));
+        uint etherCanLock = etherCollector.getDepositValue(
+            keccak256(abi.encodePacked(namespace, PROJECT_ETHER_BALANCE)));
+        
+        return (existing, state, etherCanLock);
     }
 
     /**

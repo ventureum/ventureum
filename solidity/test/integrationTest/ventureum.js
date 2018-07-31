@@ -18,6 +18,7 @@ import {
   RegulatingRating,
   RewardManager,
   RefundManager,
+  PaymentManager,
   Parameterizer,
   TokenSale} from "../constants.js"
 
@@ -27,6 +28,7 @@ const PROJECT_LIST = ["project0", "project1", "project2", "project3"]
 
 const ETH_AMOUNT = 10000000000
 
+const TOKEN_SALE_AMOUNT = 500000000000
 const TOKEN_SALE_RATE = 5
 
 const SALT = 12345
@@ -34,7 +36,7 @@ const VOTE_FOR = 1
 const AGAINST = 0
 
 const VOTE_NUMBER = 1000
-const PURCHASER_DEPOSIT = 10000
+const PURCHASER_DEPOSIT = 10000000
 
 const PROJECT_STATE_NOT_EXIST = 0
 const PROJECT_STATE_APP_SUBMITTED = 1
@@ -71,6 +73,10 @@ const MILESTONE_OBJ_MAX_REGULATION_REWARDS =
   [400, 400],
   [500, 500]]
 const MILESTONE_WEI_LOCKED = [10000, 20000, 30000, 40000, 50000]
+
+const TOTAL_REWARDS = MILESTONE_OBJ_MAX_REGULATION_REWARDS
+  .reduce((acc, lst) => acc + lst.reduce((acc2, n) => acc2 + n), 0)
+const TOTAL_WEILOCKED = MILESTONE_WEI_LOCKED.reduce((acc, n) => acc + n)
 
 /* ----- RegulatingRating Data --------- */
 const LENGTH_FOR_RATING_STAGE = 4 * TimeSetter.OneWeek
@@ -118,25 +124,35 @@ contract("Integration Test", function (accounts) {
   let etherCollector
   let rewardManager
   let refundManager
+  let paymentManager
 
 
   before(async function () {
+    // token(s)
     vetXToken = await VetXToken.Self.deployed()
 
+    // vtcr system
     registry = await Registry.Self.deployed()
     plcrVoting = await PLCRVoting.Self.deployed()
 
+    // modules
     projectController = await ProjectController.Self.deployed()
     milestoneController = await MilestoneController.Self.deployed()
-    tokenCollector = await TokenCollector.Self.deployed()
     tokenSale = await TokenSale.Self.deployed()
     regulatingRating = await RegulatingRating.Self.deployed()
+
+    // carbonvotex system
     carbonVoteXCore = await CarbonVoteX.Core.deployed()
     reputationSystem = await ReputationSystem.Self.deployed()
+
+    // collectors
     etherCollector = await EtherCollector.Self.deployed()
+    tokenCollector = await TokenCollector.Self.deployed()
+
+    // managers
     rewardManager = await RewardManager.Self.deployed()
     refundManager = await RefundManager.Self.deployed()
-
+    paymentManager = await PaymentManager.Self.deployed()
 
     // init project token and transfer all to project owner
     projectToken = await VetXToken.Self.new(
@@ -150,9 +166,6 @@ contract("Integration Test", function (accounts) {
     // Transfer VTX to voter
     await vetXToken.transfer(VOTER1, VOTE_NUMBER)
     await vetXToken.transfer(VOTER2, VOTE_NUMBER)
-
-    // Transfer Eth to rewardManager
-    await etherCollector.deposit({value: ETH_AMOUNT}).should.be.fulfilled
   })
 
   let deposit = async function (address, vetXTokenNum) {
@@ -268,12 +281,6 @@ contract("Integration Test", function (accounts) {
   }
 
   let mockTokenSale = async function (projectHash, rate, projectToken) {
-    // Transfer from PROJECT_OWNER to tokenCollector
-    await projectToken.transfer(
-      tokenCollector.address,
-      VetXToken.initAmount,
-      {from: PROJECT_OWNER})
-
     await deposit(PURCHASER1, PURCHASER_DEPOSIT)
     await deposit(PURCHASER2, PURCHASER_DEPOSIT)
     await deposit(PURCHASER3, PURCHASER_DEPOSIT)
@@ -282,10 +289,15 @@ contract("Integration Test", function (accounts) {
     const purchaser2BalPre = await projectToken.balanceOf(PURCHASER2)
     const purchaser3BalPre = await projectToken.balanceOf(PURCHASER3)
 
+    await projectToken.approve(
+      tokenSale.address,
+      TOKEN_SALE_AMOUNT,
+      {from: PROJECT_OWNER})
     await tokenSale.startTokenSale(
       projectHash,
       rate,
       projectToken.address,
+      TOKEN_SALE_AMOUNT,
       {from: PROJECT_OWNER}).should.be.fulfilled
 
     await tokenSale.buyTokens(
@@ -314,6 +326,28 @@ contract("Integration Test", function (accounts) {
     purchaser1BalPost.minus(purchaser1BalPre)
       .should.be.bignumber.equal(PURCHASER_DEPOSIT * rate)
 
+    /*
+     * project owner can withdraw rest token that has not been sold yet
+     */
+    const preTokenBal = await projectToken.balanceOf(PROJECT_OWNER)
+    await tokenSale.withdrawToken(projectHash, {from: PROJECT_OWNER})
+      .should.be.fulfilled
+    const postTokenBal = await projectToken.balanceOf(PROJECT_OWNER)
+    // calculate rest token that has not been sold yet
+    const restToken = TOKEN_SALE_AMOUNT - PURCHASER_DEPOSIT * rate * 3
+    postTokenBal.minus(preTokenBal).should.be.bignumber.equal(restToken)
+
+   /*
+    * check the number of token sale ether that not been locked.
+    */
+    const res = await projectController.getProjectInfo(projectHash)
+    const etherNotLocked = res[2]
+    const etherNotLockedExpect = PURCHASER_DEPOSIT * 3 - TOTAL_REWARDS
+    etherNotLocked.should.be.bignumber.equal(etherNotLockedExpect)
+
+   /*
+    * check the avg rate
+    */
     avgPrice.should.be.bignumber.equal(rate)
   }
 
@@ -863,6 +897,41 @@ contract("Integration Test", function (accounts) {
       await fastForwardToEndOfMilestone(milestoneId, startTime)
       startTime += MILESTONE_LENGTH[i]
     }
+
+    // After last milestone end, founder finalize the last milestone
+    await milestoneController.founderFinalize(
+      projectHash,
+      MILESTONE_OBJS.length,
+      {from: PROJECT_OWNER}).should.be.fulfilled
+
+    /*
+     * test project owner withdraw rest weilock
+     */
+    for (let i = 0; i < MILESTONE_OBJS.length; i++) {
+      const milestoneId = i + 1
+      const preBalEtherCollector = await web3.eth.getBalance(etherCollector.address)
+      await paymentManager.withdraw(
+        projectHash,
+        milestoneId,
+        {from: PROJECT_OWNER}).should.be.fulfilled
+      const postBalEtherCollector = await web3.eth.getBalance(etherCollector.address)
+
+      const withdrawExpectValue = MILESTONE_WEI_LOCKED[i] -
+        (PURCHASER1_REFUND[i] + PURCHASER2_REFUND[i] + PURCHASER3_REFUND[i]) / TOKEN_SALE_RATE
+      preBalEtherCollector.minus(postBalEtherCollector)
+        .should.be.bignumber.equal(withdrawExpectValue)
+    }
+
+    /*
+     * test after all milestone, the rest ether balance
+     * (In normal, that should be 0, otherwise those ether will locked
+     *    in contract forever.)
+     */
+    const projectInfo = await projectController.getProjectInfo.call(projectHash)
+    const projectEtherBalance = projectInfo[2]
+
+    const projectEtherExpect = PURCHASER_DEPOSIT * 3 - TOTAL_REWARDS - TOTAL_WEILOCKED
+    projectEtherBalance.should.be.bignumber.equal(projectEtherExpect)
 
     await testMilestoneControllerView(projectHash)
   }
