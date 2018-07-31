@@ -20,12 +20,29 @@ contract PaymentManager is Manager {
     }
 
     /**
+    * Get the rest wei lock, how much ETHER(wei) can withdraw/refund
+    *
+    *  @param namespace namespace of the project
+    *  @param milestoneId the id of a milestone
+    *  @return the rest wei lock
+    */
+    function getRestWeiLock(bytes32 namespace, uint milestoneId) public view returns(uint) {
+        // check the milestone state at least IN PROCESS (IP)
+        uint milestoneState = milestoneController.milestoneState(namespace, milestoneId);
+        require(milestoneState >= uint(MilestoneController.MilestoneState.IP));
+
+        uint restWeiLocked = etherCollector.getDepositValue(
+            keccak256(abi.encodePacked(namespace, milestoneId, MILESTONE_ETHER_WEILOCKED)));
+        return restWeiLocked;
+    }
+
+    /**
     *  Release funds from a milestone to project founders
     *  The milestone should be in COMPLETE state
     *  The refundValue should be 
     *      init weiLocked - total refund in refundStage
     *
-    *  @param namespace namespace of the project]
+    *  @param namespace namespace of the project
     *  @param milestoneId the id of a milestone
     */
     function withdraw(bytes32 namespace, uint milestoneId) external founderOnly(namespace) {

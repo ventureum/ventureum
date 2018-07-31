@@ -127,6 +127,10 @@ contract('TokenSaleTest', function (accounts) {
       await tokenSale.buyTokens(
         testCI1, {value: ETH_AMOUNT, from: PURCHASER})
         .should.be.rejectedWith(Error.EVMRevert)
+
+      const tokenAddress = await projectController.getTokenAddress(testCI1)
+        .should.be.fulfilled
+      tokenAddress.should.be.equal(vetXToken.address)
     })
 
     it('should rejected cause project already finalized', async function () {
