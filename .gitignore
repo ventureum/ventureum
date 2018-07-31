@@ -2,3 +2,5 @@
 .DS_Store
 solidity/coverage.json
 solidity/coverage/
+aws/app/node_modules/
+aws/app/package-lock.json

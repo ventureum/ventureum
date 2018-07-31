@@ -1,0 +1,15 @@
+{
+  "name": "ventureumaws",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "[ -e node_modules/web3/build/Release/web3.node  ] || docker run --rm -v $PWD:/data -w /data node:8 npm install web3@1.0.0-beta.34"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "web3": "^1.0.0-beta.34"
+  }
+}
