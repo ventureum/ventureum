@@ -520,7 +520,10 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await aclHandler.permit(
     TokenSale.CI,
     ProjectController.CI,
-    [ProjectController.Sig.SetState])
+    [
+      ProjectController.Sig.SetState,
+      ProjectController.Sig.SetTokenAddress
+    ])
   // Destination: TokenSaleStorage
   await aclHandler.permit(
     TokenSale.CI,
