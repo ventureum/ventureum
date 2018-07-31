@@ -7,17 +7,21 @@ import {
   Kernel} from '../../constants.js'
 const shared = require('../../shared.js')
 
-const TOTAL_SPEND_MONEY = 1000000
-const DEPOSIT_VALUE = 10000
+const TOTAL_SPEND_MONEY = 100000000
+const DEPOSIT_VALUE = 1000000
 const RATE = 10
-const ETH_AMOUNT = 10
-const DEPOSIT_ETH_VALUE = 1000
+const ETH_AMOUNT = 1000
+const TOKEN_SALE_AMOUNT = 1000000
 const MILESTONE_LENGTH = TimeSetter.OneYear
 const LAST_WEEK_LENGTH = MILESTONE_LENGTH + 100 - TimeSetter.OneWeek
 
 const OBJS = [Web3.utils.keccak256('obj1')]
 const OBJ_TYPES = ['type1']
-const OBJ_MAX_REGULATION_REWARDS = [100]
+const OBJ_MAX_REGULATION_REWARDS = [10]
+
+const MAX_REFUND_ETHER = ETH_AMOUNT - OBJ_MAX_REGULATION_REWARDS[0]
+const WEI_LOCKED = 100
+
 
 const FIRST_MILESTONE_ID = 1
 
@@ -56,13 +60,12 @@ contract('RefundManagerTest', function (accounts) {
     // give tokenSale permission to spend ROOT's money
     await vetXToken.approve(tokenCollector.address, TOTAL_SPEND_MONEY)
     await vetXToken.approve(refundManager.address, TOTAL_SPEND_MONEY)
-    await etherCollector.deposit({value: DEPOSIT_ETH_VALUE})
   })
 
   describe('advance functional test', function () {
     it('should refund success', async function () {
       const ADVANCE_PROJECT_CI = Web3.utils.keccak256('advance1')
-      const refundValue = 100
+      const refundValue = WEI_LOCKED * RATE
 
       await registerAndAcceptProject(ADVANCE_PROJECT_CI)
 
@@ -73,13 +76,12 @@ contract('RefundManagerTest', function (accounts) {
         OBJ_TYPES,
         OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
 
+      await vetXToken.approve(tokenSale.address, TOKEN_SALE_AMOUNT)
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        vetXToken.address).should.be.fulfilled
-
-      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
-        .should.be.fulfilled
+        vetXToken.address,
+        TOKEN_SALE_AMOUNT).should.be.fulfilled
 
       await tokenSale.buyTokens(
         ADVANCE_PROJECT_CI,
@@ -100,7 +102,7 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.activate(
         ADVANCE_PROJECT_CI,
         FIRST_MILESTONE_ID,
-        0,
+        WEI_LOCKED,
         minStartTime,
         maxStartTime)
 
@@ -110,8 +112,14 @@ contract('RefundManagerTest', function (accounts) {
         .should.be.fulfilled
 
       const refundInfoBeforeRefund = await refundManager.getRefundInfo(
-        ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID).should.be.fulfilled
+        ADVANCE_PROJECT_CI,
+        FIRST_MILESTONE_ID).should.be.fulfilled
       refundInfoBeforeRefund[0].should.be.equal(false)
+
+
+      // cannot refund more than wei_locked
+      await refundManager.refund(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, refundValue + 10)
+        .should.be.rejectedWith(Error.EVMRevert)
 
       const { logs } = await refundManager.refund(
         ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, refundValue).should.be.fulfilled
@@ -139,13 +147,12 @@ contract('RefundManagerTest', function (accounts) {
         OBJ_TYPES,
         OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
 
+      await vetXToken.approve(tokenSale.address, TOKEN_SALE_AMOUNT)
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        vetXToken.address).should.be.fulfilled
-
-      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
-        .should.be.fulfilled
+        vetXToken.address,
+        TOKEN_SALE_AMOUNT).should.be.fulfilled
 
       await tokenSale.buyTokens(
         ADVANCE_PROJECT_CI,
@@ -160,7 +167,7 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.activate(
         ADVANCE_PROJECT_CI,
         FIRST_MILESTONE_ID,
-        0,
+        WEI_LOCKED,
         minStartTime,
         maxStartTime)
 
@@ -185,12 +192,14 @@ contract('RefundManagerTest', function (accounts) {
         TimeSetter.latestTime() + TimeSetter.OneMonth)
 
       const refundInfoOneMonthAfterRefund = await refundManager.getRefundInfo(
-        ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID).should.be.fulfilled
+        ADVANCE_PROJECT_CI,
+        FIRST_MILESTONE_ID).should.be.fulfilled
       refundInfoOneMonthAfterRefund[0].should.be.equal(true)
       refundInfoOneMonthAfterRefund[1].should.be.bignumber.equal(refundValue / RATE)
 
-      const { logs } = await refundManager.withdraw(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
-        .should.be.fulfilled
+      const { logs } = await refundManager.withdraw(
+        ADVANCE_PROJECT_CI,
+        FIRST_MILESTONE_ID).should.be.fulfilled
       const event = logs.find(e => e.event === 'Withdraw')
       should.exist(event)
       event.args.sender.should.be.equal(ROOT)
@@ -214,13 +223,12 @@ contract('RefundManagerTest', function (accounts) {
         OBJ_TYPES,
         OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
 
+      await vetXToken.approve(tokenSale.address, TOKEN_SALE_AMOUNT)
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        vetXToken.address).should.be.fulfilled
-
-      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
-        .should.be.fulfilled
+        vetXToken.address,
+        TOKEN_SALE_AMOUNT).should.be.fulfilled
 
       await tokenSale.buyTokens(
         ADVANCE_PROJECT_CI,
@@ -235,7 +243,7 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.activate(
         ADVANCE_PROJECT_CI,
         FIRST_MILESTONE_ID,
-        0,
+        WEI_LOCKED,
         minStartTime,
         maxStartTime)
 
@@ -263,13 +271,12 @@ contract('RefundManagerTest', function (accounts) {
         OBJ_TYPES,
         OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
 
+      await vetXToken.approve(tokenSale.address, TOKEN_SALE_AMOUNT)
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        vetXToken.address).should.be.fulfilled
-
-      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
-        .should.be.fulfilled
+        vetXToken.address,
+        TOKEN_SALE_AMOUNT).should.be.fulfilled
 
       await tokenSale.buyTokens(
         ADVANCE_PROJECT_CI,
@@ -284,7 +291,7 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.activate(
         ADVANCE_PROJECT_CI,
         FIRST_MILESTONE_ID,
-        0,
+        WEI_LOCKED,
         minStartTime,
         maxStartTime)
 
@@ -307,33 +314,14 @@ contract('RefundManagerTest', function (accounts) {
         OBJ_TYPES,
         OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
 
+      await vetXToken.approve(tokenSale.address, TOKEN_SALE_AMOUNT)
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        vetXToken.address).should.be.fulfilled
+        vetXToken.address,
+        TOKEN_SALE_AMOUNT).should.be.fulfilled
 
-      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
-        .should.be.fulfilled
-
-      await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.fulfilled
-
-      let currentTime = TimeSetter.latestTime()
-      const minStartTime = currentTime + TimeSetter.OneWeek;
-      const maxStartTime = minStartTime + TimeSetter.OneMonth;
-
-      await milestoneController.activate(
-        ADVANCE_PROJECT_CI,
-        FIRST_MILESTONE_ID,
-        0,
-        minStartTime,
-        maxStartTime)
-
-      await TimeSetter.increaseTimeTo(currentTime + LAST_WEEK_LENGTH)
-      await milestoneController.startRefundStage(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
-        .should.be.fulfilled
-
-      await refundManager.refund(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID, refundValue)
-        .should.be.rejectedWith(Error.EVMRevert)
+      await tokenSale.finalize(ADVANCE_PROJECT_CI).should.be.rejectedWith(Error.EVMRevert)
     })
 
     it("should rejected cause don't have enough balance.", async function () {
@@ -349,13 +337,12 @@ contract('RefundManagerTest', function (accounts) {
         OBJ_TYPES,
         OBJ_MAX_REGULATION_REWARDS).should.be.fulfilled
 
+      await vetXToken.approve(tokenSale.address, TOKEN_SALE_AMOUNT)
       await tokenSale.startTokenSale(
         ADVANCE_PROJECT_CI,
         RATE,
-        vetXToken.address).should.be.fulfilled
-
-      await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
-        .should.be.fulfilled
+        vetXToken.address,
+        TOKEN_SALE_AMOUNT).should.be.fulfilled
 
       await tokenSale.buyTokens(
         ADVANCE_PROJECT_CI,
@@ -370,7 +357,7 @@ contract('RefundManagerTest', function (accounts) {
       await milestoneController.activate(
         ADVANCE_PROJECT_CI,
         FIRST_MILESTONE_ID,
-        0,
+        WEI_LOCKED,
         minStartTime,
         maxStartTime)
 
@@ -384,14 +371,9 @@ contract('RefundManagerTest', function (accounts) {
       // withdraw
       await refundManager.withdraw(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
         .should.be.rejectedWith(Error.EVMRevert)
-      await refundManager.withdraw(ROOT, FIRST_MILESTONE_ID).should.be.rejectedWith(Error.EVMRevert)
-      await TimeSetter.increaseTimeTo(TimeSetter.latestTime() + LAST_WEEK_LENGTH)
-
-      const etherCollectorBalance = web3.eth.getBalance(etherCollector.address)
-      await etherCollector.withdraw(ROOT, etherCollectorBalance)
-      await refundManager.withdraw(ADVANCE_PROJECT_CI, FIRST_MILESTONE_ID)
+      await refundManager.withdraw(ROOT, FIRST_MILESTONE_ID)
         .should.be.rejectedWith(Error.EVMRevert)
-      await etherCollector.deposit({value: etherCollectorBalance})
+      await TimeSetter.increaseTimeTo(TimeSetter.latestTime() + LAST_WEEK_LENGTH)
     })
   })
 })

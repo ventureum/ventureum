@@ -426,7 +426,7 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await aclHandler.permit(
     RefundManager.CI,
     EtherCollector.CI,
-    [EtherCollector.Sig.Withdraw, EtherCollector.Sig.insideTransfer])
+    [EtherCollector.Sig.Withdraw, EtherCollector.Sig.InsideTransfer])
 
   // Source: Payment Manager
   // Destination: Ether Collector
@@ -439,6 +439,13 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     PaymentManager.CI,
     MilestoneController.CI,
     [MilestoneController.Sig.Withdraw])
+
+  // Source: Milestone Controller
+  // Destination: Ether Collector
+  await aclHandler.permit(
+    MilestoneController.CI,
+    EtherCollector.CI,
+    [EtherCollector.Sig.InsideTransfer])
 
   // Source: Reward Manager
   // Destination: Reward Manager Storage
