@@ -8,10 +8,9 @@ const PROJECT_THREE = Web3.utils.keccak256('ProjectThree')
 const MILESTONE_ID_ONE = 1
 const WEI_LOCKED = 100
 const TOTAL_SPEND_MONEY = 1000000
-const DEPOSIT_VALUE = 10000
+const TOKEN_SALE_AMOUNT = 1000000000
 const RATE = 10
-const ETH_AMOUNT = 10
-const DEPOSIT_ETH_VALUE = 1000
+const ETH_AMOUNT = 1000
 const MILESTONE_LENGTH = TimeSetter.OneYear
 
 const OBJ_MAX_REGULATION_REWARD_ONE = 100;
@@ -78,14 +77,14 @@ contract('RewardManagerTest', function (accounts) {
       OBJ_TYPES,
       OBJ_MAX_REGULATION_REWARDS, {from: FOUNDER}).should.be.fulfilled
 
+    await vetXToken.transfer(FOUNDER, TOKEN_SALE_AMOUNT)
+    await vetXToken.approve(tokenSale.address, TOKEN_SALE_AMOUNT, {from: FOUNDER})
     await tokenSale.startTokenSale(
       projectId,
       RATE,
       vetXToken.address,
+      TOKEN_SALE_AMOUNT,
       {from: FOUNDER}).should.be.fulfilled
-
-    await tokenCollector.deposit(vetXToken.address, DEPOSIT_VALUE)
-      .should.be.fulfilled
 
     await tokenSale.buyTokens(
       projectId,
@@ -173,7 +172,6 @@ contract('RewardManagerTest', function (accounts) {
     carbonVoteXCore = context.carbonVoteXCore
     await vetXToken.approve(tokenCollector.address, TOTAL_SPEND_MONEY)
     await vetXToken.approve(rewardManager.address, TOTAL_SPEND_MONEY)
-    await etherCollector.deposit({value: DEPOSIT_ETH_VALUE})
   })
 
 
