@@ -278,6 +278,17 @@ contract('RewardManagerTest', function (accounts) {
     expectedRegulatorTwoRewardForObjTwo.should.be.bignumber.equal(
       initBalance - newBalance)
 
+    /*
+     * test getRegulationRewardsInfo before withdraw
+     */
+    const rewardsInfoBeforeWithdraw = await rewardManager.getRegulationRewardsInfo(
+      PROJECT_ONE,
+      MILESTONE_ID_ONE,
+      OBJ_TWO,
+      {from: REGULATOR_ONE})
+    rewardsInfoBeforeWithdraw[0].should.be.equal(true)
+    rewardsInfoBeforeWithdraw[1].should.be.bignumber.equal(expectedRegulatorOneRewardForObjTwo)
+
     initBalance = newBalance
     await rewardManager.withdraw(
       PROJECT_ONE,
@@ -287,6 +298,17 @@ contract('RewardManagerTest', function (accounts) {
     newBalance = await web3.eth.getBalance(etherCollector.address)
     expectedRegulatorOneRewardForObjTwo.should.be.bignumber.equal(
       initBalance - newBalance)
+
+    /*
+     * test getRegulationRewardsInfo after withdraw
+     */
+    const rewardsInfoAfterWithdraw = await rewardManager.getRegulationRewardsInfo(
+      PROJECT_ONE,
+      MILESTONE_ID_ONE,
+      OBJ_TWO,
+      {from: REGULATOR_ONE})
+    rewardsInfoAfterWithdraw[0].should.be.equal(true)
+    rewardsInfoAfterWithdraw[1].should.be.bignumber.equal(0)
   })
 
   it('should fail to withdraw if an objective is not finalized',
@@ -330,8 +352,18 @@ contract('RewardManagerTest', function (accounts) {
       await regulatingRating.bid(
         PROJECT_TWO, MILESTONE_ID_ONE, OBJ_TWO, {from: REGULATOR_TWO})
 
+    /*
+     * test getRegulationRewardsInfo when not finalized
+     */
+    const rewardsInfoNotFinalized = await rewardManager.getRegulationRewardsInfo(
+      PROJECT_TWO,
+      MILESTONE_ID_ONE,
+      OBJ_TWO,
+      {from: REGULATOR_ONE})
+    rewardsInfoNotFinalized[0].should.be.equal(false)
+
       await rewardManager.withdraw(
-        PROJECT_ONE,
+        PROJECT_TWO,
         MILESTONE_ID_ONE,
         OBJ_TWO,
         {from: REGULATOR_ONE}).should.be.rejectedWith(Error.EVMRevert)
