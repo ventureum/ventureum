@@ -24,6 +24,43 @@ contract RewardManager is Manager {
     }
 
     /*
+     * get the regulation rewards withdraw information 
+     *
+     * @param namespace namespace of the project
+     * @param milestoneId id of a milestone
+     * @param obj an objective of a milestone of the project
+     * @return
+     *      bool: check if this obj bid is finalize or not
+     *      uint: get the rewards for msg.sender that can withdraw. 
+     *            (If withdraw already, this value would be 0)
+     */
+    function getRegulationRewardsInfo(bytes32 namespace, uint milestoneId, bytes32 obj)
+        public
+        view
+        returns(bool, uint)
+    {
+        bytes32 alreadyWithdrawnKey = keccak256(abi.encodePacked(
+            namespace,
+            milestoneId,
+            obj,
+            msg.sender,
+            ALREADY_WITHDRAWN));
+
+        (bool finalized, uint rewards) = milestoneController.getRegulationRewardsForRegulator(
+            namespace,
+            milestoneId,
+            obj,
+            msg.sender
+        );
+
+        if (rewardManagerStore.getUint(alreadyWithdrawnKey) == TRUE) {
+            rewards = 0;
+        }
+
+        return (finalized, rewards);
+    }
+
+    /*
      * Withdraw reward by regulator after Rating Stage of the milestone
      *
      * @param namespace namespace of the project
