@@ -1,6 +1,8 @@
-const OwnSolConfig = require('../config/ownSolConfig.js')
-const ThirdPartySolConfig = require('../config/thirdPartySolConfig.js')
-const ThirdPartyJsConfig = require('../config/thirdPartyJsConfig.js')
+const rootDir = '../'
+
+const OwnSolConfig = require(rootDir + 'config/ownSolConfig.js')
+const ThirdPartySolConfig = require(rootDir + 'config/thirdPartySolConfig.js')
+const ThirdPartyJsConfig = require(rootDir + 'config/thirdPartyJsConfig.js')
 
 const _ownSolConstants = OwnSolConfig.default(artifacts)
 const _thirdPartySolConstants = ThirdPartySolConfig.default(artifacts)

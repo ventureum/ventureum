@@ -3,8 +3,8 @@
 const OwnSolConfig = require('../config/ownSolConfig.js')
 const ThirdPartySolConfig = require('../config/thirdPartySolConfig.js')
 
-const Configuation = require('../config/configuation.js')
-const MigrationConfiguation = require('../config/migrationConfiguation.js')
+const Configuration = require('../config/configuration.js')
+const MigrationConfiguration = require('../config/migrationConfiguration.js')
 
 const duration = require('openzeppelin-solidity/test/helpers/increaseTime').duration
 
@@ -284,8 +284,8 @@ module.exports = function (deployer, network, accounts) {
         Registry.Self.address)
 
       // Configuration
-      await Configuation.run(instances, accounts, artifacts)
-      await MigrationConfiguation.initMockData(instances, accounts, artifacts)
+      await Configuration.run(instances, accounts, artifacts)
+      await MigrationConfiguration.initMockData(instances, accounts, artifacts)
 
       const presale = Presale.Self.at(Presale.Self.address)
       const vetXToken = VetXToken.Self.at(VetXToken.Self.address)

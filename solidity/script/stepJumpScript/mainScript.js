@@ -1,19 +1,18 @@
 'use strict'
 
-const OwnSolConfig = require('../config/ownSolConfig.js')
-const ThirdPartySolConfig = require('../config/thirdPartySolConfig.js')
-const ThirdPartyJsConfig = require('../config/thirdPartyJsConfig.js')
+const rootDir = "../../"
 
-const Configuation = require('../config/configuation.js')
-const MigrationConfiguation = require('../config/migrationConfiguation.js')
+const OwnSolConfig = require(rootDir + 'config/ownSolConfig.js')
+const ThirdPartySolConfig = require(rootDir + 'config/thirdPartySolConfig.js')
+const ThirdPartyJsConfig = require(rootDir + 'config/thirdPartyJsConfig.js')
 
 const duration = require('openzeppelin-solidity/test/helpers/increaseTime').duration
 
 const mockData = require("./mockData.js")
 
-const latestTime = require('./../config/TimeSetter.js').latestTime
-const increaseTimeTo = require('./../config/TimeSetter.js').increaseTimeTo
-const advanceBlock = require('./../config/TimeSetter.js').advanceBlock
+const latestTime = require(rootDir + 'config/TimeSetter.js').latestTime
+const increaseTimeTo = require(rootDir + 'config/TimeSetter.js').increaseTimeTo
+const advanceBlock = require(rootDir + 'config/TimeSetter.js').advanceBlock
 
 module.exports = function (JumpId, MilestoneId, artifacts, accounts, web3) {
   //Get Constant

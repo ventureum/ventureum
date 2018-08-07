@@ -1,7 +1,9 @@
 'use strict'
 
-const ThirdPartySolConstants = require('../config/thirdPartySolConfig.js')
-const OwnSolConstants = require('../config/ownSolConfig.js')
+const rootDir = '../'
+
+const ThirdPartySolConstants = require(rootDir + 'config/thirdPartySolConfig.js')
+const OwnSolConstants = require(rootDir + 'config/ownSolConfig.js')
 
 exports.initMockData = async (instances, accounts, artifacts) => {
   const _thirdPartySolConstants = ThirdPartySolConstants.default(artifacts)
