@@ -1,4 +1,6 @@
-const ThirdPartyJsConfig = require("../config/thirdPartyJsConfig.js")
+const rootDir = '../'
+
+const ThirdPartyJsConfig = require(rootDir + "config/thirdPartyJsConfig.js")
 
 const toWei = function (num) {
   return num.toString() + '0'.repeat(18)

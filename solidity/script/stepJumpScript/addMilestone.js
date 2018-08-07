@@ -1,5 +1,7 @@
-const main = require("./mainScript.js")
-const mockData = require("./mockData.js")
+const rootDir = "../../"
+
+const main = require(rootDir + "script/stepJumpScript/mainScript.js")
+const mockData = require(rootDir + "script/stepJumpScript/mockData.js")
 
 module.exports = async function (callback) {
   const data = mockData(artifacts)

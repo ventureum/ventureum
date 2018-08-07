@@ -1,5 +1,7 @@
-const main = require("./mainScript.js")
-const mockData = require("./mockData.js")
+const rootDir = '../../'
+
+const main = require(rootDir + "script/stepJumpScript/mainScript.js")
+const mockData = require(rootDir + "script/stepJumpScript/mockData.js")
 
 module.exports = async function (callback) {
   const data = mockData(artifacts)
@@ -14,7 +16,7 @@ module.exports = async function (callback) {
   }
 
   await main(
-    data.STATES.MILESTONE_ACTIVATE,
+    data.STATES.MILESTONE_REFUND,
     MILESTONE_ID,
     artifacts,
     web3.eth.accounts,

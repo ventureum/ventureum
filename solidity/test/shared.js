@@ -19,7 +19,9 @@ import {
   Registry,
   CarbonVoteX} from './constants.js'
 
-const Configuation = require('../config/configuation.js')
+const rootDir = '../'
+
+const Configuration = require(rootDir + 'config/configuration.js')
 
 const run = exports.run = async (accounts) => {
   let instances = {}
@@ -149,7 +151,7 @@ const run = exports.run = async (accounts) => {
     instances.projectController.address
   )
 
-  const instanceObjects = await Configuation.run(instances, accounts, artifacts)
+  const instanceObjects = await Configuration.run(instances, accounts, artifacts)
 
   return instanceObjects
 }

@@ -1,10 +1,11 @@
-import { increaseTimeTo, duration } from
-  'openzeppelin-solidity/test/helpers/increaseTime'
+import { increaseTimeTo, duration } from 'openzeppelin-solidity/test/helpers/increaseTime'
 import latestTime from 'openzeppelin-solidity/test/helpers/latestTime'
 import EVMRevert from 'openzeppelin-solidity/test/helpers/EVMRevert'
 import { advanceBlock } from 'openzeppelin-solidity/test/helpers/advanceToBlock'
 
-const ThirdPartyJsConfig = require("../config/thirdPartyJsConfig.js")
+const rootDir = '../'
+
+const ThirdPartyJsConfig = require(rootDir + "config/thirdPartyJsConfig.js")
 
 export default function (artifacts) {
   const _thirdPartyJsConstants = ThirdPartyJsConfig.default()

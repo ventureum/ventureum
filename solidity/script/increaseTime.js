@@ -1,6 +1,8 @@
-const increaseTimeTo = require('./../config/TimeSetter.js').increaseTimeTo
-const latestTime = require('./../config/TimeSetter.js').latestTime
-const advanceBlock = require('./../config/TimeSetter.js').advanceBlock
+const rootDir = "../"
+
+const increaseTimeTo = require(rootDir + 'config/TimeSetter.js').increaseTimeTo
+const latestTime = require(rootDir + 'config/TimeSetter.js').latestTime
+const advanceBlock = require(rootDir + 'config/TimeSetter.js').advanceBlock
 const duration = require('openzeppelin-solidity/test/helpers/increaseTime').duration
 
 module.exports = async function (callback) {

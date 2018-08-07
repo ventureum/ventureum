@@ -1,7 +1,9 @@
 'use strict'
 
-const OwnSolConfig = require('../config/ownSolConfig.js')
-const ThirdPartySolConfig = require('../config/thirdPartySolConfig.js')
+const rootDir = '../../'
+
+const OwnSolConfig = require(rootDir + 'config/ownSolConfig.js')
+const ThirdPartySolConfig = require(rootDir + 'config/thirdPartySolConfig.js')
 
 const BigNumber = require('bignumber.js')
 
