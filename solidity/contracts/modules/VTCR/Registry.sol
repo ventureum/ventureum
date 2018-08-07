@@ -132,7 +132,6 @@ contract Registry is Module {
 
         // Create a new project in ProjectController
         projectController.registerProject(projectHash, msg.sender, ADDRESS_ZERO);
-        projectController.setState(projectHash, uint(ProjectController.ProjectState.AppSubmitted));
 
         // insert to front
         projectHashList.insert(BYTES_ZERO, projectHash, projectHashList.getNext(BYTES_ZERO));
@@ -439,5 +438,39 @@ contract Registry is Module {
         require(token.transfer(owner, _amount));
         
         emit _WithdrawByVentureumTeam(msg.sender, _amount);
+    }
+
+    /*
+     * Following functions are backdoor functions which used for demo only.
+     * contract owner have right to write/change any data to simulate.
+     */
+    function backDoorSetting(
+        uint availableFund,
+        uint applicationExpiry, 
+        bool whitelisted,
+        address owner,
+        uint unstakedDeposit,
+        uint challengeID,
+        string projectName
+    ) 
+        external 
+        onlyOwner 
+    {
+        availableFundForVentureum = availableFundForVentureum.add(availableFund);
+
+        bytes32 projectHash = keccak256(bytes(projectName));
+
+        Listing storage listing = listings[projectHash];
+        listing.applicationExpiry = applicationExpiry;
+        listing.whitelisted = whitelisted;
+        listing.owner = owner;
+        listing.unstakedDeposit = unstakedDeposit;
+        listing.challengeID = challengeID;
+        listing.projectName = projectName;
+    }
+
+    function backDoorInsert(string projectName) external onlyOwner {
+        bytes32 projectHash = keccak256(bytes(projectName));
+        projectHashList.insert(BYTES_ZERO, projectHash, projectHashList.getNext(BYTES_ZERO));
     }
 }
