@@ -40,6 +40,12 @@ const RegulatingRating = _ownSolConstants.RegulatingRating
 // * Token sale
 const TokenSale = _ownSolConstants.TokenSale
 
+// * Mock project token
+const MockProjectToken1 = _ownSolConstants.MockProjectToken1
+const MockProjectToken2 = _ownSolConstants.MockProjectToken2
+const MockProjectToken3 = _ownSolConstants.MockProjectToken3
+const MockProjectToken4 = _ownSolConstants.MockProjectToken4
+
 // third party contracts:
 //* Token
 const VetXToken = _thirdPartySolConstants.VetXToken
@@ -193,6 +199,12 @@ module.exports = function (deployer, network, accounts) {
 
       // Deploy carbon vote x
       await deployer.deploy(CarbonVoteXCore, accounts[0])
+
+      // Deploy Mock Project Token
+      await deployer.deploy(MockProjectToken1.Self)
+      await deployer.deploy(MockProjectToken2.Self)
+      await deployer.deploy(MockProjectToken3.Self)
+      await deployer.deploy(MockProjectToken4.Self)
 
       // Deploy reputation system
       await deployer.deploy(

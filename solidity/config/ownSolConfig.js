@@ -282,6 +282,19 @@ export default function (artifacts) {
   class MockedSale {}
   MockedSale.Self = artifacts.require('./mocks/MockedSale.sol')
 
+  // Mocked Project Token
+  class MockProjectToken1 {}
+  MockProjectToken1.Self = artifacts.require('./mocks/MockProjectToken1.sol')
+  // Mocked Project Token
+  class MockProjectToken2 {}
+  MockProjectToken2.Self = artifacts.require('./mocks/MockProjectToken2.sol')
+  // Mocked Project Token
+  class MockProjectToken3 {}
+  MockProjectToken3.Self = artifacts.require('./mocks/MockProjectToken3.sol')
+  // Mocked Project Token
+  class MockProjectToken4 {}
+  MockProjectToken4.Self = artifacts.require('./mocks/MockProjectToken4.sol')
+
   return {
     'RefundManager': RefundManager,
     'ProjectController': ProjectController,
@@ -299,6 +312,10 @@ export default function (artifacts) {
     'PLCRVoting': PLCRVoting,
     'Challenge': Challenge,
     'Registry': Registry,
-    'Parameterizer': Parameterizer
+    'Parameterizer': Parameterizer,
+    'MockProjectToken1': MockProjectToken1,
+    'MockProjectToken2': MockProjectToken2,
+    'MockProjectToken3': MockProjectToken3,
+    'MockProjectToken4': MockProjectToken4
   }
 }
