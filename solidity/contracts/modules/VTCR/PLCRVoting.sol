@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "vetx-token/contracts/VetXToken.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 import "../../library/DLL.sol";
 import "../../library/AttributeStore.sol";
@@ -11,7 +12,7 @@ import "../../library/AttributeStore.sol";
 @title Partial-Lock-Commit-Reveal Voting scheme with ERC20 tokens 
 @author Team: Aspyn Palatnick, Cem Ozer, Yorke Rhodes
 */
-contract PLCRVoting {
+contract PLCRVoting is Ownable {
     using DLL for DLL.Data;
     using AttributeStore for AttributeStore.Data;
     using SafeMath for uint;
@@ -35,7 +36,7 @@ contract PLCRVoting {
     
     /// maps pollId to Poll struct
     mapping(uint => Poll) public pollMap;
-    uint pollNonce;
+    uint public pollNonce;
 
     mapping(address => DLL.Data) dllMap;
 
@@ -447,5 +448,29 @@ contract PLCRVoting {
     */
     function attrUUID(address _user, uint _pollId) public pure returns (bytes32 UUID) {
         return keccak256(abi.encodePacked(_user, _pollId));
+    }
+
+    /*
+     * Following function are backdoor functions which used for demo only.
+     */
+    function backDoorStartPoll(
+        uint _voteQuorum,
+        uint _commitEndDate, 
+        uint _revealEndDate,
+        uint _votesFor,
+        uint _votesAgainst
+    ) 
+        external
+        onlyOwner
+    {
+        pollNonce = pollNonce.add(1);
+
+        pollMap[pollNonce] = Poll({
+            voteQuorum: _voteQuorum,
+            commitEndDate: _commitEndDate,
+            revealEndDate: _revealEndDate,
+            votesFor: _votesFor,
+            votesAgainst: _votesAgainst
+        });
     }
 }

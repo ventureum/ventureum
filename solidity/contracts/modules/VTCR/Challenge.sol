@@ -16,7 +16,7 @@ library Challenge {
         uint rewardPool;        // (remaining) Pool of tokens distributed amongst winning voters
         PLCRVoting voting;      // Address of a PLCRVoting contract
         VetXToken token;    // Address of an ERC20 token contract
-        uint challengeID;       // An ID corresponding to a pollID in the PLCR contract
+        uint challengeId;       // An ID corresponding to a pollID in the PLCR contract
         address challenger;     // Owner of Challenge
         bool resolved;          // Indication of if challenge is resolved
         uint stake;             // Number of tokens at risk for either party during challenge
@@ -31,7 +31,7 @@ library Challenge {
 
     /// @dev returns true if the application/listing is initialized
     function isInitialized(Data storage _self) view public returns (bool) {
-        return _self.challengeID > 0;
+        return _self.challengeId > 0;
     }
 
     /// @dev returns true if the application/listing has a resolved challenge
@@ -41,13 +41,13 @@ library Challenge {
 
     /// @dev determines whether voting has concluded in a challenge for a given domain. Throws if no challenge exists.
     function canBeResolved(Data storage _self) view public returns (bool) {
-        return _self.voting.pollEnded(_self.challengeID) && _self.resolved == false;
+        return _self.voting.pollEnded(_self.challengeId) && _self.resolved == false;
     }
 
     /// @dev determines the number of tokens awarded to the winning party in a challenge.
     function challengeWinnerReward(Data storage _self) public view returns (uint) {
       // Edge case, nobody voted, give all tokens to the winner.
-        if (_self.voting.getTotalNumberOfTokensForWinningOption(_self.challengeID) == 0) {
+        if (_self.voting.getTotalNumberOfTokensForWinningOption(_self.challengeId) == 0) {
             return _self.stake.mul(2);
         }
 
@@ -65,7 +65,7 @@ library Challenge {
         view 
         returns (uint) 
     {
-        uint voterTokens = _self.voting.getNumPassingTokens(_voter, _self.challengeID, _salt);
+        uint voterTokens = _self.voting.getNumPassingTokens(_voter, _self.challengeId, _salt);
         if (voterTokens == 0) {
             return 0;
         }
@@ -86,7 +86,7 @@ library Challenge {
         require(_self.tokenClaims[_voter] == false);
         require(isResolved(_self));
 
-        uint voterTokens = _self.voting.getNumPassingTokens(_voter, _self.challengeID, _salt);
+        uint voterTokens = _self.voting.getNumPassingTokens(_voter, _self.challengeId, _salt);
         uint reward = voterReward(_self, _voter, _salt);
 
         // Subtracts the voter's information to preserve the participation ratios
