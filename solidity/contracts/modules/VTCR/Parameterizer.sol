@@ -59,49 +59,33 @@ contract Parameterizer {
   @param _tokenAddr        address of the token which parameterizes this system
   @param _plcrAddr         address of a PLCR voting contract for the provided token
   @param _minDeposit       minimum deposit for listing to be whitelisted  
-  @param _pMinDeposit      minimum deposit to propose a reparameterization
   @param _applyStageLen    period over which applicants wait to be whitelisted
-  @param _pApplyStageLen   period over which reparmeterization proposals wait to be processed 
   @param _dispensationPct  percentage of losing party's deposit distributed to winning party
-  @param _pDispensationPct percentage of losing party's deposit distributed to winning party in parameterizer
   @param _commitStageLen  length of commit period for voting
-  @param _pCommitStageLen length of commit period for voting in parameterizer
   @param _revealStageLen  length of reveal period for voting
-  @param _pRevealStageLen length of reveal period for voting in parameterizer
   @param _voteQuorum       type of majority out of 100 necessary for vote success
-  @param _pVoteQuorum      type of majority out of 100 necessary for vote success in parameterizer
   */
     constructor( 
         address _tokenAddr,
         address _plcrAddr,
         uint _minDeposit,
-        uint _pMinDeposit,
         uint _applyStageLen,
-        uint _pApplyStageLen,
         uint _commitStageLen,
-        uint _pCommitStageLen,
         uint _revealStageLen,
-        uint _pRevealStageLen,
         uint _dispensationPct,
-        uint _pDispensationPct,
-        uint _voteQuorum,
-        uint _pVoteQuorum
-        ) public {
+        uint _voteQuorum
+    )
+        public 
+    {
         token = VetXToken(_tokenAddr);
         voting = PLCRVoting(_plcrAddr);
 
         set("minDeposit", _minDeposit);
-        set("pMinDeposit", _pMinDeposit);
         set("applyStageLen", _applyStageLen);
-        set("pApplyStageLen", _pApplyStageLen);
         set("commitStageLen", _commitStageLen);
-        set("pCommitStageLen", _pCommitStageLen);
         set("revealStageLen", _revealStageLen);
-        set("pRevealStageLen", _pRevealStageLen);
         set("dispensationPct", _dispensationPct);
-        set("pDispensationPct", _pDispensationPct);
         set("voteQuorum", _voteQuorum);
-        set("pVoteQuorum", _pVoteQuorum);
     }
 
   // -----------------------
@@ -114,7 +98,7 @@ contract Parameterizer {
   @param _value the proposed value to set the param to be set
   */
     function proposeReparameterization(string _name, uint _value) public returns (bytes32) {
-        uint deposit = get("pMinDeposit");
+        uint deposit = get("minDeposit");
         bytes32 propID = keccak256(abi.encodePacked(_name, _value));
 
         require(!propExists(propID)); // Forbid duplicate proposals
@@ -123,12 +107,12 @@ contract Parameterizer {
 
         // attach name and value to pollID
         proposals[propID] = ParamProposal({
-            appExpiry: now.add(get("pApplyStageLen")),
+            appExpiry: now.add(get("applyStageLen")),
             challengeId: 0,
             deposit: deposit,
             name: _name,
             owner: msg.sender,
-            processBy: now.add(get("pApplyStageLen")).add(get("pCommitStageLen")).add(get("pRevealStageLen")).add(PROCESSBY),
+            processBy: now.add(get("applyStageLen")).add(get("commitStageLen")).add(get("revealStageLen")).add(PROCESSBY),
             value: _value
         });
 
@@ -142,7 +126,7 @@ contract Parameterizer {
   */
     function challengeReparameterization(bytes32 _propID) public returns (uint challengeId) {
         ParamProposal memory prop = proposals[_propID];
-        uint deposit = get("pMinDeposit");
+        uint deposit = get("minDeposit");
 
         require(propExists(_propID) && prop.challengeId == 0); 
 
@@ -150,9 +134,9 @@ contract Parameterizer {
         require(token.transferFrom(msg.sender, this, deposit));
         //start poll
         uint pollID = voting.startPoll(
-            get("pVoteQuorum"),
-            get("pCommitStageLen"),
-            get("pRevealStageLen")
+            get("voteQuorum"),
+            get("commitStageLen"),
+            get("revealStageLen")
             );
 
         uint oneHundred = 100;
@@ -161,7 +145,7 @@ contract Parameterizer {
             voting: voting,
             token: token,
             challengeId: pollID,
-            rewardPool: oneHundred.sub(get("pDispensationPct")).mul(deposit).div(oneHundred),
+            rewardPool: oneHundred.sub(get("dispensationPct")).mul(deposit).div(oneHundred),
             stake: deposit,
             resolved: false,
             winningTokens: 0

@@ -131,17 +131,11 @@ const run = exports.run = async (accounts) => {
     instances.vetXToken.address,
     instances.plcrVoting.address,
     Parameterizer.paramDefaults.minDeposit,
-    Parameterizer.paramDefaults.pMinDeposit,
     Parameterizer.paramDefaults.applyStageLength,
-    Parameterizer.paramDefaults.pApplyStageLength,
     Parameterizer.paramDefaults.commitStageLength,
-    Parameterizer.paramDefaults.pCommitStageLength,
     Parameterizer.paramDefaults.revealStageLength,
-    Parameterizer.paramDefaults.pRevealStageLength,
     Parameterizer.paramDefaults.dispensationPct,
-    Parameterizer.paramDefaults.pDispensationPct,
-    Parameterizer.paramDefaults.voteQuorum,
-    Parameterizer.paramDefaults.pVoteQuorum)
+    Parameterizer.paramDefaults.voteQuorum)
 
   instances.registry = await Registry.Self.new(
     instances.kernel.address,
