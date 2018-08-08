@@ -42,17 +42,11 @@ export default function (artifacts) {
   Parameterizer.Self = artifacts.require('modules/VTCR/Parameterizer')
   Parameterizer.paramDefaults = {
     "minDeposit": toWei(50000),
-    "pMinDeposit": toWei(50000),
     "applyStageLength": 300,
-    "pApplyStageLength": 60,
     "commitStageLength": 60,
-    "pCommitStageLength": 60,
     "revealStageLength": 60,
-    "pRevealStageLength": 120,
     "dispensationPct": 50,
-    "pDispensationPct": 50,
     "voteQuorum": 50,
-    "pVoteQuorum": 50,
     "initialTokenPurchase": toWei(100000000)
   }
 

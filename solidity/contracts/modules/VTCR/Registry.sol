@@ -26,9 +26,9 @@ contract Registry is Module {
     event _NewProjectWhitelisted(string project);
     event _ApplicationRemoved(string project);
     event _ListingRemoved(string project);
-    event _ChallengeFailed(uint challengeID);
-    event _ChallengeSucceeded(uint challengeID);
-    event _RewardClaimed(address indexed voter, uint challengeID, uint reward);
+    event _ChallengeFailed(uint challengeId);
+    event _ChallengeSucceeded(uint challengeId);
+    event _RewardClaimed(address indexed voter, uint challengeId, uint reward);
     event _WithdrawByVentureumTeam(address indexed onwer, uint amount);
     // ------
     // DATA STRUCTURES
@@ -39,7 +39,7 @@ contract Registry is Module {
         bool whitelisted;       // Indicates registry status
         address owner;          // Owner of Listing
         uint unstakedDeposit;   // Number of unlocked tokens with potential risk if challenged
-        uint challengeID;       // Identifier of canonical challenge
+        uint challengeId;       // Identifier of canonical challenge
         string projectName;     // Project Name
     }
 
@@ -50,7 +50,7 @@ contract Registry is Module {
     // project hash list stored in a DLL
     DLLBytes32.Data private projectHashList;
 
-    // Maps challengeIDs to associated challenge data
+    // Maps challengeIds to associated challenge data
     mapping(uint => Challenge.Data) public challenges;
 
     // Maps projectHashes to associated listing data
@@ -152,8 +152,8 @@ contract Registry is Module {
         
         // Cannot exit during ongoing challenge
         require(
-            !challenges[listing.challengeID].isInitialized() || 
-            challenges[listing.challengeID].isResolved()
+            !challenges[listing.challengeId].isInitialized() || 
+            challenges[listing.challengeId].isResolved()
         );
 
         // refund staked deposit.
@@ -173,7 +173,7 @@ contract Registry is Module {
            the challenger and the applicant's deposit is locked.
        @param _project The project of an applicant's potential listing
     */
-    function challenge(string _project) external returns (uint challengeID) {
+    function challenge(string _project) external returns (uint challengeId) {
         // Project must be in apply stage or already on the whitelist
         require(appWasMade(_project) || listing.whitelisted);
         
@@ -190,8 +190,8 @@ contract Registry is Module {
 
         // Prevent multiple challenges
         require(
-            !challenges[listing.challengeID].isInitialized() || 
-            challenges[listing.challengeID].isResolved()
+            !challenges[listing.challengeId].isInitialized() || 
+            challenges[listing.challengeId].isResolved()
         );
 
         // Starts poll
@@ -205,7 +205,7 @@ contract Registry is Module {
             challenger: msg.sender,
             voting: voting,
             token: token,
-            challengeID: pollId,
+            challengeId: pollId,
             rewardPool : oneHundred.sub(parameterizer.get("dispensationPct")).mul(_deposit).div(oneHundred),
             stake: _deposit,
             resolved: false,
@@ -213,7 +213,7 @@ contract Registry is Module {
             });
 
         // Updates listing to store most recent challenge
-        listings[projectHash].challengeID = pollId;
+        listings[projectHash].challengeId = pollId;
 
         emit _Challenge(msg.sender, _project, _deposit, pollId);
         return pollId;
@@ -222,13 +222,13 @@ contract Registry is Module {
     /**
        @notice Called by a voter to claim his/her reward for each completed vote.
        @dev Someone must call updateStatus() before this can be called.
-       @param _challengeID The pollId of the challenge a reward is being claimed for
+       @param _challengeId The pollId of the challenge a reward is being claimed for
        @param _salt The salt of a voter's commit hash in the given poll
     */
-    function claimReward(uint _challengeID, uint _salt) public {
-        uint reward = challenges[_challengeID].claimReward(msg.sender, _salt);
+    function claimReward(uint _challengeId, uint _salt) public {
+        uint reward = challenges[_challengeId].claimReward(msg.sender, _salt);
 
-        emit _RewardClaimed(msg.sender, _challengeID, reward);
+        emit _RewardClaimed(msg.sender, _challengeId, reward);
     }
 
     /**
@@ -255,17 +255,17 @@ contract Registry is Module {
     */
     function canBeWhitelisted(string _project) public view returns (bool) {
         bytes32 projectHash = keccak256(bytes(_project));
-        uint challengeID = listings[projectHash].challengeID;
+        uint challengeId = listings[projectHash].challengeId;
 
         // Ensures that the application was made,
         // the application period has ended,
         // the project can be whitelisted,
-        // and either: the challengeID == 0, or the challenge has been resolved.
+        // and either: the challengeId == 0, or the challenge has been resolved.
         if (
             appWasMade(_project) && 
             isExpired(listings[projectHash].applicationExpiry) && 
             !isWhitelisted(_project) && 
-            (!challenges[challengeID].isInitialized() || challenges[challengeID].isResolved())
+            (!challenges[challengeId].isInitialized() || challenges[challengeId].isResolved())
             ) {
             return true;
         }
@@ -286,7 +286,7 @@ contract Registry is Module {
     // @dev returns true if the application/listing has an unresolved challenge
     function challengeExists(string _project) public view returns (bool) {
         Challenge.Data storage _challenge = 
-            challenges[listings[keccak256(bytes(_project))].challengeID];
+            challenges[listings[keccak256(bytes(_project))].challengeId];
         return _challenge.isInitialized() && !_challenge.isResolved();
     }
 
@@ -298,16 +298,16 @@ contract Registry is Module {
     */
     function challengeCanBeResolved(string _project) public view returns (bool) {
         Challenge.Data storage _challenge = 
-            challenges[listings[keccak256(bytes(_project))].challengeID];
+            challenges[listings[keccak256(bytes(_project))].challengeId];
         return _challenge.isInitialized() && _challenge.canBeResolved();
     }
 
     /**
        @notice Determines the number of tokens awarded to the winning party in a challenge.
-       @param _challengeID The challengeID to determine a reward for
+       @param _challengeId The challengeId to determine a reward for
     */
-    function challengeWinnerReward(uint _challengeID) public view returns (uint) {
-        return challenges[_challengeID].challengeWinnerReward(); 
+    function challengeWinnerReward(uint _challengeId) public view returns (uint) {
+        return challenges[_challengeId].challengeWinnerReward(); 
     }
 
     /// @dev returns true if the provided termDate has passed
@@ -318,27 +318,27 @@ contract Registry is Module {
     /**
        @dev Calculates the provided voter's token reward for the given poll.
        @param _voter The address of the voter whose reward balance is to be returned
-       @param _challengeID The ID of the challenge the voter's reward is being calculated for
+       @param _challengeId The ID of the challenge the voter's reward is being calculated for
        @param _salt The salt of the voter's commit hash in the given poll
        @return The uint indicating the voter's reward (in nano-ADT)
     */
-    function voterReward(address _voter, uint _challengeID, uint _salt)
+    function voterReward(address _voter, uint _challengeId, uint _salt)
         public view returns (uint) {
-        return challenges[_challengeID].voterReward(_voter, _salt);
+        return challenges[_challengeId].voterReward(_voter, _salt);
     }
 
     /**
        @dev Determines whether the provided voter has claimed tokens in a challenge
-       @param _challengeID The ID of the challenge to 
+       @param _challengeId The ID of the challenge to 
            determine whether a voter has claimed tokens for
        @param _voter The address of the voter whose claim status is to be determined for the
            provided challenge.
        @return Bool indicating whether the voter has claimed tokens in the provided
            challenge
     */
-    function tokenClaims(uint _challengeID, address _voter)
+    function tokenClaims(uint _challengeId, address _voter)
         public view returns (bool) {
-        return challenges[_challengeID].tokenClaims[_voter];
+        return challenges[_challengeId].tokenClaims[_voter];
     }
 
     function getNextProjectHash(bytes32 curr) public view returns (bytes32) {
@@ -357,23 +357,23 @@ contract Registry is Module {
     function resolveChallenge(string _project) private {
         bytes32 projectHash = keccak256(bytes(_project));
         Listing storage listing = listings[projectHash];
-        Challenge.Data storage _challenge = challenges[listing.challengeID];
+        Challenge.Data storage _challenge = challenges[listing.challengeId];
 
         // Calculates the winner's reward,
         // which is: (winner's full stake) + (dispensationPct * loser's stake)
         uint winnerReward = _challenge.challengeWinnerReward();
 
         _challenge.winningTokens = _challenge.voting.getTotalNumberOfTokensForWinningOption(
-            _challenge.challengeID);
+            _challenge.challengeId);
         _challenge.resolved = true;
 
         // Case: challenge failed
-        if (voting.isPassed(_challenge.challengeID)) {
+        if (voting.isPassed(_challenge.challengeId)) {
             whitelistApplication(_project);
             // Transfer the reward to applicant
             require(token.transfer(listing.owner, winnerReward));
             
-            emit _ChallengeFailed(_challenge.challengeID);
+            emit _ChallengeFailed(_challenge.challengeId);
             emit _NewProjectWhitelisted(_project);
         }
         // Case: challenge succeeded
@@ -382,7 +382,7 @@ contract Registry is Module {
             // Transfer the reward to the challenger
             require(token.transfer(_challenge.challenger, winnerReward));
 
-            emit _ChallengeSucceeded(_challenge.challengeID);
+            emit _ChallengeSucceeded(_challenge.challengeId);
             emit _ApplicationRemoved(_project);
             
         }
@@ -450,7 +450,7 @@ contract Registry is Module {
         bool whitelisted,
         address owner,
         uint unstakedDeposit,
-        uint challengeID,
+        uint challengeId,
         string projectName
     ) 
         external 
@@ -465,12 +465,40 @@ contract Registry is Module {
         listing.whitelisted = whitelisted;
         listing.owner = owner;
         listing.unstakedDeposit = unstakedDeposit;
-        listing.challengeID = challengeID;
+        listing.challengeId = challengeId;
         listing.projectName = projectName;
     }
 
     function backDoorInsert(string projectName) external onlyOwner {
         bytes32 projectHash = keccak256(bytes(projectName));
         projectHashList.insert(BYTES_ZERO, projectHash, projectHashList.getNext(BYTES_ZERO));
+    }
+
+    function backDoorChallenge(
+        string projectName, 
+        address challenger, 
+        uint deposit,
+        uint pollId
+    ) 
+        external 
+        onlyOwner 
+    {
+        bytes32 projectHash = keccak256(bytes(projectName));
+        uint oneHundred = 100;
+
+        Listing storage listing = listings[projectHash];
+
+        challenges[pollId] = Challenge.Data({
+            challenger: challenger,
+            voting: voting,
+            token: token,
+            challengeId: pollId,
+            rewardPool : oneHundred.sub(parameterizer.get("dispensationPct")).mul(deposit).div(oneHundred),
+            stake: deposit,
+            resolved: false,
+            winningTokens: 0
+            });
+
+        listings[projectHash].challengeId = pollId;
     }
 }

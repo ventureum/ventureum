@@ -140,17 +140,11 @@ module.exports = function (deployer, network, accounts) {
         VetXToken.Self.address,
         PLCRVoting.Self.address,
         Parameterizer.paramDefaults.minDeposit,
-        Parameterizer.paramDefaults.pMinDeposit,
         Parameterizer.paramDefaults.applyStageLength,
-        Parameterizer.paramDefaults.pApplyStageLength,
         Parameterizer.paramDefaults.commitStageLength,
-        Parameterizer.paramDefaults.pCommitStageLength,
         Parameterizer.paramDefaults.revealStageLength,
-        Parameterizer.paramDefaults.pRevealStageLength,
         Parameterizer.paramDefaults.dispensationPct,
-        Parameterizer.paramDefaults.pDispensationPct,
-        Parameterizer.paramDefaults.voteQuorum,
-        Parameterizer.paramDefaults.pVoteQuorum)
+        Parameterizer.paramDefaults.voteQuorum)
 
       // Deploy acl handler
       await deployer.deploy(ACLHandler.Self, Kernel.Self.address)
