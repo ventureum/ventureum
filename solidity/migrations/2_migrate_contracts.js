@@ -2,6 +2,7 @@
 
 const OwnSolConfig = require('../config/ownSolConfig.js')
 const ThirdPartySolConfig = require('../config/thirdPartySolConfig.js')
+const ThirdPartyJsConfig = require('../config/thirdPartyJsConfig.js')
 
 const Configuration = require('../config/configuration.js')
 const MigrationConfiguration = require('../config/migrationConfiguration.js')
@@ -11,6 +12,7 @@ const duration = require('openzeppelin-solidity/test/helpers/increaseTime').dura
 // Get Constant
 const _ownSolConstants = OwnSolConfig.default(artifacts)
 const _thirdPartySolConstants = ThirdPartySolConfig.default(artifacts)
+const _thirdPartyJsConstants = ThirdPartyJsConfig.default()
 
 // Own contracts:
 //* VTCR
@@ -220,8 +222,8 @@ module.exports = function (deployer, network, accounts) {
         ProjectController.Self.address)
 
       // Deploy Registry
-      const startTime = web3.eth.getBlock('latest').timestamp + duration.weeks(1)
-      const endTime = web3.eth.getBlock('latest').timestamp + duration.weeks(2)
+      const startTime= (await _thirdPartyJsConstants.wweb3.eth.getBlock('latest')).timestamp + duration.weeks(1)
+      const endTime= (await _thirdPartyJsConstants.wweb3.eth.getBlock('latest')).timestamp + duration.weeks(2)
       await deployer.deploy(
         Presale.Self,
         accounts[0],

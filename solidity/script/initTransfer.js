@@ -1,4 +1,10 @@
+const rootDir = '../'
+
+const ThirdPartyJsConfig = require(rootDir + 'config/thirdPartyJsConfig.js')
+const _thirdPartyJsConstants = ThirdPartyJsConfig.default()
+
 module.exports = async function (callback) {
+  const defaultAccounts = await _thirdPartyJsConstants.ganachiWeb3.eth.getAccounts()
   const accounts = [
     '0xa9B0cF09F88B95cE9596524bD15147f8664B85bF', // Root
     '0x12088237BE120f6516287a74fC01B60935B1cf89', // Owner
@@ -9,10 +15,14 @@ module.exports = async function (callback) {
     '0x3D4f280889a01d3397d97CC49506a343F605dE8e'  // Regulator3
   ]
 
+  const value = await _thirdPartyJsConstants.ganachiWeb3.utils.toWei("1000000000000000", "ether")
+
   for (let i = 0; i < accounts.length; i++) {
-    web3.eth.sendTransaction({ to: accounts[i],
-      from: web3.eth.accounts[i],
-      value:web3.toWei("1000000000000000", "ether")
+    await _thirdPartyJsConstants.ganachiWeb3.eth.sendTransaction({
+      to: accounts[i],
+      from: defaultAccounts[i],
+      value: value
     })
   }
+  console.log("transfer end")
 }
