@@ -2,9 +2,9 @@ let Web3 = require('web3')
 
 const NAMESPACE = 'namespace'
 const ADDRESS = 'address'
-const MASTER_PRIVATE_KEY = 'master_private_key'
-const GAS_LIMIT = 'gas_limit'
-const PROVIDER_URL = 'provider_url'
+const MASTER_PRIVATE_KEY = 'masterPrivateKey'
+const GAS_LIMIT = 'gasLimit'
+const PROVIDER_URL = 'providerUrl'
 
 class CarbonVoteX {
   constructor (info) {
@@ -15,10 +15,6 @@ class CarbonVoteX {
     this.web3.eth.defaultAccount = account[ADDRESS]
     this.defaultAccount = account[ADDRESS]
 
-    this.reputationSystemInstance = new this.web3.eth.Contract(
-      info.reputationSystemAbi,
-      info.reputationSystemAddress)
-
     this.erc20TokenInstance = new this.web3.eth.Contract(
       info.erc20TokenAbi,
       info.erc20TokenAddress)
@@ -28,7 +24,6 @@ class CarbonVoteX {
       info.carbonVoteXCoreAddress)
 
     this.gasLimit = info.config[GAS_LIMIT]
-
     this.namespace = this.web3.utils.sha3(info[NAMESPACE])
   }
 
@@ -86,9 +81,9 @@ class CarbonVoteX {
       return
     }
 
-  /*
-   * check if contract receive enough gas from user address
-   */
+    /*
+     * check if contract receive enough gas from user address
+     */
     let gasAlreadySend = await this.carbonVoteXCoreInstance.methods.getGasSent(
       this.namespace,
       pollId,
