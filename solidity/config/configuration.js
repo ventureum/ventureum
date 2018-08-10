@@ -348,7 +348,7 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await aclHandler.permit(
     Kernel.RootCI,
     MilestoneController.Storage.CI,
-    [Storage.Sig.SetUint, Storage.Sig.SetArray])
+    [Storage.Sig.SetUint, Storage.Sig.SetArray, Storage.Sig.SetUintArray])
 
   // Destination: Token Collector
   await aclHandler.permit(

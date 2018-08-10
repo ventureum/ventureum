@@ -18,7 +18,7 @@ const BigNumber = require('bignumber.js')
 /*
  * backdoor functions
  */
-const applyApplication = require(rootDir + 'script/demo/demo.js').applyApplication
+const whitelistProject = require(rootDir + 'script/demo/demo.js').whitelistProject
 
 
 module.exports = async function (callback) {
@@ -38,7 +38,7 @@ module.exports = async function (callback) {
    * Backdoor functions
    */
   advanceBlock(web3)
-  const expiryTime = latestTime(web3) + 100000
-  await applyApplication(Contracts, artifacts, "Project just after apply", Accounts.PROJECT_OWNER, expiryTime)
-  console.log("apply application end")
+  const expiryTime = latestTime(web3) + 10000000
+  await whitelistProject(Contracts, artifacts, "Project whitelisted", Accounts.PROJECT_OWNER, expiryTime)
+  console.log("whitelist project end")
 }

@@ -101,7 +101,7 @@ contract MilestoneController is Module {
     bytes constant OBJS = "objs";
     bytes constant OBJ_TYPES = "objTypes";
     bytes constant OBJ_MAX_REGULATION_REWARDS = "objMaxRegulationRewards";
-    bytes constant CUMULATIVE_MAX_REGULATION_REWARDS = "CumulativeMaxRegulationRewards";
+    bytes constant CUMULATIVE_MAX_REGULATION_REWARDS = "cumulativeMaxRegulationRewards";
     bytes constant NUMBER_MILESTONES = "numberMilestones";
     bytes constant MILESTONE_LENGTH = "milestoneLength";
     uint constant GLOBAL_MILESTONE_ID = uint(-1);
