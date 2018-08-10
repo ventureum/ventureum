@@ -4,52 +4,48 @@ let s3 = new AWS.S3()
 const BUCKET_NAME = 'backend.ventureum.io'
 const FOLDER = "contracts/"
 const CARBON_VOTE_X_CORE_JSON = 'CarbonVoteXCore.json'
-const ERC20_TOKEN_JSON = 'ERC20.json'
+const VETXTOKEN_JSON = 'VetXToken.json'
 const CONFIG_JSON = 'config.json'
 
-let getPromise = function (key) {
-  let params = {
+/*
+ * get json from aws s3
+ */
+let getJsonFromS3 = async function (key) {
+  const params = {
     Bucket: BUCKET_NAME,
     Key: key
   }
+  const res = await s3.getObject(params).promise()
 
-  let promise = s3.getObject(params, (err) => {
-    if (err) {
-      console.log('Get promise for file ' + key + ' failed.' + err)
-    }
-  }).promise()
-  return promise
+  return JSON.parse(res.Body)
 }
 
+/*
+ * Load all information from aws s3
+ */
 let loadInfo = async function () {
-  const erc20TokenPromise = getPromise(FOLDER + ERC20_TOKEN_JSON)
-  const configPromise = getPromise(CONFIG_JSON)
-  const carbonVoteXCorePromise = getPromise(FOLDER + CARBON_VOTE_X_CORE_JSON)
+  /*
+   * Get vetXTokenJson, carbonVoteXCoreJson, configJson from s3
+   */
+  const vetXTokenJson = await getJsonFromS3(FOLDER + VETXTOKEN_JSON)
+  const carbonVoteXCoreJson = await getJsonFromS3(FOLDER + CARBON_VOTE_X_CORE_JSON)
+  const configJson = await getJsonFromS3(CONFIG_JSON)
 
-  let erc20TokenJson
-  let configJson
-  let carbonVoteXCoreJson
-  try {
-    let erc20TokenPromise = await erc20TokenPromise
-    let configRes = await configPromise
-    let carbonVoteXCoreRes = await carbonVoteXCorePromise
+  /*
+   * the address and abi of VetXToken
+   */
+  const vetXTokenAddress = Object.values(vetXTokenJson['networks'])[0]['address']
+  const vetXTokenAbi = vetXTokenJson['abi']
 
-    erc20TokenJson = JSON.parse(erc20TokenPromise.Body)
-    configJson = JSON.parse(configRes.Body)
-    carbonVoteXCoreJson = JSON.parse(carbonVoteXCoreRes.Body)
-  } catch (e) {
-    console.log('Promise Rejected:' + e + "\n ==== Retrying ... ===")
-    let info = await loadInfo()
-    return info
-  }
-  const erc20TokenAddress = Object.values(erc20TokenJson['networks'])[0]['address']
-  const erc20TokenAbi = erc20TokenJson['abi']
+  /*
+   * the address and abi of CarbonVoteX
+   */
   const carbonVoteXCoreAddress = Object.values(carbonVoteXCoreJson['networks'])[0]['address']
   const carbonVoteXCoreAbi = carbonVoteXCoreJson['abi']
 
-  let info = {
-    erc20TokenAbi: erc20TokenAbi,
-    erc20TokenAddress: erc20TokenAddress,
+  const info = {
+    vetXTokenAbi: vetXTokenAbi,
+    vetXTokenAddress: vetXTokenAddress,
     config: configJson,
     carbonVoteXCoreAbi: carbonVoteXCoreAbi,
     carbonVoteXCoreAddress: carbonVoteXCoreAddress

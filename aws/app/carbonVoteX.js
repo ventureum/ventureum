@@ -1,4 +1,4 @@
-let Web3 = require('web3')
+const Web3 = require('web3')
 
 const NAMESPACE = 'namespace'
 const ADDRESS = 'address'
@@ -8,100 +8,136 @@ const PROVIDER_URL = 'providerUrl'
 
 class CarbonVoteX {
   constructor (info) {
-    this.web3 = new Web3(info.config[PROVIDER_URL])
+    /*
+     * create web3
+     */
+    const web3 = new Web3(info.config[PROVIDER_URL])
 
-    const account = this.web3.eth.accounts.privateKeyToAccount(info.config[MASTER_PRIVATE_KEY])
-    this.web3.eth.accounts.wallet.add(account)
-    this.web3.eth.defaultAccount = account[ADDRESS]
+    /*
+     * load root account and set root account to be default account
+     */
+    const account = web3.eth.accounts.privateKeyToAccount(info.config[MASTER_PRIVATE_KEY])
+    web3.eth.accounts.wallet.add(account)
+    web3.eth.defaultAccount = account[ADDRESS]
     this.defaultAccount = account[ADDRESS]
 
-    this.erc20TokenInstance = new this.web3.eth.Contract(
-      info.erc20TokenAbi,
-      info.erc20TokenAddress)
+    /*
+     * VetXToken
+     */
+    this.vetXToken = new web3.eth.Contract(
+      info.vetXTokenAbi,
+      info.vetXTokenAddress)
 
-    this.carbonVoteXCoreInstance = new this.web3.eth.Contract(
+    /*
+     * CarbonVoteXCore
+     */
+    this.carbonVoteXCore = new web3.eth.Contract(
       info.carbonVoteXCoreAbi,
       info.carbonVoteXCoreAddress)
 
+    /*
+     * Namespace and gaslimit
+     */
+    this.namespace = web3.utils.sha3('ReputationSystem')
     this.gasLimit = info.config[GAS_LIMIT]
-    this.namespace = this.web3.utils.sha3(info[NAMESPACE])
   }
 
-  async getBalance (pollId, address, callback) {
-    let poll = await this.getPollInfo(pollId)
-    let bal = await this.balanceOfByBlock(address, poll[0])
-    if (poll === false || bal === -1) {
-      callback('Error: get poll failed or get balance failed.')
+  /*
+   * Get the VetXToken balance of the given address when the given poll started
+   */
+  async getPollStartBalance (pollId, address, callback) {
+    const poll = await this.getPollInfo(pollId, callback)
+    const blockNum = poll[0]
+    const bal = await this.balanceOfByBlock(address, blockNum, callback)
+
+    /*
+     * when the given pollId not exist
+     */
+    if (poll === false) {
+      callback('Error: get poll (id: ' + pollId + ') failed')
       return -1
     }
+
+    /*
+     * when cannot find address's vtx balance when poll started
+     */
+    if (bal === -1) {
+      callback('Error: get balance of ' + address + ' when block(#' + blockNum + ')failed.')
+      return -1
+    }
+
     return bal
   }
 
+  /*
+   * get the estimate gas when call writeAvailableVotes
+   */
   async getEstimateGas (pollId, address, callback) {
-    let bal = await this.getBalance(pollId, address, callback)
-    this.carbonVoteXCoreInstance.methods.writeAvailableVotes(
-      this.namespace,
-      pollId,
-      address,
-      bal).estimateGas({from: this.defaultAccount, gas: this.gasLimit}).then((gasAmount) => {
-        console.log('gas amount ' + gasAmount)
+    const bal = await this.getPollStartBalance(pollId, address, callback)
+
+    this.carbonVoteXCore.methods.writeAvailableVotes(this.namespace, pollId, address, bal)
+      .estimateGas({from: this.defaultAccount, gas: this.gasLimit})
+      .then((gasAmount) => {
+        /*
+         * callback success when receive gas amount
+         */
         callback(null, {
           'statusCode': 200,
           'state': 'res',
           'body': gasAmount
         })
       }).catch((err) => {
-        callback({
-          'statusCode': 200,
-          'state': 'err',
-          'err': err
-        })
+        /*
+         * callback failed when this transaction revert
+         */
+        callback(err)
       })
   }
 
   /*
-   * get available vote rights
+   * write available vote rights to this poll
    */
-  async getVotes (pollId, address, callback) {
-    console.log('processing getVotes...')
-    let bal = await this.getBalance(pollId, address)
+  async writeAvailableVotes (pollId, address, callback) {
+    const bal = await this.getPollStartBalance(pollId, address)
 
     /*
      * check if already receive available vote right before
      */
-    let bool = await this.carbonVoteXCoreInstance.methods.voteObtained(
-      this.namespace,
-      pollId,
-      address).call()
+    const bool =
+      await this.carbonVoteXCore.methods.voteObtained(this.namespace, pollId, address).call()
     if (bool === true) {
-      callback(null, {
-        'statusCode': 200,
-        'err': 'Failed: already get vote.'
-      })
+      /*
+       * callback failed when this address already received vote rights
+       */
+      callback('Failed: already get vote.')
       return
     }
 
     /*
      * check if contract receive enough gas from user address
      */
-    let gasAlreadySend = await this.carbonVoteXCoreInstance.methods.getGasSent(
+    const gasAlreadySend = await this.carbonVoteXCore.methods.getGasSent(
       this.namespace,
       pollId,
       address).call()
-    let estimateGas = await this.carbonVoteXCoreInstance.methods.writeAvailableVotes(
+    const estimateGas = await this.carbonVoteXCore.methods.writeAvailableVotes(
       this.namespace,
       pollId,
       address,
       bal).estimateGas({from: this.defaultAccount, gas: this.gasLimit})
     if (gasAlreadySend < estimateGas) {
-      callback(null, {
-        'statusCode': 200,
-        'err': 'Failed: transaction need ' + estimateGas + ' gases, you only payed ' + gas + ' gases.'
-      })
+      /*
+       * callback failed when not received enough gas.
+       */
+      callback('Failed: transaction need ' + estimateGas +
+        ' gases, you only payed ' + gasAlreadySend + ' gases.')
       return
     }
 
-    this.carbonVoteXCoreInstance.methods.writeAvailableVotes(
+    /*
+     * write available votes for the given address
+     */
+    this.carbonVoteXCore.methods.writeAvailableVotes(
       this.namespace,
       pollId,
       address,
@@ -113,34 +149,29 @@ class CarbonVoteX {
       })
   }
 
-  async balanceOfByBlock (address, blockNum) {
+  /*
+   * get the vtx balance of the given address when the given block number
+   */
+  async balanceOfByBlock (address, blockNum, callback) {
     try {
-      let bal = await this.tokenInstance.methods.balanceOf(address).call('undefined', blockNum)
+      const bal = await this.vetXToken.methods.balanceOf(address).call('undefined', blockNum)
       return bal
     } catch (e) {
-      console.log('get balance failed. Failed message: ' + e)
+      callback('get balance failed. Failed message: ' + e)
       return -1
     }
   }
 
-  async balanceOf (address) {
+  /*
+   * get information of the given pollId
+   */
+  async getPollInfo (pollId, callback) {
     try {
-      let bal = await this.tokenInstance.methods.balanceOf(address).call()
-      return bal
-    } catch (e) {
-      console.log('get balance failed. Failed message: ' + e)
-      return -1
-    }
-  }
-
-  async getPollInfo (pollId) {
-    try {
-      let poll = await this.contractInstance.methods.getPoll(pollId)
+      const poll = await this.carbonVoteXCore.methods.getPoll(this.namespace, pollId)
         .call({from: this.defaultAccount, gas: this.gasLimit})
-      console.log('poll:' + JSON.stringify(poll))
       return poll
     } catch (e) {
-      console.log('get poll failed. Failed message: ' + e)
+      callback('get poll failed. Failed message: ' + e)
       return false
     }
   }
