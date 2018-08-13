@@ -49,6 +49,7 @@ async function applicationSetting (
   const availableFund = amount.div(2)
   const applicationExpiry = expiryTime
   const unstakedDeposit = amount.minus(amount.div(2))
+  const projectExisted = await Contracts.registry.appWasMade(projectName)
   const challengeID = 0
 
   /*
@@ -56,8 +57,7 @@ async function applicationSetting (
    */
   await Contracts.vetXToken.transfer(
     Contracts.registry.address,
-    amount,
-    {from: owner}).should.be.fulfilled
+    amount).should.be.fulfilled
 
   /*
    * registry.apply
@@ -85,7 +85,9 @@ async function applicationSetting (
     ThirdPartyJsConfig.default().Web3.utils.soliditySha3(owner, NAMESPACE),
     projectHash)
   // projectHashList-insert
-  await Contracts.registry.backDoorInsert(projectName)
+  if (projectExisted == false) {
+    await Contracts.registry.backDoorInsert(projectName)
+  }
 }
 
 export async function applyApplication (Contracts, artifacts, projectName, owner, expiryTime) {
@@ -131,9 +133,9 @@ export async function challengeProject (
 }
 
 export async function whitelistProject (Contracts, artifacts, projectName, owner, expiryTime) {
+  const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
   await applicationSetting(Contracts, artifacts, projectName, owner, expiryTime, true)
 
-  const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
 
   await Contracts.projectControllerStorage.setUint(
     ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, PROJECT_STATE),

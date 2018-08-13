@@ -23,5 +23,6 @@ export function getDemoAccounts (web3) {
   Accounts.REGULATOR1 = accounts[5]
   Accounts.REGULATOR2 = accounts[6]
 
+  Accounts.PROJECT_OWNER = "0x12088237be120f6516287a74fc01b60935b1cf89"
   return Accounts
 }
