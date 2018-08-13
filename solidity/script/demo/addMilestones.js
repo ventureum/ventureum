@@ -45,8 +45,7 @@ module.exports = async function (callback) {
   /*
    * Ether&Token prepare
    */
-  const projectOwnerInitVtx = new BigNumber("500000" + '0'.repeat(18))
-  await Contracts.vetXToken.transfer(Accounts.PROJECT_OWNER, projectOwnerInitVtx)
+  const projectOwnerInitVtx = new BigNumber("50000" + '0'.repeat(18))
 
   /*
    * Backdoor functions

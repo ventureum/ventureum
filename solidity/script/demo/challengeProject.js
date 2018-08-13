@@ -36,7 +36,6 @@ module.exports = async function (callback) {
    * Ether&Token prepare
    */
   const projectOwnerInitVtx = new BigNumber("500000" + '0'.repeat(18))
-  await Contracts.vetXToken.transfer(Accounts.PROJECT_OWNER, projectOwnerInitVtx)
   await Contracts.vetXToken.transfer(Accounts.CHALLENGER, projectOwnerInitVtx)
 
   /*
@@ -57,4 +56,5 @@ module.exports = async function (callback) {
     params.revealStageLength + latestTime(web3),
     0,
     0)
+  console.log("challenge project end")
 }
