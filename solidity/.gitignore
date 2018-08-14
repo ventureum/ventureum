@@ -3,7 +3,6 @@
 contracts/.DS_Store
 test/.DS_Store
 *.iml
-package-lock.json
 .soliumignore
 .soliumrc.json
 node_modules/
