@@ -17,6 +17,11 @@ contract EtherCollector is Module {
     }
 
     /*
+     * Allow someone send ether to this contract
+     */
+    function () external payable {}
+
+    /*
       Bind with a storage contract
 
       @param _store the address of a storage contract
@@ -25,7 +30,6 @@ contract EtherCollector is Module {
         super.setStorage(_store);
         store = EtherCollectorStorage(storeAddr);
     }
-
 
     /*
       Deposit ethers into the contract

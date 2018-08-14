@@ -28,6 +28,17 @@ const CUMULATIVE_MAX_REGULATION_REWARDS = 'cumulativeMaxRegulationRewards'
 const NUMBER_MILESTONES = 'numberMilestones'
 const MILESTONE_LENGTH = 'milestoneLength'
 const PROJECT_TOTAL_REGULATOR_REWARDS = 'projectTotalRegulatorRewards'
+const RATE = "rate"
+const TOTAL_TOKEN_FOR_SALE = "totalTokenForSale"
+const TOTAL_TOKEN_SOLD = "totalTokenSold"
+const TOTAL_ETH_RECEIVED = "totalEthReceived"
+const FINALIZED = "finalized"
+const AVERAGE_PRICE = "averagePrice"
+const PROJECT_TOKEN_BALANCE = "projectTokenBalance"
+const PROJECT_ETHER_BALANCE = "projectEtherBalance"
+const FALSE = 0
+const TRUE = 1
+
 
 /*
  * Constant field
@@ -142,6 +153,23 @@ export async function whitelistProject (Contracts, artifacts, projectName, owner
     OwnSolConfig.default(artifacts).ProjectController.State.AppAccepted)
 }
 
+export async function initMilestone (Contracts, artifacts, projectName) {
+  const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
+
+  await Contracts.milestoneControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      GLOBAL_MILESTONE_ID,
+      NUMBER_MILESTONES),
+    0)
+
+  await Contracts.milestoneControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      PROJECT_TOTAL_REGULATOR_REWARDS),
+    0)
+}
+
 export async function projectAddMilestones (Contracts, artifacts, projectName, milestoneInfo) {
   const length = milestoneInfo[0]
   const objs = milestoneInfo[1]
@@ -156,15 +184,15 @@ export async function projectAddMilestones (Contracts, artifacts, projectName, m
     /*
      * milestone-verifyAddingMilestone view (get milestoneId)
      */
-    const numMilestones = await Contracts.milestoneControllerStorage.getUint(
+    const numMilestones = await milestoneControllerStorage.getUint(
       ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
         projectHash,
         GLOBAL_MILESTONE_ID,
         NUMBER_MILESTONES))
-    const milestoneId = numMilestones + 1
+    const milestoneId = numMilestones.plus(1)
 
     // set number of milestone
-    await Contracts.milestoneControllerStorage.setUint(
+    await milestoneControllerStorage.setUint(
       ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
         projectHash,
         GLOBAL_MILESTONE_ID,
@@ -175,7 +203,7 @@ export async function projectAddMilestones (Contracts, artifacts, projectName, m
     /*
      * initMilestone
      */
-    await Contracts.milestoneControllerStorage.setUint(
+    await milestoneControllerStorage.setUint(
       ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
         projectHash,
         milestoneId,
@@ -226,4 +254,110 @@ export async function projectAddMilestones (Contracts, artifacts, projectName, m
         PROJECT_TOTAL_REGULATOR_REWARDS),
       projectTotalRewards)
   }
+}
+
+export async function tokenSale(Contracts, artifacts, projectName, tokenSaleInfo) {
+  const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
+  const defaultAccounts = await ThirdPartyJsConfig.default().wweb3.eth.getAccounts()
+  const rate = tokenSaleInfo.rate
+  const projectToken = tokenSaleInfo.projectToken
+  const tokenAddress = projectToken.address
+  const initTotalTokenForSale = tokenSaleInfo.initTotalTokenForSale
+  const projectTokenBalance = tokenSaleInfo.projectTokenBalance
+  const totalEtherReceived = tokenSaleInfo.totalEtherReceived
+
+  const maxRewards = await Contracts.milestoneControllerStorage.getUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      PROJECT_TOTAL_REGULATOR_REWARDS))
+  const projectEtherBalance = (new BigNumber(totalEtherReceived)).minus(maxRewards)
+
+  /*
+   * start token sale
+   */
+  await Contracts.tokenSaleStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, RATE),
+    rate)
+
+  await Contracts.tokenSaleStorage.setAddress(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, TOKEN_ADDRESS),
+    tokenAddress)
+
+  await Contracts.tokenSaleStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, TOTAL_TOKEN_FOR_SALE),
+    initTotalTokenForSale)
+
+  // Note: there are also three setUint:
+  //     TOTAL_TOKEN_SOLD, TOTAL_ETH_RECEIVED, FINALIZED
+  // those three field will changed when finalized, so remove from here avoid duplicate
+
+
+  // token collector deposit projectTokenBalance projectToken
+  await projectToken.transfer(Contracts.tokenCollector.address, projectTokenBalance)
+  const projectTokenBalanceKey = ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+    projectHash,
+    PROJECT_TOKEN_BALANCE)
+  await Contracts.tokenCollectorStorage.setUint(projectTokenBalanceKey, projectTokenBalance)
+
+  // projectController setState to TokenSale
+  await Contracts.projectControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, PROJECT_STATE),
+    OwnSolConfig.default(artifacts).ProjectController.State.TokenSale)
+
+  // projectController setTokenAddress to tokenAddress
+  await Contracts.projectControllerStorage.setAddress(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, TOKEN_ADDRESS),
+    tokenAddress)
+
+  /*
+   * buy token
+   */
+  // ether collector deposit numEther
+  await ThirdPartyJsConfig.default().wweb3.eth.sendTransaction({
+    from: defaultAccounts[0],
+    to: Contracts.etherCollector.address,
+    value: projectEtherBalance
+  })
+  const projectEtherBalanceKey = ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+    projectHash,
+    PROJECT_ETHER_BALANCE)
+  await Contracts.etherCollectorStorage.setUint(projectEtherBalanceKey, projectEtherBalance)
+
+  /*
+   * finalize
+   */
+  const totalTokenSold = initTotalTokenForSale - projectTokenBalance
+
+  await Contracts.tokenSaleStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, TOTAL_TOKEN_SOLD),
+    totalTokenSold)
+
+  await Contracts.tokenSaleStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, TOTAL_ETH_RECEIVED),
+    totalEtherReceived)
+
+  let avg = 0
+  if (totalEtherReceived != 0) {
+    avg = parseInt(totalTokenSold / totalEtherReceived)
+  }
+
+  await Contracts.tokenSaleStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, AVERAGE_PRICE),
+    avg)
+
+  await Contracts.tokenSaleStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, FINALIZED),
+    TRUE)
+
+  // milestone controller get project total regulator rewards
+  await ThirdPartyJsConfig.default().wweb3.eth.sendTransaction({
+    from: defaultAccounts[0],
+    to: Contracts.etherCollector.address,
+    value: maxRewards
+  })
+  await Contracts.etherCollectorStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      PROJECT_TOTAL_REGULATOR_REWARDS),
+    maxRewards)
 }

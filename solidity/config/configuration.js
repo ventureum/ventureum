@@ -359,6 +359,19 @@ const run = exports.run = async (instances, accounts, artifacts) => {
       TokenCollector.Sig.Withdraw,
       TokenCollector.Sig.Deposit
     ])
+  await aclHandler.permit(
+    Kernel.RootCI,
+    TokenCollector.Storage.CI,
+    [Storage.Sig.SetUint])
+
+  // Destination: Token Sale
+  await aclHandler.permit(
+    Kernel.RootCI,
+    TokenSale.Storage.CI,
+    [
+      Storage.Sig.SetUint,
+      Storage.Sig.SetAddress
+    ])
 
   // Destination: Ether Collector
   await aclHandler.permit(

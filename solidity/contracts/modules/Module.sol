@@ -16,10 +16,10 @@ contract Module is Base, Ownable {
     bytes32 constant public ACL_HANDLER_CI = keccak256("ACLHandler");
     bytes32 constant public CONTRACT_ADDRESS_HANDLER_CI = keccak256("ContractAddressHandler");
 
-    bytes32 constant public PROJECT_TOKEN_BALANCE = "projectTokenBalance";
-    bytes32 constant public PROJECT_ETHER_BALANCE = "projectEtherBalance";
-    bytes32 constant public MILESTONE_ETHER_WEILOCKED = "milestoneEtherWeilocked";
-    bytes32 constant public PROJECT_TOTAL_REGULATOR_REWARDS = "projectTotalRegulatorRewards";
+    string constant public PROJECT_TOKEN_BALANCE = "projectTokenBalance";
+    string constant public PROJECT_ETHER_BALANCE = "projectEtherBalance";
+    string constant public MILESTONE_ETHER_WEILOCKED = "milestoneEtherWeilocked";
+    string constant public PROJECT_TOTAL_REGULATOR_REWARDS = "projectTotalRegulatorRewards";
 
     uint constant PERCENTAGE_BASE = 1e18;
 
