@@ -38,6 +38,10 @@ const PROJECT_TOKEN_BALANCE = "projectTokenBalance"
 const PROJECT_ETHER_BALANCE = "projectEtherBalance"
 const FALSE = 0
 const TRUE = 1
+const START_TIME = "startTime"
+const END_TIME = "endTime"
+const WEI_LOCKED = "weiLocked"
+const MILESTONE_ETHER_WEILOCKED = 'milestoneEtherWeilocked'
 
 
 /*
@@ -360,4 +364,114 @@ export async function tokenSale(Contracts, artifacts, projectName, tokenSaleInfo
       projectHash,
       PROJECT_TOTAL_REGULATOR_REWARDS),
     maxRewards)
+}
+
+export async function activateMilestone(Contracts, artifacts, projectName, milestoneInfo) {
+  const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
+  const defaultAccounts = await ThirdPartyJsConfig.default().wweb3.eth.getAccounts()
+
+  const milestoneId = milestoneInfo.id
+  const weiLocked = milestoneInfo.weiLocked
+  const minStartTime = milestoneInfo.minStartTime
+  const maxStartTime = milestoneInfo.maxStartTime
+  const startTime = milestoneInfo.startTime
+  const endTime = milestoneInfo.endTime
+  const objMaxRegulationRewards = milestoneInfo.rewards
+
+
+  await Contracts.milestoneControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      milestoneId,
+      STATE),
+    OwnSolConfig.default(artifacts).MilestoneController.State.IP)
+
+  await Contracts.milestoneControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      milestoneId,
+      WEI_LOCKED),
+    weiLocked)
+
+  /*
+   * ScheduleMilestone
+   */
+  await Contracts.projectControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, PROJECT_STATE),
+    OwnSolConfig.default(artifacts).ProjectController.State.Milestone)
+
+  await Contracts.milestoneControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      milestoneId,
+      START_TIME),
+    startTime)
+
+  await Contracts.milestoneControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      milestoneId,
+      END_TIME),
+    endTime)
+
+  /*
+   * update cumulative max regulation rewards
+   * updateCumulativeMaxRegulationRewards
+   */
+  // calCumulativeMaxRewards(namespace, objMaxRegulationRewards)
+  let cumulativeMaxRewards = await Contracts.milestoneControllerStorage.getUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      GLOBAL_MILESTONE_ID,
+      CUMULATIVE_MAX_REGULATION_REWARDS))
+  for (let i = 0; i < objMaxRegulationRewards.length; i++) {
+    cumulativeMaxRewards = cumulativeMaxRewards.plus(objMaxRegulationRewards[i])
+  }
+  await Contracts.milestoneControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      GLOBAL_MILESTONE_ID,
+      CUMULATIVE_MAX_REGULATION_REWARDS),
+    cumulativeMaxRewards)
+
+  /*
+   * registerPollRequest
+   */
+  const objTypes = await Contracts.milestoneControllerStorage.getArray(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      milestoneId,
+      OBJ_TYPES))
+  const tokenAddress = await Contracts.projectController.getTokenAddress(projectHash)
+  const avgPrice = await Contracts.tokenSale.avgPrice(projectHash)
+  const pollId = ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, milestoneId)
+  /*
+   * reputationSystem.registerPollRequest
+   */
+  await Contracts.reputationSystem.backdoorRegisterPollRequest (
+    pollId,
+    minStartTime,
+    maxStartTime,
+    avgPrice,
+    true,
+    tokenAddress,
+    objTypes)
+
+  /*
+   * inside transfer from PROJECT_ETHER_BALANCE to MILESTONE_ETHER_WEILOCKED
+   * PROJECT_ETHER_BALANCE will not changes
+   */
+  const milestoneEtherWeilockedKey = ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+    projectHash,
+    milestoneId,
+    MILESTONE_ETHER_WEILOCKED)
+  let balance = await Contracts.etherCollectorStorage.getUint(milestoneEtherWeilockedKey)
+  balance = balance.plus(weiLocked)
+  await Contracts.etherCollectorStorage.setUint(milestoneEtherWeilockedKey, balance)
+
+  await ThirdPartyJsConfig.default().wweb3.eth.sendTransaction({
+    from: defaultAccounts[0],
+    to: Contracts.etherCollector.address,
+    value: weiLocked
+  })
 }
