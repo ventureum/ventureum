@@ -266,7 +266,7 @@ contract TokenSale is Module {
 
         // get number token left, if finalized, can be withdrawn, else can be purchased. 
         uint numTokenLeft = tokenCollector.getDepositValue(
-                keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)));
+            keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)));
 
         // get the total token for sale
         uint totalTokenForSale = tokenSaleStore.getUint(
@@ -351,7 +351,7 @@ contract TokenSale is Module {
         uint rate = tokenSaleStore.getUint(keccak256(abi.encodePacked(namespace, RATE)));
         uint tokenNum = msg.value.mul(rate);
 
-        (TokenCollector tokenCollector, EtherCollector etherCollector)  = getCollectors();
+        (TokenCollector tokenCollector, EtherCollector etherCollector) = getCollectors();
 
         // withdraw token from TokenCollector
         address tokenAddress = tokenSaleStore.getAddress(
