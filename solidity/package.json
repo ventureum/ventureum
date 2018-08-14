@@ -36,7 +36,7 @@
     "chai-string": "^1.4.0",
     "eth-gas-reporter": "^0.1.9",
     "ethereumjs-abi": "^0.6.5",
-    "repsys": "^1.0.6",
+    "repsys": "^1.0.7",
     "solidity-coverage": "^0.5.4",
     "standard": "^11.0.1",
     "truffle-hdwallet-provider": "0.0.6"
