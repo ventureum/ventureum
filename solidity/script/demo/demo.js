@@ -340,10 +340,7 @@ export async function tokenSale(Contracts, artifacts, projectName, tokenSaleInfo
     ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, TOTAL_ETH_RECEIVED),
     totalEtherReceived)
 
-  let avg = 0
-  if (totalEtherReceived != 0) {
-    avg = parseInt(totalTokenSold / totalEtherReceived)
-  }
+  let avg = rate
 
   await Contracts.tokenSaleStorage.setUint(
     ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, AVERAGE_PRICE),
@@ -474,4 +471,15 @@ export async function activateMilestone(Contracts, artifacts, projectName, miles
     to: Contracts.etherCollector.address,
     value: weiLocked
   })
+}
+
+export async function refundStage(Contracts, artifacts, projectName, milestoneId) {
+  const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
+
+  /*
+   * Milestone Controller start refund stage
+   */
+  await Contracts.milestoneControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, milestoneId, STATE),
+    OwnSolConfig.default(artifacts).MilestoneController.State.RP)
 }
