@@ -42,6 +42,8 @@ const START_TIME = "startTime"
 const END_TIME = "endTime"
 const WEI_LOCKED = "weiLocked"
 const MILESTONE_ETHER_WEILOCKED = 'milestoneEtherWeilocked'
+const AVAILABLE_TIME = 'availableTime'
+const MILESTONE_ETHER_REFUND_LOCKED = 'milestoneEtherRefundLocked'
 
 
 /*
@@ -482,4 +484,68 @@ export async function refundStage(Contracts, artifacts, projectName, milestoneId
   await Contracts.milestoneControllerStorage.setUint(
     ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, milestoneId, STATE),
     OwnSolConfig.default(artifacts).MilestoneController.State.RP)
+}
+
+export async function finalizeMilestone(Contracts, artifacts, projectName, finalizeInfo) {
+  const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
+  const milestoneId = finalizeInfo.id
+  const endTime = finalizeInfo.endTime
+
+  /*
+   * Milestone Controller to completion
+   */
+  await Contracts.milestoneControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, milestoneId, STATE),
+    OwnSolConfig.default(artifacts).MilestoneController.State.COMPLETION)
+
+  if (endTime !== 0) {
+    await Contracts.milestoneControllerStorage.setUint(
+      ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, milestoneId, END_TIME),
+      endTime)
+  }
+}
+
+export async function refund(Contracts, artifacts, projectName, refundInfo) {
+  const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
+  const milestoneId = refundInfo.id
+  const beneficiary = refundInfo.beneficiary
+  const value = refundInfo.value
+  const projectToken = refundInfo.token
+  const availableTime = refundInfo.availableTime
+
+  /*
+   * TokenCollector deposit
+   */
+  await projectToken.transfer(Contracts.tokenCollector.address, value)
+  const depositKey = ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+    projectHash,
+    PROJECT_TOKEN_BALANCE)
+  let balance = await Contracts.tokenCollectorStorage.getUint(depositKey)
+  balance = balance.plus(value)
+  await Contracts.tokenCollectorStorage.setUint(depositKey, balance)
+
+  /*
+   * Set available time
+   */
+  await Contracts.refundManagerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      milestoneId,
+      beneficiary,
+      AVAILABLE_TIME),
+    availableTime)
+
+  /*
+   * inside transfer to MILESTONE_ETHER_REFUND_LOCKED
+   */
+  const avg = await Contracts.tokenSale.avgPrice(projectHash)
+  const etherAmount = (new BigNumber(value)).div(avg)
+
+  await Contracts.etherCollectorStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      milestoneId,
+      beneficiary,
+      MILESTONE_ETHER_REFUND_LOCKED),
+    etherAmount)
 }
