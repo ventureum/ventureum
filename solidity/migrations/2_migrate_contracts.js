@@ -155,7 +155,10 @@ module.exports = function (deployer, network, accounts) {
       await deployer.deploy(ContractAddressHandler.Self, Kernel.Self.address)
 
       // Deploy refund Manager and Storage
-      await deployer.deploy(RefundManager.Self, Kernel.Self.address)
+      await deployer.deploy(
+        RefundManager.Self,
+        Kernel.Self.address,
+        RefundManager.refundDuration)
       await deployer.deploy(RefundManager.Storage.Self, Kernel.Self.address)
 
       // Deploy project controller and storage
@@ -163,7 +166,12 @@ module.exports = function (deployer, network, accounts) {
       await deployer.deploy(ProjectController.Storage.Self, Kernel.Self.address)
 
       // Deploy milestone controller and storage and view
-      await deployer.deploy(MilestoneController.Self, Kernel.Self.address)
+      await deployer.deploy(
+        MilestoneController.Self,
+        Kernel.Self.address,
+        MilestoneController.minMilestoneLength,
+        MilestoneController.ratingStageMaxStartTimeFromEnd,
+        MilestoneController.refundStageMinStartTimeFromEnd)
       await deployer.deploy(
         MilestoneController.Storage.Self,
         Kernel.Self.address)

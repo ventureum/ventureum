@@ -1,6 +1,7 @@
 const rootDir = '../'
 
 const ThirdPartyJsConfig = require(rootDir + "config/thirdPartyJsConfig.js")
+const getDurationConfig = require(rootDir + "config/durationConfig.js").getDurationConfig
 
 const toWei = function (num) {
   return num.toString() + '0'.repeat(18)
@@ -8,6 +9,8 @@ const toWei = function (num) {
 
 export default function (artifacts) {
   const _thirdPartyJsConstants = ThirdPartyJsConfig.default()
+
+  const DurationConfig = getDurationConfig()
 
   const wweb3 = _thirdPartyJsConstants.wweb3
   const Web3 = _thirdPartyJsConstants.Web3
@@ -42,9 +45,9 @@ export default function (artifacts) {
   Parameterizer.Self = artifacts.require('modules/VTCR/Parameterizer')
   Parameterizer.paramDefaults = {
     "minDeposit": toWei(50000),
-    "applyStageLength": 300,
-    "commitStageLength": 60,
-    "revealStageLength": 60,
+    "applyStageLength": DurationConfig.applyStageLength,
+    "commitStageLength": DurationConfig.commitStageLength,
+    "revealStageLength": DurationConfig.revealStageLength,
     "dispensationPct": 50,
     "voteQuorum": 50,
     "initialTokenPurchase": toWei(100000000)
@@ -70,6 +73,7 @@ export default function (artifacts) {
       'modules/managers/refund_manager/RefundManagerStorage'),
     CI: Web3.utils.keccak256('RefundManagerStorage')
   }
+  RefundManager.refundDuration = DurationConfig.refundDuration
 
   // Reward Manager
   class RewardManager {}
@@ -170,6 +174,9 @@ export default function (artifacts) {
     RP: 3,
     COMPLETION: 4
   }
+  MilestoneController.minMilestoneLength = DurationConfig.minMilestoneLength
+  MilestoneController.ratingStageMaxStartTimeFromEnd = DurationConfig.ratingStageMaxStartTimeFromEnd
+  MilestoneController.refundStageMinStartTimeFromEnd = DurationConfig.refundStageMinStartTimeFromEnd
 
   // Token Sale
   class TokenSale {}
