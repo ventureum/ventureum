@@ -306,6 +306,10 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     Kernel.RootCI,
     RefundManager.CI,
     [RefundManager.Sig.SetStorage])
+  await aclHandler.permit(
+    Kernel.RootCI,
+    RefundManager.Storage.CI,
+    [Storage.Sig.SetUint])
 
   // Destination: Project Controller
   await aclHandler.permit(
