@@ -56,7 +56,8 @@ const run = exports.run = async (accounts) => {
    */
   // Refund Manager
   instances.refundManager = await RefundManager.Self.new(
-    instances.kernel.address)
+    instances.kernel.address,
+    RefundManager.refundDuration)
   instances.refundManagerStorage = await RefundManager.Storage.Self.new(
     instances.kernel.address)
 
@@ -71,7 +72,10 @@ const run = exports.run = async (accounts) => {
 
   // Milestone Controller
   instances.milestoneController = await MilestoneController.Self.new(
-    instances.kernel.address)
+    instances.kernel.address,
+    MilestoneController.minMilestoneLength,
+    MilestoneController.ratingStageMaxStartTimeFromEnd,
+    MilestoneController.refundStageMinStartTimeFromEnd)
   instances.milestoneControllerStorage =
     await MilestoneController.Storage.Self.new(instances.kernel.address)
 

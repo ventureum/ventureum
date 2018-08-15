@@ -31,12 +31,14 @@ contract RefundManager is Manager {
     string constant AVAILABLE_TIME = "availableTime";
 
     uint constant public MILESTONE_RP = 3;
-    uint constant public ONE_MONTH = 2592000;
+
+    uint public lockDuration;
 
     RefundManagerStorage private refundManagerStorage;
 
-    constructor (address kernelAddr) Manager(kernelAddr) public {
+    constructor (address kernelAddr, uint _lockDuration) Manager(kernelAddr) public {
         CI = keccak256("RefundManager");
+        lockDuration = _lockDuration;
     }
 
     /*
@@ -81,7 +83,7 @@ contract RefundManager is Manager {
         uint amount = val.div(tokenSale.avgPrice(namespace));
 
         // set the lock duration to one month
-        uint availableTime = ONE_MONTH.add(now);
+        uint availableTime = lockDuration.add(now);
 
         // use insideTransfer to lock amount ether from weiLocked
         bytes32 fromKey= keccak256(abi.encodePacked(

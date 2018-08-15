@@ -120,6 +120,9 @@ contract MilestoneController is Module {
     ReputationSystem public reputationSystem;
     ProjectController public projectController;
 
+    uint public minMilestoneLength;
+    uint public ratingStageMaxStartTimeFromEnd;
+    uint public refundStageMinStartTimeFromEnd;
 
     modifier founderOnly(bytes32 namespace) {
         require(projectController != NULL);
@@ -127,8 +130,17 @@ contract MilestoneController is Module {
         _;
     }
 
-    constructor (address kernelAddr) Module(kernelAddr) public {
+    constructor (
+        address kernelAddr, 
+        uint _minMilestoneLength,
+        uint _ratingStageMaxStartTimeFromEnd,
+        uint _refundStageMinStartTimeFromEnd
+    ) Module(kernelAddr) public {
         CI = keccak256("MilestoneController");
+
+        minMilestoneLength = _minMilestoneLength;
+        ratingStageMaxStartTimeFromEnd = _ratingStageMaxStartTimeFromEnd;
+        refundStageMinStartTimeFromEnd = _refundStageMinStartTimeFromEnd;
     }
 
     /**
@@ -138,7 +150,7 @@ contract MilestoneController is Module {
     * now + length.
     *
     * @param namespace namespace of a project
-    * @param length length of the milestone, >= 60 days
+    * @param length length of the milestone, >= minMilestoneLength
     * @param objs list of objectives' IPFS hash
     * @param objTypes list of objectives' type
     * @param objMaxRegulationRewards list of objectives' max regulation rewards
@@ -153,7 +165,7 @@ contract MilestoneController is Module {
         external
         founderOnly(namespace)
     {
-        require(length >= 60 days);
+        require(length >= minMilestoneLength);
         require(
             reputationSystem != NULL &&
             projectController != NULL &&
@@ -256,9 +268,9 @@ contract MilestoneController is Module {
 
     /**
     * Start rating stage (RS)
-    * RS can be started by project founders at any time between startTime and endTime - 30 days.
+    * RS can be started by project founders at any time between startTime and endTime - ratingStageMaxStartTimeFromEnd.
     * Set state to "RS",  call module
-    *      RegulatingRatingModule.start(namespace, milestoneId, objs, now, endTime - 30 days);
+    *      RegulatingRatingModule.start(namespace, milestoneId, objs, now, endTime - ratingStageMaxStartTimeFromEnd);
     *
     *  @param namespace namespace of a project
     *  @param milestoneId milestoneId of a milestone of the project
@@ -275,7 +287,7 @@ contract MilestoneController is Module {
 
         uint startTime = milestoneControllerStore.getUint(
             keccak256(abi.encodePacked(namespace, milestoneId, START_TIME)));
-        require(now >= startTime && now <= endTime.sub(30 days));
+        require(now >= startTime && now <= endTime.sub(ratingStageMaxStartTimeFromEnd));
 
         milestoneControllerStore.setUint(
             keccak256(
@@ -293,7 +305,7 @@ contract MilestoneController is Module {
             namespace,
             milestoneId,
             now,
-            endTime.sub(30 days),
+            endTime.sub(ratingStageMaxStartTimeFromEnd),
             objs,
             objTypes,
             objMaxRegulationRewards
@@ -304,7 +316,7 @@ contract MilestoneController is Module {
             namespace,
             milestoneId,
             now,
-            endTime.sub(30 days),
+            endTime.sub(ratingStageMaxStartTimeFromEnd),
             objs,
             objTypes,
             objMaxRegulationRewards
@@ -313,7 +325,7 @@ contract MilestoneController is Module {
 
     /**
     * Start a refund
-    * Can be called at anytime between [endTime - 1 week, endTime) by any address
+    * Can be called at anytime between [endTime - refundStageMinStartTimeFromEnd, endTime) by any address
     * Set state to "RP"
     *
     * @param namespace namespace of a project
@@ -324,7 +336,7 @@ contract MilestoneController is Module {
         uint endTime;
         (existing, endTime) = isExisting(namespace, milestoneId);
         require(existing);
-        require(now >= endTime.sub(1 weeks) && now < endTime);
+        require(now >= endTime.sub(refundStageMinStartTimeFromEnd) && now < endTime);
 
         milestoneControllerStore.setUint(
             keccak256(
