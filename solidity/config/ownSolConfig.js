@@ -297,6 +297,9 @@ export default function (artifacts) {
   // Mocked Project Token
   class MockProjectToken4 {}
   MockProjectToken4.Self = artifacts.require('./mocks/MockProjectToken4.sol')
+  // Mocked Project Token info
+  class MockProjectTokenInfo {}
+  MockProjectTokenInfo.initialSupply = "1" + '0'.repeat(25)
 
   return {
     'RefundManager': RefundManager,
@@ -319,6 +322,7 @@ export default function (artifacts) {
     'MockProjectToken1': MockProjectToken1,
     'MockProjectToken2': MockProjectToken2,
     'MockProjectToken3': MockProjectToken3,
-    'MockProjectToken4': MockProjectToken4
+    'MockProjectToken4': MockProjectToken4,
+    'MockProjectTokenInfo': MockProjectTokenInfo
   }
 }

@@ -47,6 +47,7 @@ const MockProjectToken1 = _ownSolConstants.MockProjectToken1
 const MockProjectToken2 = _ownSolConstants.MockProjectToken2
 const MockProjectToken3 = _ownSolConstants.MockProjectToken3
 const MockProjectToken4 = _ownSolConstants.MockProjectToken4
+const MockProjectTokenInfo = _ownSolConstants.MockProjectTokenInfo
 
 // third party contracts:
 //* Token
@@ -205,10 +206,10 @@ module.exports = function (deployer, network, accounts) {
       await deployer.deploy(CarbonVoteXCore, accounts[0])
 
       // Deploy Mock Project Token
-      await deployer.deploy(MockProjectToken1.Self)
-      await deployer.deploy(MockProjectToken2.Self)
-      await deployer.deploy(MockProjectToken3.Self)
-      await deployer.deploy(MockProjectToken4.Self)
+      await deployer.deploy(MockProjectToken1.Self, MockProjectTokenInfo.initialSupply)
+      await deployer.deploy(MockProjectToken2.Self, MockProjectTokenInfo.initialSupply)
+      await deployer.deploy(MockProjectToken3.Self, MockProjectTokenInfo.initialSupply)
+      await deployer.deploy(MockProjectToken4.Self, MockProjectTokenInfo.initialSupply)
 
       // Deploy reputation system
       await deployer.deploy(

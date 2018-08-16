@@ -1,18 +1,20 @@
 const rootDir = '../'
 
 const ThirdPartyJsConfig = require(rootDir + 'config/thirdPartyJsConfig.js')
+const getContracts = require(rootDir + 'config/deployedContracts.js').getContracts
+
 const _thirdPartyJsConstants = ThirdPartyJsConfig.default()
 
 module.exports = async function (callback) {
   const defaultAccounts = await _thirdPartyJsConstants.ganachiWeb3.eth.getAccounts()
   const accounts = [
     '0xa9B0cF09F88B95cE9596524bD15147f8664B85bF', // Root
-    '0x12088237BE120f6516287a74fC01B60935B1cf89', // Owner
-    '0xB768c3fcdC63e936cf85d9EfA33233481bD78361', // Voter
-    '0xa8f54dCfa3644Ffef6893f2485f67C44AA25dEF7', // Purchaser
-    '0xc584F41E3c95a33c150B2d70b0332DCa79Bca4Bc', // Regulator1
-    '0x8ba09C844899F9eDc81f828d7DbE025e793aF0De', // Regulator2
-    '0x3D4f280889a01d3397d97CC49506a343F605dE8e'  // Regulator3
+    '0x12088237be120f6516287a74fc01b60935b1cf89', // Owner
+    '0x99c871d2a36b6965230b6c0ecd259a28da2809e0', // Voter
+    '0x41284ee87fed1013ea313caa435ff0fbee887dbf', // Purchaser
+    '0xe23abfc1f558aa08cfe664af63c3a214d1f95290', // Regulator1
+    '0x7983d0e92ddf62719c44b34aadbf9f8156f97ece', // Regulator2
+    '0x628e9a063e05e0ee53a9267ce0157f123804bcc2'  // Regulator3
   ]
 
   const value = await _thirdPartyJsConstants.ganachiWeb3.utils.toWei("1000000000000000", "ether")
@@ -24,5 +26,11 @@ module.exports = async function (callback) {
       value: value
     })
   }
+
+  const contracts = await getContracts(artifacts)
+  await contracts.mockProjectToken1.transfer(
+    accounts[1],
+    '1' + '0'.repeat(23)
+  )
   console.log("transfer end")
 }
