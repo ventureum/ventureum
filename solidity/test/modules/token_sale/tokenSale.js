@@ -231,6 +231,8 @@ contract('TokenSaleTest', function (accounts) {
       afterFinalizedAvgPrice.should.be.bignumber.equal(0)
     })
 
+    /**
+     * TODO (@b232wang) we are not provider this feature right now
     it('should withdrawToken success by owner (test tokenInfo)', async function () {
       const PROJECT_CI = Web3.utils.keccak256('advanced4')
       await registerAndAcceptProject(PROJECT_CI)
@@ -264,6 +266,7 @@ contract('TokenSaleTest', function (accounts) {
 
       await tokenSale.withdrawToken(PROJECT_CI).should.be.fulfilled
     })
+    */
   })
 
 

@@ -201,7 +201,9 @@ contract TokenSale is Module {
         emit _Finalized(msg.sender, namespace);
     }
 
+
     /**
+       TODO (@b232wang) we are not provider this feature right now
     * The project founder can withdraw tokens that has not been sold out after finalize
     * require project token sale finalize
     * Note: the frond-end can receive token number from TokenCollector
@@ -210,7 +212,6 @@ contract TokenSale is Module {
     *       keccak256(abi.encodePacked(namespace, PROJECT_TOKEN_BALANCE)));
     *
     * @param namespace namespace of the project
-    */
     function withdrawToken(bytes32 namespace) external founderOnly(namespace) {
         // require token exist and finalized
         uint256 finalized = tokenSaleStore.getUint(
@@ -239,6 +240,7 @@ contract TokenSale is Module {
             tokenNum,
             now);
     }
+    */
 
     /**
      * Return token info if this token sale info exist.
