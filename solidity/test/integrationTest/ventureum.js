@@ -326,9 +326,11 @@ contract("Integration Test", function (accounts) {
     purchaser1BalPost.minus(purchaser1BalPre)
       .should.be.bignumber.equal(PURCHASER_DEPOSIT * rate)
 
+
     /*
+     * TODO (@b232wang) we are not provider this feature right now
+     *
      * project owner can withdraw rest token that has not been sold yet
-     */
     const preTokenBal = await projectToken.balanceOf(PROJECT_OWNER)
     await tokenSale.withdrawToken(projectHash, {from: PROJECT_OWNER})
       .should.be.fulfilled
@@ -336,6 +338,7 @@ contract("Integration Test", function (accounts) {
     // calculate rest token that has not been sold yet
     const restToken = TOKEN_SALE_AMOUNT - PURCHASER_DEPOSIT * rate * 3
     postTokenBal.minus(preTokenBal).should.be.bignumber.equal(restToken)
+     */
 
    /*
     * check the number of token sale ether that not been locked.
