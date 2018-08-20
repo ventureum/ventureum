@@ -28,14 +28,21 @@ module.exports = {
       host: 'localhost',
       port: 8545,
       network_id: '*', // Match any network id
-      gas: 6200000
+      gas: 6300000
     },
     rinkeby: {
       provider: new HDWalletProvider(
         mnemonic, 'https://rinkeby.infura.io/UIovb3o3e1Q0SRHdLaTZ'),
       network_id: '*',
-      gas: 6200000,
-      gasPrice: 2000000000
+      gas: 6300000,
+      gasPrice: 200000000000
+    },
+    kovan: {
+      provider: new HDWalletProvider(
+        mnemonic, 'https://kovan.infura.io/UIovb3o3e1Q0SRHdLaTZ'),
+      network_id: '*',
+      gas: 8000000,
+      gasPrice: 200000000000
     },
     mainnet: {
       provider: new HDWalletProvider(
