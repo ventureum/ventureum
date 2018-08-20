@@ -39,7 +39,7 @@
     "repsys": "^1.0.7",
     "solidity-coverage": "^0.5.4",
     "standard": "^11.0.1",
-    "truffle-hdwallet-provider": "0.0.6"
+    "truffle-hdwallet-provider": "0.0.4"
   },
   "standard": {
     "globals": [
