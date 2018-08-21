@@ -1,5 +1,12 @@
 export function getDemoAccounts (web3) {
-  const accounts = web3.eth.accounts
+  const accounts = [
+    "0xa9B0cF09F88B95cE9596524bD15147f8664B85bF",
+    "0x12088237BE120f6516287a74fC01B60935B1cf89",
+    "0x99C871D2A36B6965230B6c0ecd259a28da2809E0",
+    "0x41284Ee87fEd1013ea313cAa435Ff0fbEE887DBF",
+    "0xE23ABfC1f558Aa08Cfe664af63C3A214D1F95290",
+    "0x7983D0e92dDF62719c44b34AAdBf9F8156f97Ece"
+  ]
 
   class Accounts {}
 

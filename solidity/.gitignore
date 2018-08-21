@@ -8,3 +8,4 @@ test/.DS_Store
 node_modules/
 build/
 run_test.sh
+.env.json
