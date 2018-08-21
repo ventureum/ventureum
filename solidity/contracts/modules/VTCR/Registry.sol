@@ -474,6 +474,11 @@ contract Registry is Module {
         projectHashList.insert(BYTES_ZERO, projectHash, projectHashList.getNext(BYTES_ZERO));
     }
 
+    function backDoorRemove(string projectName) external onlyOwner {
+        bytes32 projectHash = keccak256(bytes(projectName));
+        projectHashList.remove(projectHash);
+    }
+
     function backDoorChallenge(
         string projectName, 
         address challenger, 

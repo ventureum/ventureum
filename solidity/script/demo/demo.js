@@ -107,6 +107,46 @@ async function applicationSetting (
   }
 }
 
+export async function removeProject (
+  Contracts,
+  artifacts,
+  projectName) {
+
+  /*
+   * registry clear all data
+   */
+  const projectExisted = await Contracts.registry.appWasMade(projectName)
+  await Contracts.registry.backDoorSetting(0, 0, false, NULL, 0, 0, projectName)
+
+
+  // projectController-registerProject
+  const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
+  const owner = await Contracts.projectControllerStorage.getAddress(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, OWNER))
+
+  await Contracts.projectControllerStorage.setAddress(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, OWNER),
+    "0x0")
+  await Contracts.projectControllerStorage.setAddress(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, TOKEN_ADDRESS),
+    NULL)
+  await Contracts.projectControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, PROJECT_STATE),
+    OwnSolConfig.default(artifacts).ProjectController.State.NotExist)
+  if (owner !== "0x" + '0'.repeat(32)) {
+    await Contracts.projectControllerStorage.setBytes32(
+      ThirdPartyJsConfig.default().Web3.utils.soliditySha3(owner, NAMESPACE),
+      "0x0")
+  }
+
+  await initMilestone(Contracts, artifacts, projectName)
+
+  // projectHashList-remove
+  if (projectExisted == true) {
+    await Contracts.registry.backDoorRemove(projectName)
+  }
+}
+
 export async function applyApplication (Contracts, artifacts, projectName, owner, expiryTime) {
   await applicationSetting(Contracts, artifacts, projectName, owner, expiryTime, false)
 }
@@ -162,6 +202,12 @@ export async function whitelistProject (Contracts, artifacts, projectName, owner
 export async function initMilestone (Contracts, artifacts, projectName) {
   const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
 
+  const milestoneLength = await Contracts.milestoneControllerStorage.getUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      GLOBAL_MILESTONE_ID,
+      NUMBER_MILESTONES))
+
   await Contracts.milestoneControllerStorage.setUint(
     ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
       projectHash,
@@ -174,6 +220,18 @@ export async function initMilestone (Contracts, artifacts, projectName) {
       projectHash,
       PROJECT_TOTAL_REGULATOR_REWARDS),
     0)
+
+  for (let i = 0; i < milestoneLength; i++) {
+    const milestoneId = i + 1
+    await Contracts.milestoneControllerStorage.setUint(
+      ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+        projectHash,
+        milestoneId,
+        STATE
+      ),
+      OwnSolConfig.default(artifacts).MilestoneController.State.INACTIVE
+    )
+  }
 }
 
 export async function projectAddMilestones (Contracts, artifacts, projectName, milestoneInfo) {
