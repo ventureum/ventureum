@@ -92,7 +92,10 @@ const run = exports.run = async (accounts) => {
     instances.kernel.address)
 
   // Token Sale
-  instances.tokenSale = await TokenSale.Self.new(instances.kernel.address)
+  instances.tokenSale = await TokenSale.Self.new(
+    instances.kernel.address,
+    TokenSale.VTX_BASE,
+    instances.vetXToken.address)
   instances.tokenSaleStorage = await TokenSale.Storage.Self.new(
     instances.kernel.address)
 

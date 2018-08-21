@@ -124,6 +124,7 @@ contract('TokenSaleTest', function (accounts) {
       await tokenSale.startTokenSale(
         testCI1, RATE, vetXToken.address, TOKEN_SALE_AMOUNT).should.be.fulfilled
       await tokenSale.finalize(testCI1).should.be.fulfilled
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       await tokenSale.buyTokens(
         testCI1, {value: ETH_AMOUNT, from: PURCHASER})
         .should.be.rejectedWith(Error.EVMRevert)
@@ -141,6 +142,7 @@ contract('TokenSaleTest', function (accounts) {
       await tokenSale.startTokenSale(
         testCI2, RATE, vetXToken.address, TOKEN_SALE_AMOUNT).should.be.fulfilled
       await tokenSale.finalize(testCI2).should.be.fulfilled
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       await tokenSale.buyTokens(
         testCI2, {value: ETH_AMOUNT, from: PURCHASER})
         .should.be.rejectedWith(Error.EVMRevert)
@@ -174,6 +176,8 @@ contract('TokenSaleTest', function (accounts) {
       const preStoreTokenBalance = await tokenCollector.balanceOf.call(vetXToken.address)
       const prePurchaserTokenBalance = await vetXToken.balanceOf(PURCHASER)
 
+      await vetXToken.transfer(PURCHASER, ETH_AMOUNT * RATE)
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       const { logs } = await tokenSale.buyTokens(
         PROJECT_CI,
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
@@ -190,7 +194,8 @@ contract('TokenSaleTest', function (accounts) {
           vetXToken.address)
       const postPurchaserTokenBalance = await vetXToken.balanceOf(PURCHASER)
 
-      postStoreTokenBalance.plus(tokenAmount).should.be.bignumber.equal(preStoreTokenBalance)
+      postStoreTokenBalance.plus(tokenAmount).plus(ETH_AMOUNT * RATE / 100)
+        .should.be.bignumber.equal(preStoreTokenBalance)
       postPurchaserTokenBalance.minus(tokenAmount)
         .should.be.bignumber.equal(prePurchaserTokenBalance)
     })
@@ -204,6 +209,8 @@ contract('TokenSaleTest', function (accounts) {
         PROJECT_CI, RATE, vetXToken.address, TOKEN_SALE_AMOUNT).should.be.fulfilled
 
       await tokenSale.avgPrice.call(PROJECT_CI).should.be.rejectedWith(Error.EVMRevert)
+      await vetXToken.transfer(PURCHASER, ETH_AMOUNT * RATE)
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       await tokenSale.buyTokens(
         PROJECT_CI,
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
@@ -241,6 +248,7 @@ contract('TokenSaleTest', function (accounts) {
       await tokenSale.startTokenSale(
         PROJECT_CI, RATE, vetXToken.address, TOKEN_SALE_AMOUNT).should.be.fulfilled
 
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       await tokenSale.buyTokens(
         PROJECT_CI,
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
@@ -291,6 +299,7 @@ contract('TokenSaleTest', function (accounts) {
       await tokenSale.startTokenSale(PROJECT_CI, RATE, vetXToken.address, TOKEN_SALE_AMOUNT)
         .should.be.fulfilled
 
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       await tokenSale.buyTokens(
         Kernel.RootCI, {value: ETH_AMOUNT, from: PURCHASER})
         .should.be.rejectedWith(Error.EVMRevert)
@@ -305,6 +314,7 @@ contract('TokenSaleTest', function (accounts) {
         .should.be.fulfilled
 
       const MAX_ETH_AMOUNT = TOKEN_SALE_AMOUNT / RATE
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       await tokenSale.buyTokens(
         PROJECT_CI,
         {value: MAX_ETH_AMOUNT + 1, from: PURCHASER})
