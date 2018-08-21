@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "vetx-token/contracts/VetXToken.sol";
 
 import "../Module.sol";
 import "../token_collector/TokenCollector.sol";
@@ -51,6 +52,9 @@ contract TokenSale is Module {
     uint256 constant FALSE = 0;
     uint256 constant TRUE = 1;
 
+    VetXToken public vtx;
+    uint256 public vtxBase;
+
     ProjectController public projectController;
     TokenSaleStorage public tokenSaleStore;
 
@@ -60,8 +64,21 @@ contract TokenSale is Module {
         _;
     }
 
-    constructor (address kernelAddr) Module(kernelAddr) public {
+    constructor (
+        address kernelAddr, 
+        uint256 _vtxBase, 
+        address _vtx
+    ) 
+        Module(kernelAddr) 
+        public 
+    {
+        require (_vtxBase > 0);
+        require (_vtx != NULL);
+
         CI = keccak256("TokenSale");
+
+        vtxBase = _vtxBase;
+        vtx = VetXToken(_vtx);
     }
 
     function setProjectController(address _projectController) 
@@ -354,6 +371,10 @@ contract TokenSale is Module {
         uint tokenNum = msg.value.mul(rate);
 
         (TokenCollector tokenCollector, EtherCollector etherCollector) = getCollectors();
+
+        // calculate the vtx spend and transfer
+        uint vtxSpend = tokenNum.div(vtxBase);
+        require(vtx.transferFrom(msg.sender, tokenCollector, vtxSpend));
 
         // withdraw token from TokenCollector
         address tokenAddress = tokenSaleStore.getAddress(

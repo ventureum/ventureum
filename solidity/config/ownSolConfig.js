@@ -190,6 +190,7 @@ export default function (artifacts) {
     Self: artifacts.require('modules/token_sale/TokenSaleStorage'),
     CI: Web3.utils.keccak256('TokenSaleStorage')
   }
+  TokenSale.VTX_BASE = 100
 
   // Token Collector
   class TokenCollector {}

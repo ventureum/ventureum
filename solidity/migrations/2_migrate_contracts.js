@@ -179,7 +179,11 @@ module.exports = function (deployer, network, accounts) {
       await deployer.deploy(MilestoneController.View.Self, MilestoneController.Storage.Self.address)
 
       // Deploy token sale and storage
-      await deployer.deploy(TokenSale.Self, Kernel.Self.address)
+      await deployer.deploy(
+        TokenSale.Self,
+        Kernel.Self.address,
+        TokenSale.VTX_BASE,
+        VetXToken.Self.address)
       await deployer.deploy(TokenSale.Storage.Self, Kernel.Self.address)
 
       // Deploy token collector and storage
