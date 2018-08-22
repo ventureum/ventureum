@@ -16,6 +16,7 @@ const advanceBlock = require(rootDir + 'config/TimeSetter.js').advanceBlock
 const deployedContracts = require(rootDir + 'config/deployedContracts.js')
 const getDemoAccounts = require(rootDir + 'script/demo/accounts.js').getDemoAccounts
 const BigNumber = require('bignumber.js')
+const ThirdPartyJsConstants = require(rootDir + 'config/thirdPartyJsConfig.js')
 
 /*
  * backdoor functions
@@ -25,25 +26,24 @@ const challengeProject = require(rootDir + 'script/demo/demo.js').challengeProje
 
 
 module.exports = async function (callback) {
-  const projectName = "Project in challenge stage"
+  const _thirdPartyJsConstants = ThirdPartyJsConstants.default(artifacts)
+  const projectName = process.argv[4]
+
+  if (projectName === undefined) {
+    console.log("please input project nmae")
+    return
+  }
 
   /*
    * Accounts and Contracts
-   */ const Accounts = getDemoAccounts(web3)
-  const Contracts = await deployedContracts.getContracts(artifacts)
-
-  /*
-   * Ether&Token prepare
    */
-  const projectOwnerInitVtx = new BigNumber("500000" + '0'.repeat(18))
-  await Contracts.vetXToken.transfer(Accounts.CHALLENGER, projectOwnerInitVtx)
+  const Accounts = getDemoAccounts(web3)
+  const Contracts = await deployedContracts.getContracts(artifacts)
 
   /*
    * Backdoor functions
    */
-  advanceBlock(web3)
-  const expiryTime = latestTime(web3) + 100000
-  await applyApplication(Contracts, artifacts, projectName, Accounts.PROJECT_OWNER, expiryTime)
+  await applyApplication(Contracts, artifacts, projectName, Accounts.PROJECT_OWNER, null)
   const params = OwnSolConfig.default(artifacts).Parameterizer.paramDefaults
   await challengeProject(
     Contracts,
@@ -52,9 +52,9 @@ module.exports = async function (callback) {
     Accounts.CHALLENGER,
     params.minDeposit,
     params.voteQuorum,
-    params.commitStageLength + latestTime(web3),
-    params.revealStageLength + latestTime(web3),
+    null,
+    null,
     0,
     0)
-  console.log("challenge project end")
+  console.log("challenge project done")
 }

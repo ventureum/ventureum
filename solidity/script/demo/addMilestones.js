@@ -3,12 +3,6 @@
 const rootDir = '../../'
 
 /*
- * TimeSetter
- */
-const latestTime = require(rootDir + 'config/TimeSetter.js').latestTime
-const advanceBlock = require(rootDir + 'config/TimeSetter.js').advanceBlock
-
-/*
  * tools
  */
 const deployedContracts = require(rootDir + 'config/deployedContracts.js')
@@ -24,7 +18,13 @@ const projectAddMilestones = require(rootDir + 'script/demo/demo.js').projectAdd
 
 
 module.exports = async function (callback) {
-  const projectName = "project after add milestones"
+  const projectName = process.argv[4]
+
+  if (projectName === undefined) {
+    console.log("please input project name")
+    return
+  }
+
   const length = [60, 60]
   const objs = [
     ['milestone1 obj1', 'milestone1 obj2'],
