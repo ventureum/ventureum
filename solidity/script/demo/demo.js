@@ -51,6 +51,18 @@ const MILESTONE_ETHER_REFUND_LOCKED = 'milestoneEtherRefundLocked'
  */
 const NULL = "0x0"
 
+async function calcTime(artifacts, time, key) {
+  const _thirdPartyJsConstants = ThirdPartyJsConfig.default(artifacts)
+  const _ownSolConstants = OwnSolConfig.default(artifacts)
+
+  if (time === null) {
+    const blockInfo = await _thirdPartyJsConstants.wweb3.eth.getBlock('latest')
+    const length = _ownSolConstants.Parameterizer.paramDefaults[key]
+    return blockInfo.timestamp + length
+  }
+  return time
+}
+
 async function applicationSetting (
   Contracts,
   artifacts,
@@ -58,13 +70,14 @@ async function applicationSetting (
   owner,
   expiryTime,
   whitelisted) {
+  console.log("applicationSetting begin ...")
   /*
    * Set parameter
    */
   const amount =
     new BigNumber(OwnSolConfig.default(artifacts).Parameterizer.paramDefaults.minDeposit)
   const availableFund = amount.div(2)
-  const applicationExpiry = expiryTime
+  const applicationExpiry = await calcTime(artifacts, expiryTime, "applyStageLength")
   const unstakedDeposit = amount.minus(amount.div(2))
   const projectExisted = await Contracts.registry.appWasMade(projectName)
   const challengeID = 0
@@ -105,6 +118,7 @@ async function applicationSetting (
   if (projectExisted == false) {
     await Contracts.registry.backDoorInsert(projectName)
   }
+  console.log("applicationSetting end")
 }
 
 export async function removeProject (
@@ -167,10 +181,16 @@ export async function challengeProject (
   votesFor,
   votesAgainst
 ) {
+  console.log("challengeProject begin ...")
+  /*
+   * calc commit end time and reveal end time
+   */
+  commitEndTime = await calcTime(artifacts, commitEndTime, "commitStageLength")
+  revealEndTime = await calcTime(artifacts, revealEndTime, "revealStageLength")
+
   await Contracts.vetXToken.transfer(
     Contracts.registry.address,
-    deposit,
-    {from: challenger})
+    deposit)
 
   await Contracts.plcrVoting.backDoorStartPoll(
     voteQuorum,
@@ -187,12 +207,12 @@ export async function challengeProject (
     challenger,
     deposit,
     pollId)
+  console.log("challengeProject end")
 }
 
 export async function whitelistProject (Contracts, artifacts, projectName, owner, expiryTime) {
   const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
   await applicationSetting(Contracts, artifacts, projectName, owner, expiryTime, true)
-
 
   await Contracts.projectControllerStorage.setUint(
     ThirdPartyJsConfig.default().Web3.utils.soliditySha3(projectHash, PROJECT_STATE),

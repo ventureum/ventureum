@@ -14,6 +14,7 @@ const advanceBlock = require(rootDir + 'config/TimeSetter.js').advanceBlock
 const deployedContracts = require(rootDir + 'config/deployedContracts.js')
 const getDemoAccounts = require(rootDir + 'script/demo/accounts.js').getDemoAccounts
 const BigNumber = require('bignumber.js')
+const ThirdPartyJsConstants = require(rootDir + 'config/thirdPartyJsConfig.js')
 
 /*
  * backdoor functions
@@ -22,6 +23,14 @@ const applyApplication = require(rootDir + 'script/demo/demo.js').applyApplicati
 
 
 module.exports = async function (callback) {
+  const _thirdPartyJsConstants = ThirdPartyJsConstants.default(artifacts)
+  const projectName = process.argv[4]
+
+  if (projectName === undefined) {
+    console.log("please input project name")
+    return
+  }
+
   /*
    * Accounts and Contracts
    */
@@ -29,15 +38,8 @@ module.exports = async function (callback) {
   const Contracts = await deployedContracts.getContracts(artifacts)
 
   /*
-   * Ether&Token prepare
-   */
-  const projectOwnerInitVtx = new BigNumber("500000" + '0'.repeat(18))
-
-  /*
    * Backdoor functions
    */
-  advanceBlock(web3)
-  const expiryTime = latestTime(web3) + 100000
-  await applyApplication(Contracts, artifacts, "Project just after apply", Accounts.PROJECT_OWNER, expiryTime)
-  console.log("apply application end")
+  await applyApplication(Contracts, artifacts, projectName, Accounts.PROJECT_OWNER, null)
+  console.log("apply project done")
 }

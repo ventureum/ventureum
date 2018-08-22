@@ -3,11 +3,6 @@
 const rootDir = '../../'
 
 /*
- * TimeSetter
- */
-const advanceBlock = require(rootDir + 'config/TimeSetter.js').advanceBlock
-
-/*
  * tools
  */
 const deployedContracts = require(rootDir + 'config/deployedContracts.js')
@@ -27,8 +22,6 @@ module.exports = async function (callback) {
   /*
    * Backdoor functions
    */
-  advanceBlock(web3)
-
   if (args[4] === undefined) {
     console.log("please input project name.")
     return
