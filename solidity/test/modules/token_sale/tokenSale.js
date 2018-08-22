@@ -173,10 +173,11 @@ contract('TokenSaleTest', function (accounts) {
 
       const tokenAmount = RATE * ETH_AMOUNT
 
+      await vetXToken.transfer(PURCHASER, ETH_AMOUNT * RATE)
+
       const preStoreTokenBalance = await tokenCollector.balanceOf.call(vetXToken.address)
       const prePurchaserTokenBalance = await vetXToken.balanceOf(PURCHASER)
 
-      await vetXToken.transfer(PURCHASER, ETH_AMOUNT * RATE)
       await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       const { logs } = await tokenSale.buyTokens(
         PROJECT_CI,
@@ -189,15 +190,13 @@ contract('TokenSaleTest', function (accounts) {
         RATE * ETH_AMOUNT)
       event.args.ethNum.should.be.bignumber.equal(ETH_AMOUNT)
 
-      const postStoreTokenBalance =
-        await tokenCollector.balanceOf.call(
-          vetXToken.address)
+      const postStoreTokenBalance = await tokenCollector.balanceOf.call(vetXToken.address)
       const postPurchaserTokenBalance = await vetXToken.balanceOf(PURCHASER)
 
-      postStoreTokenBalance.plus(tokenAmount).plus(ETH_AMOUNT * RATE / 100)
-        .should.be.bignumber.equal(preStoreTokenBalance)
-      postPurchaserTokenBalance.minus(tokenAmount)
-        .should.be.bignumber.equal(prePurchaserTokenBalance)
+      preStoreTokenBalance.minus(postStoreTokenBalance).plus(ETH_AMOUNT * RATE / 100)
+        .should.be.bignumber.equal(tokenAmount)
+      postPurchaserTokenBalance.minus(prePurchaserTokenBalance).plus(ETH_AMOUNT * RATE / 100)
+        .should.be.bignumber.equal(tokenAmount)
     })
 
     it('should receive avg price equal RATE', async function () {

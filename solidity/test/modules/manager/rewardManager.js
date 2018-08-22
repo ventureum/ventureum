@@ -86,6 +86,8 @@ contract('RewardManagerTest', function (accounts) {
       TOKEN_SALE_AMOUNT,
       {from: FOUNDER}).should.be.fulfilled
 
+    await vetXToken.transfer(PURCHASER, ETH_AMOUNT * RATE)
+    await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
     await tokenSale.buyTokens(
       projectId,
       {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled

@@ -89,6 +89,11 @@ contract TokenSale is Module {
         projectController = ProjectController(_projectController);
     }
 
+    function setVtxBase(uint _vtxBase) external connected {
+        require(_vtxBase > 0);
+        vtxBase = _vtxBase;
+    }
+
     /**
      * Start a token sale after application has been accepted
      *
