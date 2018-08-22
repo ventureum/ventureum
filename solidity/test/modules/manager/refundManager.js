@@ -83,6 +83,8 @@ contract('RefundManagerTest', function (accounts) {
         vetXToken.address,
         TOKEN_SALE_AMOUNT).should.be.fulfilled
 
+      await vetXToken.transfer(PURCHASER, ETH_AMOUNT * RATE)
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       await tokenSale.buyTokens(
         ADVANCE_PROJECT_CI,
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
@@ -154,6 +156,8 @@ contract('RefundManagerTest', function (accounts) {
         vetXToken.address,
         TOKEN_SALE_AMOUNT).should.be.fulfilled
 
+      await vetXToken.transfer(PURCHASER, ETH_AMOUNT * RATE)
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       await tokenSale.buyTokens(
         ADVANCE_PROJECT_CI,
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
@@ -230,6 +234,8 @@ contract('RefundManagerTest', function (accounts) {
         vetXToken.address,
         TOKEN_SALE_AMOUNT).should.be.fulfilled
 
+      await vetXToken.transfer(PURCHASER, ETH_AMOUNT * RATE)
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       await tokenSale.buyTokens(
         ADVANCE_PROJECT_CI,
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
@@ -278,6 +284,8 @@ contract('RefundManagerTest', function (accounts) {
         vetXToken.address,
         TOKEN_SALE_AMOUNT).should.be.fulfilled
 
+      await vetXToken.transfer(PURCHASER, ETH_AMOUNT * RATE)
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       await tokenSale.buyTokens(
         ADVANCE_PROJECT_CI,
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled
@@ -344,6 +352,8 @@ contract('RefundManagerTest', function (accounts) {
         vetXToken.address,
         TOKEN_SALE_AMOUNT).should.be.fulfilled
 
+      await vetXToken.transfer(PURCHASER, ETH_AMOUNT * RATE)
+      await vetXToken.approve(tokenSale.address, ETH_AMOUNT * RATE / 100, {from: PURCHASER})
       await tokenSale.buyTokens(
         ADVANCE_PROJECT_CI,
         {value: ETH_AMOUNT, from: PURCHASER}).should.be.fulfilled

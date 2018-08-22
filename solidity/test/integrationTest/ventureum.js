@@ -300,16 +300,22 @@ contract("Integration Test", function (accounts) {
       TOKEN_SALE_AMOUNT,
       {from: PROJECT_OWNER}).should.be.fulfilled
 
+    await vetXToken.transfer(PURCHASER1, PURCHASER_DEPOSIT * rate)
+    await vetXToken.approve(tokenSale.address, PURCHASER_DEPOSIT * rate / 100, {from: PURCHASER1})
     await tokenSale.buyTokens(
       projectHash,
       {value: PURCHASER_DEPOSIT, from: PURCHASER1})
       .should.be.fulfilled
 
+    await vetXToken.transfer(PURCHASER2, PURCHASER_DEPOSIT * rate)
+    await vetXToken.approve(tokenSale.address, PURCHASER_DEPOSIT * rate / 100, {from: PURCHASER2})
     await tokenSale.buyTokens(
       projectHash,
       {value: PURCHASER_DEPOSIT, from: PURCHASER2})
       .should.be.fulfilled
 
+    await vetXToken.transfer(PURCHASER3, PURCHASER_DEPOSIT * rate)
+    await vetXToken.approve(tokenSale.address, PURCHASER_DEPOSIT * rate / 100, {from: PURCHASER3})
     await tokenSale.buyTokens(
       projectHash,
       {value: PURCHASER_DEPOSIT, from: PURCHASER3})
