@@ -9,20 +9,24 @@ const truffleInfo = require(rootDir + 'truffle.js')
 
 
 export default function () {
+  const HDWalletProvider = require('truffle-hdwallet-provider')
 
   const HOST = truffleInfo.networks.development.host
   const PORT = truffleInfo.networks.development.port
-  const provider = "http://" + HOST + ":" + PORT
 
   const fs = require('fs')
-  const HDWalletProvider = require('truffle-hdwallet-provider')
+
   const Web3 = require('web3')
-  const ganachiWeb3 = new Web3(new Web3.providers.HttpProvider(provider))
-  const mnemonic = fs.readFileSync(rootDir + 'mnemonic.txt').toString().split('\n')[0]
+  let provider = new Web3.providers.HttpProvider("http://" + HOST + ":" + PORT)
+
+  const ganachiWeb3 = new Web3(provider)
   let wweb3 = ganachiWeb3
+
   if (env['provider'] == "on") {
-    wweb3 = new Web3(new HDWalletProvider(mnemonic, provider))
+    provider = truffleInfo.networks.rinkeby.provider
+    wweb3 = new Web3(provider)
   }
+
   const BigNumber = wweb3.BigNumber
   const should = require('chai')
     .use(require('chai-as-promised'))

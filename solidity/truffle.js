@@ -35,7 +35,7 @@ module.exports = {
         mnemonic, 'https://rinkeby.infura.io/UIovb3o3e1Q0SRHdLaTZ'),
       network_id: '*',
       gas: 6300000,
-      gasPrice: 200000000000
+      gasPrice: 3000000000
     },
     kovan: {
       provider: new HDWalletProvider(
