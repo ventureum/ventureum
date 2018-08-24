@@ -235,6 +235,7 @@ export default function (artifacts) {
   RegulatingRating.Self = artifacts.require(
     'modules/regulating_rating/RegulatingRating')
   RegulatingRating.CI = Web3.utils.keccak256('RegulatingRating')
+  RegulatingRating.MaxScore = DurationConfig.MaxScore
   RegulatingRating.Sig = {
     Start: wweb3.eth.abi.encodeFunctionSignature(
       'start(bytes32,uint256,uint256,uint256,bytes32[],bytes32[],uint256[])'),

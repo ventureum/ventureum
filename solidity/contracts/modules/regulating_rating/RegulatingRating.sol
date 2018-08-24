@@ -6,6 +6,8 @@ import "repsys/contracts/ReputationSystem.sol";
 import "./RegulatingRatingStorage.sol";
 import "../Module.sol";
 import "../project_controller/ProjectController.sol";
+import "../milestone_controller/MilestoneController.sol";
+import "../milestone_controller/MilestoneControllerView.sol";
 
 
 contract RegulatingRating is Module {
@@ -21,6 +23,14 @@ contract RegulatingRating is Module {
         bytes32[] objs,
         bytes32[] objTypes,
         uint[] objMaxRegulationRewards
+    );
+
+    event RegulatorVote(
+        bytes32 indexed namespace, 
+        uint indexed milestoneId, 
+        uint objId, 
+        address regulator, 
+        uint score
     );
 
     event AllBidsFinalized(
@@ -79,26 +89,29 @@ contract RegulatingRating is Module {
             bytes32[] objMaxRegulationRewards;
         }
     */
-    bytes32 constant START_TIME = "startTime";
-    bytes32 constant END_TIME = "endTime";
-    bytes32 constant FINALIZED = "finalized";
-    bytes32 constant OBJ = "objective";
-    bytes32 constant OBJ_ID = "objectiveId";
-    bytes32 constant OBJ_TYPE = "objectiveType";
-    bytes32 constant OBJ_MAX_REGULATION_REWARD = "objectiveMaxRegulationReward";
-    bytes32 constant OBJ_REGULATION_REWARD = "objectiveRegulationReward";
-    bytes32 constant OBJ_TOTAL_REPUTATION_VOTES = "objectiveTotalReputationVotes";
-    bytes32 constant NUMBER_OBJECTIVES = "numberObjectives";
-    bytes32 constant REGULATOR_BID = "regulatorBid";
-    bytes32 constant REGULATOR_ADDRESS_LIST = "regulatorAddressList";
+    string constant START_TIME = "startTime";
+    string constant END_TIME = "endTime";
+    string constant FINALIZED = "finalized";
+    string constant OBJ = "objective";
+    string constant OBJ_ID = "objectiveId";
+    string constant OBJ_TYPE = "objectiveType";
+    string constant OBJ_MAX_REGULATION_REWARD = "objectiveMaxRegulationReward";
+    string constant OBJ_REGULATION_REWARD = "objectiveRegulationReward";
+    string constant OBJ_TOTAL_REPUTATION_VOTES = "objectiveTotalReputationVotes";
+    string constant NUMBER_OBJECTIVES = "numberObjectives";
+    string constant REGULATOR_BID = "regulatorBid";
+    string constant REGULATOR_BID_SCORE = "regulatorBidScore";
+    string constant REGULATOR_ADDRESS_LIST = "regulatorAddressList";
     uint constant GLOBAL_OBJ_ID = uint(-1);
     uint constant TRUE = 1;
     uint constant FALSE = 0;
 
+    bytes32 constant MILESTONE_CONTROLLER_VIEW_CI = "MilestoneControllerView";
 
     RegulatingRatingStorage public regulatingRatingStorage;
     ReputationSystem public reputationSystem;
     ProjectController public projectController;
+    uint public maxScore;
 
     modifier founderOnly(bytes32 namespace) {
         require(projectController != NULL);
@@ -106,8 +119,11 @@ contract RegulatingRating is Module {
         _;
     }
 
-    constructor (address kernelAddr) Module(kernelAddr) public {
+    constructor (address kernelAddr, uint _maxScore) Module(kernelAddr) public {
+        require(_maxScore > 0);
+
         CI = keccak256("RegulatingRating");
+        maxScore = _maxScore;
     }
 
     /**
@@ -374,6 +390,76 @@ contract RegulatingRating is Module {
             finalized == TRUE,
             objType
         );
+    }
+
+    /**
+    * Regulator can vote a obj when obj finalize or in RegulatorVoteStage
+    *
+    * @param namespace namespace of a project (projectHash)
+    * @param milestoneId milestoneId of a milestone of the project
+    * @param obj objective of a milestone of the project
+    * @param score the score that regulator(msg.sender) vote.
+     */
+    function regulatorVote(bytes32 namespace, uint milestoneId, bytes32 obj, uint score) 
+        external
+    {
+        MilestoneControllerView milestoneControllerView = 
+            MilestoneControllerView(contractAddressHandler.contracts(MILESTONE_CONTROLLER_VIEW_CI));
+        uint objId = getObjId(namespace, milestoneId, obj);
+
+        // require milestone not finalized
+        (,uint milestoneState,,,) = milestoneControllerView.getMilestoneInfo(namespace, milestoneId);
+        require (milestoneState != uint(MilestoneController.MilestoneState.COMPLETION));
+
+        // require this regulator(msg.sender) already bid this object
+        require(isRegulatorBid(namespace, milestoneId, obj, msg.sender));
+
+        // require this obj already finalized or in RegulatorVote stage
+        uint objFinalized = regulatingRatingStorage.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, FINALIZED)));
+        bool isRVStage = milestoneControllerView.isRegulatorVoteStage(namespace, milestoneId);
+        require (objFinalized == TRUE || isRVStage);
+
+        // require score greater or equal than 0 and less or equal than maxScore
+        require (score <= maxScore);
+
+        regulatingRatingStorage.setUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, objId, msg.sender, REGULATOR_BID_SCORE)),
+            score
+        );
+
+        emit RegulatorVote(namespace, milestoneId, objId, msg.sender, score);
+    }
+
+    /**
+    * Get the given regulator's voting weight and score
+    *
+    * @param namespace namespace of a project (projectHash)
+    * @param milestoneId milestoneId of a milestone of the project
+    * @param obj objective of a milestone of the project
+    * @param regulator the address of regulator
+     */
+    function getRegulatorVoteInfo (bytes32 namespace, uint milestoneId, bytes32 obj, address regulator) 
+        public
+        view
+        returns (uint, uint)
+    {
+        uint objId = getObjId(namespace, milestoneId, obj);
+
+        uint score = regulatingRatingStorage.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, objId, regulator, REGULATOR_BID_SCORE)));
+
+        bytes32 objType = regulatingRatingStorage.getBytes32(
+            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_TYPE))
+        );
+        bytes32 pollId = keccak256(abi.encodePacked(namespace, milestoneId));
+        uint weight = reputationSystem.getVotingResultForMember(
+            pollId,
+            regulator,
+            objType
+        );
+
+        return (weight, score);
     }
 
     /**

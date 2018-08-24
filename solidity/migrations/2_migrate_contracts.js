@@ -87,6 +87,7 @@ module.exports = function (deployer, network, accounts) {
         [EtherCollector.Self,
           RefundManager.Self,
           MilestoneController.Self,
+          MilestoneController.View.Self,
           RegulatingRating.Self,
           PLCRVoting.Self,
           Challenge.Self,
@@ -176,7 +177,10 @@ module.exports = function (deployer, network, accounts) {
       await deployer.deploy(
         MilestoneController.Storage.Self,
         Kernel.Self.address)
-      await deployer.deploy(MilestoneController.View.Self, MilestoneController.Storage.Self.address)
+      await deployer.deploy(
+        MilestoneController.View.Self,
+        MilestoneController.Storage.Self.address,
+        MilestoneController.Self.address)
 
       // Deploy token sale and storage
       await deployer.deploy(
@@ -193,9 +197,13 @@ module.exports = function (deployer, network, accounts) {
       // Deploy ether collector and storage
       await deployer.deploy(EtherCollector.Self, Kernel.Self.address)
       await deployer.deploy(EtherCollector.Storage.Self, Kernel.Self.address)
+      console.log(RegulatingRating.MaxScore)
 
       // Deploy ether regulating rating and storage
-      await deployer.deploy(RegulatingRating.Self, Kernel.Self.address)
+      await deployer.deploy(
+        RegulatingRating.Self,
+        Kernel.Self.address,
+        RegulatingRating.MaxScore)
       await deployer.deploy(RegulatingRating.Storage.Self, Kernel.Self.address)
 
       // Deploy ether reward manager and storage
