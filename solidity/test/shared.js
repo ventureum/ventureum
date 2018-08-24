@@ -75,6 +75,7 @@ const run = exports.run = async (accounts) => {
     instances.kernel.address,
     MilestoneController.minMilestoneLength,
     MilestoneController.ratingStageMaxStartTimeFromEnd,
+    MilestoneController.ratingStageMinStartTimeFromBegin,
     MilestoneController.refundStageMinStartTimeFromEnd)
   instances.milestoneControllerStorage =
     await MilestoneController.Storage.Self.new(instances.kernel.address)
