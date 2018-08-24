@@ -21,20 +21,20 @@ module.exports = {
       host: '127.0.0.1',
       port: 8545,
       network_id: '*', // Match any network id
-      gas: 6300000,
+      gas: 6600000,
       //provider: new HDWalletProvider(mnemonic, "http://localhost:8545", 0, 10) // <-- Comment this line when using solidity-coverage
     },
     testing: {
       host: 'localhost',
       port: 8545,
       network_id: '*', // Match any network id
-      gas: 6300000
+      gas: 6600000
     },
     rinkeby: {
       provider: new HDWalletProvider(
         mnemonic, 'https://rinkeby.infura.io/UIovb3o3e1Q0SRHdLaTZ'),
       network_id: '*',
-      gas: 6300000,
+      gas: 6600000,
       gasPrice: 3000000000
     },
     kovan: {
