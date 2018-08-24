@@ -1,25 +1,32 @@
 pragma solidity ^0.4.24;
 
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 import './MilestoneControllerStorage.sol';
+import './MilestoneController.sol';
 
 
 contract MilestoneControllerView {
-    bytes constant START_TIME = "startTime";
-    bytes constant END_TIME = "endTime";
-    bytes constant WEI_LOCKED = "weiLocked";
-    bytes constant STATE = "state";
-    bytes constant OBJS = "objs";
-    bytes constant OBJ_TYPES = "objTypes";
-    bytes constant OBJ_MAX_REGULATION_REWARDS = "objMaxRegulationRewards";
-    bytes constant CUMULATIVE_MAX_REGULATION_REWARDS = "CumulativeMaxRegulationRewards";
-    bytes constant NUMBER_MILESTONES = "numberMilestones";
-    bytes constant MILESTONE_LENGTH = "milestoneLength";
+    using SafeMath for uint;
+
+    string constant START_TIME = "startTime";
+    string constant END_TIME = "endTime";
+    string constant WEI_LOCKED = "weiLocked";
+    string constant STATE = "state";
+    string constant OBJS = "objs";
+    string constant OBJ_TYPES = "objTypes";
+    string constant OBJ_MAX_REGULATION_REWARDS = "objMaxRegulationRewards";
+    string constant CUMULATIVE_MAX_REGULATION_REWARDS = "CumulativeMaxRegulationRewards";
+    string constant NUMBER_MILESTONES = "numberMilestones";
+    string constant MILESTONE_LENGTH = "milestoneLength";
     uint constant GLOBAL_MILESTONE_ID = uint(-1);
 
     MilestoneControllerStorage public milestoneControllerStore;
+    MilestoneController public milestoneController;
 
-    constructor (address milestoneStoreAddress) public {
+    constructor (address milestoneStoreAddress, address milestoneControllerAddress) public {
         milestoneControllerStore = MilestoneControllerStorage(milestoneStoreAddress);
+        milestoneController = MilestoneController(milestoneControllerAddress);
     }
 
     /**
@@ -69,6 +76,35 @@ contract MilestoneControllerView {
             endTime, 
             weiLocked);
     }
+
+    /**
+     * check if in regulator vote stage
+     *
+     * @param namespace namespace of a project
+     * @param milestoneId the id of milestone 
+     */
+    function isRegulatorVoteStage(bytes32 namespace, uint256 milestoneId) 
+        public
+        view
+        returns (bool)
+    {
+        uint256 state = milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, STATE)));
+        uint256 endTime = milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, END_TIME)));
+
+        uint stageStartTime = endTime.sub(
+            milestoneController.ratingStageMaxStartTimeFromEnd());
+        uint stageEndTime = endTime.sub(
+            milestoneController.refundStageMinStartTimeFromEnd());
+
+        return (
+            state != uint(MilestoneController.MilestoneState.COMPLETION) && 
+            now >= stageStartTime && 
+            now <= stageEndTime
+        );
+    }
+
 
     /**
     * Get the milestone obj info

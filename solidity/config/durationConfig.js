@@ -39,6 +39,8 @@ export function getDurationConfig () {
     }
   }
 
+  DurationConfig.MaxScore = 5
+
   return DurationConfig
 }
 
