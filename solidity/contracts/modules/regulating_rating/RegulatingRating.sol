@@ -89,19 +89,19 @@ contract RegulatingRating is Module {
             bytes32[] objMaxRegulationRewards;
         }
     */
-    string constant START_TIME = "startTime";
-    string constant END_TIME = "endTime";
-    string constant FINALIZED = "finalized";
-    string constant OBJ = "objective";
-    string constant OBJ_ID = "objectiveId";
-    string constant OBJ_TYPE = "objectiveType";
-    string constant OBJ_MAX_REGULATION_REWARD = "objectiveMaxRegulationReward";
-    string constant OBJ_REGULATION_REWARD = "objectiveRegulationReward";
-    string constant OBJ_TOTAL_REPUTATION_VOTES = "objectiveTotalReputationVotes";
-    string constant NUMBER_OBJECTIVES = "numberObjectives";
-    string constant REGULATOR_BID = "regulatorBid";
-    string constant REGULATOR_BID_SCORE = "regulatorBidScore";
-    string constant REGULATOR_ADDRESS_LIST = "regulatorAddressList";
+    bytes32 constant START_TIME = "startTime";
+    bytes32 constant END_TIME = "endTime";
+    bytes32 constant FINALIZED = "finalized";
+    bytes32 constant OBJ = "objective";
+    bytes32 constant OBJ_ID = "objectiveId";
+    bytes32 constant OBJ_TYPE = "objectiveType";
+    bytes32 constant OBJ_MAX_REGULATION_REWARD = "objectiveMaxRegulationReward";
+    bytes32 constant OBJ_REGULATION_REWARD = "objectiveRegulationReward";
+    bytes32 constant OBJ_TOTAL_REPUTATION_VOTES = "objectiveTotalReputationVotes";
+    bytes32 constant NUMBER_OBJECTIVES = "numberObjectives";
+    bytes32 constant REGULATOR_BID = "regulatorBid";
+    bytes32 constant REGULATOR_BID_SCORE = "regulatorBidScore";
+    bytes32 constant REGULATOR_ADDRESS_LIST = "regulatorAddressList";
     uint constant GLOBAL_OBJ_ID = uint(-1);
     uint constant TRUE = 1;
     uint constant FALSE = 0;
