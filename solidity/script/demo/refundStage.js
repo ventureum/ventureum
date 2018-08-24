@@ -35,7 +35,8 @@ module.exports = async function (callback) {
 
   /*
    * Constants
-   */ const day = 60 * 60 * 24
+   */
+  const day = 60 * 60 * 24
   const projectName = "project refund stage"
   const length = [60 * day, 60 * day]
   const objs = [
