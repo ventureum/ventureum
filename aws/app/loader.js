@@ -6,13 +6,14 @@ const FOLDER = "contracts/"
 const CARBON_VOTE_X_CORE_JSON = 'CarbonVoteXCore.json'
 const VETXTOKEN_JSON = 'VetXToken.json'
 const CONFIG_JSON = 'config.json'
+const env = require('.env.json')
 
 /*
  * get json from aws s3
  */
-let getJsonFromS3 = async function (key) {
+let getJsonFromS3 = async function (bucketName, key) {
   const params = {
-    Bucket: BUCKET_NAME,
+    Bucket: bucketName,
     Key: key
   }
   const res = await s3.getObject(params).promise()
@@ -24,12 +25,17 @@ let getJsonFromS3 = async function (key) {
  * Load all information from aws s3
  */
 let loadInfo = async function () {
+  let contractBucket = "alpha.ventureum.io"
+  if (env['net'] === 'demo') {
+    contractBucket = "demo.ventureum.io"
+  }
+
   /*
    * Get vetXTokenJson, carbonVoteXCoreJson, configJson from s3
    */
-  const vetXTokenJson = await getJsonFromS3(FOLDER + VETXTOKEN_JSON)
-  const carbonVoteXCoreJson = await getJsonFromS3(FOLDER + CARBON_VOTE_X_CORE_JSON)
-  const configJson = await getJsonFromS3(CONFIG_JSON)
+  const vetXTokenJson = await getJsonFromS3(contractBucket, FOLDER + VETXTOKEN_JSON)
+  const carbonVoteXCoreJson = await getJsonFromS3(contractBucket, FOLDER + CARBON_VOTE_X_CORE_JSON)
+  const configJson = await getJsonFromS3(BUCKET_NAME, CONFIG_JSON)
 
   /*
    * the address and abi of VetXToken
