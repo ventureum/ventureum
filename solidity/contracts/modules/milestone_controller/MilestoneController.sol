@@ -287,6 +287,7 @@ contract MilestoneController is Module {
 
         uint startTime = milestoneControllerStore.getUint(
             keccak256(abi.encodePacked(namespace, milestoneId, START_TIME)));
+        // TODO (@b232wang) issue#370 now >= startTime.add(ratingStageMinStartTimeFromBegin)
         require(now >= startTime && now <= endTime.sub(ratingStageMaxStartTimeFromEnd));
 
         milestoneControllerStore.setUint(

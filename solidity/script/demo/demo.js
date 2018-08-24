@@ -220,6 +220,7 @@ export async function whitelistProject (Contracts, artifacts, projectName, owner
 }
 
 export async function initMilestone (Contracts, artifacts, projectName) {
+  console.log("initMilestone begin ...")
   const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
 
   const milestoneLength = await Contracts.milestoneControllerStorage.getUint(
@@ -252,37 +253,42 @@ export async function initMilestone (Contracts, artifacts, projectName) {
       OwnSolConfig.default(artifacts).MilestoneController.State.INACTIVE
     )
   }
+  console.log("initMilestone end")
 }
 
 export async function projectAddMilestones (Contracts, artifacts, projectName, milestoneInfo) {
-  const length = milestoneInfo[0]
-  const objs = milestoneInfo[1]
-  const objTypes = milestoneInfo[2]
-  const rewards = milestoneInfo[3]
+  console.log("projectAddMilestones begin ...")
+  const length = milestoneInfo.length
+  const objs = milestoneInfo.objs
+  const objTypes = milestoneInfo.objTypes
+  const rewards = milestoneInfo.rewards
 
   const projectHash = ThirdPartyJsConfig.default().wweb3.utils.keccak256(projectName)
 
   const milestoneControllerStorage = Contracts.milestoneControllerStorage
 
+  const numMilestones = await milestoneControllerStorage.getUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      GLOBAL_MILESTONE_ID,
+      NUMBER_MILESTONES))
+
+  // set number of milestone
+  await milestoneControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      GLOBAL_MILESTONE_ID,
+      NUMBER_MILESTONES),
+    numMilestones.plus(objs.length))
+
+  let firstMilestoneId = numMilestones.plus(1)
+  let totalMaxRewards = 0
+
   for (let i = 0; i < objs.length; i++) {
     /*
      * milestone-verifyAddingMilestone view (get milestoneId)
      */
-    const numMilestones = await milestoneControllerStorage.getUint(
-      ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
-        projectHash,
-        GLOBAL_MILESTONE_ID,
-        NUMBER_MILESTONES))
-    const milestoneId = numMilestones.plus(1)
-
-    // set number of milestone
-    await milestoneControllerStorage.setUint(
-      ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
-        projectHash,
-        GLOBAL_MILESTONE_ID,
-        NUMBER_MILESTONES),
-      milestoneId
-    )
+    let milestoneId = firstMilestoneId.plus(i)
 
     /*
      * initMilestone
@@ -322,22 +328,23 @@ export async function projectAddMilestones (Contracts, artifacts, projectName, m
         OBJ_MAX_REGULATION_REWARDS),
       rewards[i])
 
-    let totalMaxRewards = 0
     for (let j = 0; j < rewards.length; j++) {
       totalMaxRewards += rewards[i][j]
     }
-
-    let projectTotalRewards = await milestoneControllerStorage.getUint(
-      ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
-        projectHash,
-        PROJECT_TOTAL_REGULATOR_REWARDS))
-    projectTotalRewards += totalMaxRewards
-    await milestoneControllerStorage.setUint(
-      ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
-        projectHash,
-        PROJECT_TOTAL_REGULATOR_REWARDS),
-      projectTotalRewards)
   }
+
+  let projectTotalRewards = await milestoneControllerStorage.getUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      PROJECT_TOTAL_REGULATOR_REWARDS))
+  projectTotalRewards = projectTotalRewards.plus(totalMaxRewards)
+  await milestoneControllerStorage.setUint(
+    ThirdPartyJsConfig.default().Web3.utils.soliditySha3(
+      projectHash,
+      PROJECT_TOTAL_REGULATOR_REWARDS),
+    projectTotalRewards)
+
+  console.log("projectAddMilestones end")
 }
 
 export async function tokenSale(Contracts, artifacts, projectName, tokenSaleInfo) {
