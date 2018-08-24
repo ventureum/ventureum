@@ -122,6 +122,7 @@ contract MilestoneController is Module {
 
     uint public minMilestoneLength;
     uint public ratingStageMaxStartTimeFromEnd;
+    uint public ratingStageMinStartTimeFromBegin;
     uint public refundStageMinStartTimeFromEnd;
 
     modifier founderOnly(bytes32 namespace) {
@@ -134,12 +135,14 @@ contract MilestoneController is Module {
         address kernelAddr, 
         uint _minMilestoneLength,
         uint _ratingStageMaxStartTimeFromEnd,
+        uint _ratingStageMinStartTimeFromBegin,
         uint _refundStageMinStartTimeFromEnd
     ) Module(kernelAddr) public {
         CI = keccak256("MilestoneController");
 
         minMilestoneLength = _minMilestoneLength;
         ratingStageMaxStartTimeFromEnd = _ratingStageMaxStartTimeFromEnd;
+        ratingStageMinStartTimeFromBegin = _ratingStageMinStartTimeFromBegin;
         refundStageMinStartTimeFromEnd = _refundStageMinStartTimeFromEnd;
     }
 
@@ -287,8 +290,10 @@ contract MilestoneController is Module {
 
         uint startTime = milestoneControllerStore.getUint(
             keccak256(abi.encodePacked(namespace, milestoneId, START_TIME)));
-        // TODO (@b232wang) issue#370 now >= startTime.add(ratingStageMinStartTimeFromBegin)
-        require(now >= startTime && now <= endTime.sub(ratingStageMaxStartTimeFromEnd));
+
+        require(
+            now >= startTime.add(ratingStageMinStartTimeFromBegin) && 
+            now <= endTime.sub(ratingStageMaxStartTimeFromEnd));
 
         milestoneControllerStore.setUint(
             keccak256(

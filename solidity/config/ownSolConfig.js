@@ -176,6 +176,7 @@ export default function (artifacts) {
   }
   MilestoneController.minMilestoneLength = DurationConfig.minMilestoneLength
   MilestoneController.ratingStageMaxStartTimeFromEnd = DurationConfig.ratingStageMaxStartTimeFromEnd
+  MilestoneController.ratingStageMinStartTimeFromBegin = DurationConfig.ratingStageMinStartTimeFromBegin
   MilestoneController.refundStageMinStartTimeFromEnd = DurationConfig.refundStageMinStartTimeFromEnd
 
   // Token Sale

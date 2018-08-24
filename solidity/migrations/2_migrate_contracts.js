@@ -173,6 +173,7 @@ module.exports = function (deployer, network, accounts) {
         Kernel.Self.address,
         MilestoneController.minMilestoneLength,
         MilestoneController.ratingStageMaxStartTimeFromEnd,
+        MilestoneController.ratingStageMinStartTimeFromBegin,
         MilestoneController.refundStageMinStartTimeFromEnd)
       await deployer.deploy(
         MilestoneController.Storage.Self,
@@ -197,7 +198,6 @@ module.exports = function (deployer, network, accounts) {
       // Deploy ether collector and storage
       await deployer.deploy(EtherCollector.Self, Kernel.Self.address)
       await deployer.deploy(EtherCollector.Storage.Self, Kernel.Self.address)
-      console.log(RegulatingRating.MaxScore)
 
       // Deploy ether regulating rating and storage
       await deployer.deploy(
