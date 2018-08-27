@@ -21,14 +21,14 @@ module.exports = {
       host: '127.0.0.1',
       port: 8545,
       network_id: '*', // Match any network id
-      gas: 6600000,
+      gas: 6700000,
       //provider: new HDWalletProvider(mnemonic, "http://localhost:8545", 0, 10) // <-- Comment this line when using solidity-coverage
     },
     testing: {
       host: 'localhost',
       port: 8545,
       network_id: '*', // Match any network id
-      gas: 6600000
+      gas: 6700000
     },
     rinkeby: {
       provider: new HDWalletProvider(

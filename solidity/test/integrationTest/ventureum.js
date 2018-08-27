@@ -22,9 +22,13 @@ import {
   Parameterizer,
   TokenSale} from "../constants.js"
 
+const rootDir = "../../"
+
 const BigNumber = require('bignumber.js')
 
 const PROJECT_LIST = ["project0", "project1", "project2", "project3"]
+
+const getDurationConfig = require(rootDir + "config/durationConfig.js").getDurationConfig
 
 const ETH_AMOUNT = 10000000000
 
@@ -44,6 +48,8 @@ const PROJECT_STATE_APP_ACCEPTED = 2
 const PROJECT_STATE_TOKEN_SALE = 3
 const PROJECT_STATE_MILESTONE = 4
 const PROJECT_STATE_COMPLETE = 5
+
+const MAX_SCORE = 5
 
 const CHALLENGE_DEPOSIT = new BigNumber(Parameterizer.paramDefaults.minDeposit / 2)
 const CHALLENGE_REWARD =
@@ -126,6 +132,7 @@ contract("Integration Test", function (accounts) {
   let refundManager
   let paymentManager
 
+  let durationConfig
 
   before(async function () {
     // token(s)
@@ -166,6 +173,8 @@ contract("Integration Test", function (accounts) {
     // Transfer VTX to voter
     await vetXToken.transfer(VOTER1, VOTE_NUMBER)
     await vetXToken.transfer(VOTER2, VOTE_NUMBER)
+
+    durationConfig = getDurationConfig()
   })
 
   let deposit = async function (address, vetXTokenNum) {
@@ -311,15 +320,13 @@ contract("Integration Test", function (accounts) {
     await vetXToken.approve(tokenSale.address, PURCHASER_DEPOSIT * rate / 100, {from: PURCHASER2})
     await tokenSale.buyTokens(
       projectHash,
-      {value: PURCHASER_DEPOSIT, from: PURCHASER2})
-      .should.be.fulfilled
+      {value: PURCHASER_DEPOSIT, from: PURCHASER2}).should.be.fulfilled
 
     await vetXToken.transfer(PURCHASER3, PURCHASER_DEPOSIT * rate)
     await vetXToken.approve(tokenSale.address, PURCHASER_DEPOSIT * rate / 100, {from: PURCHASER3})
     await tokenSale.buyTokens(
       projectHash,
-      {value: PURCHASER_DEPOSIT, from: PURCHASER3})
-      .should.be.fulfilled
+      {value: PURCHASER_DEPOSIT, from: PURCHASER3}).should.be.fulfilled
 
     await tokenSale.finalize(projectHash, {from: PROJECT_OWNER})
       .should.be.fulfilled
@@ -329,8 +336,7 @@ contract("Integration Test", function (accounts) {
     const purchaser2BalPost = await projectToken.balanceOf(PURCHASER2)
     const purchaser3BalPost = await projectToken.balanceOf(PURCHASER3)
 
-    purchaser1BalPost.minus(purchaser1BalPre)
-      .should.be.bignumber.equal(PURCHASER_DEPOSIT * rate)
+    purchaser1BalPost.minus(purchaser1BalPre).should.be.bignumber.equal(PURCHASER_DEPOSIT * rate)
 
 
     /*
@@ -390,15 +396,14 @@ contract("Integration Test", function (accounts) {
     }
   }
 
-  let reputationSystemRating = async function (projectHash, milestoneId, pollTime) {
-    const startTime = TimeSetter.latestTime()
+  let reputationSystemRating = async function (projectHash, milestoneId, startTime) {
     const votesInvestor1 = [100, 200]
     const votesInvestor2 = [150, 50]
 
     //-------- set up reputation system vote -----------
     const pollId = Web3.utils.soliditySha3(projectHash, milestoneId)
 
-    await TimeSetter.increaseTimeTo(pollTime + TimeSetter.duration.days(1))
+    await TimeSetter.increaseTimeTo(startTime + TimeSetter.duration.days(1))
     await TimeSetter.advanceBlock()
 
     await reputationSystem.startPoll(
@@ -455,14 +460,16 @@ contract("Integration Test", function (accounts) {
     const expired = await reputationSystem.pollExpired.call(pollId)
     expired.should.be.equal(true)
 
+    await TimeSetter.increaseTimeTo(
+      startTime +
+      durationConfig.ratingStageMinStartTimeFromBegin +
+      TimeSetter.duration.days(1))
+
     // --------- start -------------
     await milestoneController.startRatingStage(
       projectHash,
       milestoneId,
       {from: PROJECT_OWNER}).should.be.fulfilled
-
-    // increase time to starttime + interval for rating stage
-    await TimeSetter.increaseTimeTo(startTime + INTERVAL_FOR_RATING_STAGE)
 
     await regulatingRating.bid(
       projectHash,
@@ -502,8 +509,13 @@ contract("Integration Test", function (accounts) {
 
 
     // fastForwardToLastThreeWeek
-    const lastWeek = pollTime + MILESTONE_LENGTH[milestoneId - 1] + 100 - 3 * TimeSetter.OneWeek
-    await TimeSetter.increaseTimeTo(lastWeek)
+    const regulatorStageTime =
+      startTime +
+      MILESTONE_LENGTH[milestoneId - 1] -
+      durationConfig.ratingStageMaxStartTimeFromEnd +
+      TimeSetter.duration.days(1)
+
+    await TimeSetter.increaseTimeTo(regulatorStageTime)
     await TimeSetter.advanceBlock()
 
     // finalize bid  (founderOnly)
@@ -552,6 +564,30 @@ contract("Integration Test", function (accounts) {
         preBal.minus(postBal).should.be.bignumber.equal(REWARDS[j][i])
       }
     }
+
+    // allow regulator vote for a project milestone obj
+    await regulatingRating.regulatorVote(
+      projectHash,
+      milestoneId,
+      MILESTONE_OBJS[milestoneId - 1][0],
+      MAX_SCORE,
+      {from: REGULATOR1}).should.be.fulfilled
+
+    // allow regulator edit the vote for a project milestone obj
+    await regulatingRating.regulatorVote(
+      projectHash,
+      milestoneId,
+      MILESTONE_OBJS[milestoneId - 1][0],
+      MAX_SCORE - 1,
+      {from: REGULATOR1}).should.be.fulfilled
+
+    // allow regulator vote 0 are score
+    await regulatingRating.regulatorVote(
+      projectHash,
+      milestoneId,
+      MILESTONE_OBJS[milestoneId - 1][0],
+      0,
+      {from: REGULATOR2}).should.be.fulfilled
   }
 
 

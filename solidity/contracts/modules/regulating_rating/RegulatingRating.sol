@@ -106,7 +106,7 @@ contract RegulatingRating is Module {
     uint constant TRUE = 1;
     uint constant FALSE = 0;
 
-    bytes32 constant MILESTONE_CONTROLLER_VIEW_CI = "MilestoneControllerView";
+    bytes32 constant MILESTONE_CONTROLLER_VIEW_CI = keccak256("MilestoneControllerView");
 
     RegulatingRatingStorage public regulatingRatingStorage;
     ReputationSystem public reputationSystem;

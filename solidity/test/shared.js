@@ -79,6 +79,9 @@ const run = exports.run = async (accounts) => {
     MilestoneController.refundStageMinStartTimeFromEnd)
   instances.milestoneControllerStorage =
     await MilestoneController.Storage.Self.new(instances.kernel.address)
+  instances.milestoneControllerView = await MilestoneController.View.Self.new(
+    instances.milestoneControllerStorage.address,
+    instances.milestoneController.address)
 
   // Ether Collector
   instances.etherCollector = await EtherCollector.Self.new(

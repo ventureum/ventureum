@@ -165,7 +165,8 @@ export default function (artifacts) {
   }
   MilestoneController.View = {
     Self: artifacts.require(
-      'modules/milestone_controller/MilestoneControllerView')
+      'modules/milestone_controller/MilestoneControllerView'),
+    CI: Web3.utils.keccak256('MilestoneControllerView')
   }
   MilestoneController.State = {
     INACTIVE: 0,

@@ -11,6 +11,7 @@ const MILESTONE_ID_TWO = 2
 const MILESTONE_ID_THREE = 3
 const MILESTONE_ID_FOUR = 4
 const MILESTONE_ID_FIVE = 5
+const MILESTONE_ID_SIX = 6
 const OBJ_MAX_REGULATION_REWARD_ONE = 100;
 const OBJ_MAX_REGULATION_REWARD_TWO = 50;
 const OBJ_TYPE_ONE = Web3.utils.keccak256("type1")
@@ -240,8 +241,7 @@ contract('RegulatingRatingTest', function (accounts) {
       {from: ROOT}).should.be.rejectedWith(Error.EVMRevert)
   })
 
-  it('should bid for one objective successfully ' +
-    'by one regulator', async function () {
+  it('should bid for one objective successfully by one regulator', async function () {
     await setUpReputationSystemVote(
       PROJECT_ONE,
       MILESTONE_ID_TWO,
@@ -272,8 +272,7 @@ contract('RegulatingRatingTest', function (accounts) {
     regulatorOneRewardForObjOne.should.be.bignumber.equal(0)
   })
 
-  it('should bid for multiple objectives successfully' +
-    ' by one regulator', async function () {
+  it('should bid for multiple objectives successfully by one regulator', async function () {
     await setUpReputationSystemVote(
       PROJECT_ONE,
       MILESTONE_ID_THREE,
@@ -326,8 +325,7 @@ contract('RegulatingRatingTest', function (accounts) {
     regulatorOneRewardForObjTwo.should.be.bignumber.equal(0)
   })
 
-  it('should bid for multiple objectives successfully ' +
-    'by multiple regulators', async function () {
+  it('should bid for multiple objectives successfully by multiple regulators', async function () {
     await setUpReputationSystemVote(
       PROJECT_ONE,
       MILESTONE_ID_FOUR,
@@ -467,8 +465,7 @@ contract('RegulatingRatingTest', function (accounts) {
     regulatorTwoRewardForObjTwo.should.be.bignumber.equal(0)
   })
 
-  it('should finalize one objective successfully by finalizeBidForObj',
-    async function () {
+  it('should finalize one objective successfully by finalizeBidForObj', async function () {
     await setUpReputationSystemVote(
       PROJECT_TWO,
       MILESTONE_ID_THREE,
@@ -527,8 +524,7 @@ contract('RegulatingRatingTest', function (accounts) {
       expectedRegulatorTwoRewardForObjOne)
   })
 
-  it('should finalize one objective successfully by finalizeAllBids',
-    async function () {
+  it('should finalize one objective successfully by finalizeAllBids', async function () {
       await setUpReputationSystemVote(
         PROJECT_TWO,
         MILESTONE_ID_FOUR,
@@ -690,5 +686,49 @@ contract('RegulatingRatingTest', function (accounts) {
       LENGTH_FOR_RATING_STAGE) * OBJ_MAX_REGULATION_REWARD_TWO
     regulatorTwoRewardForObjTwo.should.be.bignumber.equal(
       expectedRegulatorTwoRewardForObjTwo)
+  })
+
+  it('should able vote milestone object rejected cause not in milestone', async function () {
+    await setUpReputationSystemVote(
+      PROJECT_TWO,
+      MILESTONE_ID_SIX,
+      DELAY_LENGTH_IN_BLOCK_NUMBER,
+      POLL_LENGTH_IN_BLOCK_NUMBER,
+      FOUNDER_TWO)
+
+    // bid and backOutFromBid
+    await regulatingRating.bid(
+      PROJECT_TWO, MILESTONE_ID_SIX, OBJ_ONE, {from: REGULATOR_ONE})
+    await regulatingRating.bid(
+      PROJECT_TWO, MILESTONE_ID_SIX, OBJ_ONE, {from: REGULATOR_TWO})
+    await regulatingRating.bid(
+      PROJECT_TWO, MILESTONE_ID_SIX, OBJ_TWO, {from: REGULATOR_ONE})
+    await regulatingRating.bid(
+      PROJECT_TWO, MILESTONE_ID_SIX, OBJ_TWO, {from: REGULATOR_TWO})
+
+    // finalize
+    await regulatingRating.finalizeAllBids(
+      PROJECT_TWO, MILESTONE_ID_SIX, {from: FOUNDER_TWO})
+
+    // check OBJ_ONE
+    const objInfoOne = await regulatingRating.getObjInfo.call(
+      PROJECT_TWO, MILESTONE_ID_SIX, OBJ_ONE)
+    objInfoOne[0].should.be.bignumber.equal(1)
+    objInfoOne[1].should.be.equal(true)
+    objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
+
+    await regulatingRating.regulatorVote(
+      PROJECT_TWO,
+      MILESTONE_ID_SIX,
+      OBJ_ONE,
+      5,
+      {from: REGULATOR_ONE}).should.be.rejectedWith(Error.EVMRevert)
+
+    await regulatingRating.regulatorVote(
+      PROJECT_TWO,
+      MILESTONE_ID_SIX,
+      OBJ_TWO,
+      2,
+      {from: REGULATOR_ONE}).should.be.rejectedWith(Error.EVMRevert)
   })
 })
