@@ -254,51 +254,81 @@ module.exports = function (deployer, network, accounts) {
 
       // Instances
       instances.vetXToken = VetXToken.Self.at(VetXToken.Self.address)
+
+      /*
+       * VTCR
+       */
       instances.kernel = Kernel.Self.at(Kernel.Self.address)
       instances.aclHandler = ACLHandler.Self.at(ACLHandler.Self.address)
       instances.contractAddressHandler = ContractAddressHandler.Self.at(
         ContractAddressHandler.Self.address)
+      instances.registry = Registry.Self.at(
+        Registry.Self.address)
+
+      /*
+       * managers
+       */
       instances.refundManager = RefundManager.Self.at(
         RefundManager.Self.address)
       instances.refundManagerStorage = RefundManager.Storage.Self.at(
         RefundManager.Storage.Self.address)
-      instances.projectController = ProjectController.Self.at(
-        ProjectController.Self.address)
-      instances.milestoneController = MilestoneController.Self.at(
-        MilestoneController.Self.address)
-      instances.etherCollector = EtherCollector.Self.at(
-        EtherCollector.Self.address)
-      instances.tokenCollector = TokenCollector.Self.at(
-        TokenCollector.Self.address)
-      instances.tokenCollectorStorage = TokenCollector.Storage.Self.at(
-        TokenCollector.Storage.Self.address)
-      instances.tokenSale = TokenSale.Self.at(TokenSale.Self.address)
-      instances.tokenSaleStorage = TokenSale.Storage.Self.at(TokenSale.Storage.Self.address)
-      instances.projectControllerStorage = ProjectController.Storage.Self.at(
-        ProjectController.Storage.Self.address)
-      instances.milestoneControllerStorage =
-        MilestoneController.Storage.Self.at(
-          MilestoneController.Storage.Self.address)
-      instances.etherCollectorStorage = EtherCollector.Storage.Self.at(
-        EtherCollector.Storage.Self.address)
-      instances.reputationSystem = ReputationSystem.Self.at(
-        ReputationSystem.Self.address)
-      instances.carbonVoteXCore = CarbonVoteXCore.at(
-        CarbonVoteXCore.address)
-      instances.regulatingRating = RegulatingRating.Self.at(
-        RegulatingRating.Self.address)
-      instances.regulatingRatingStorage = RegulatingRating.Storage.Self.at(
-        RegulatingRating.Storage.Self.address)
+
       instances.rewardManager = RewardManager.Self.at(
         RewardManager.Self.address)
       instances.rewardManagerStorage = RewardManager.Storage.Self.at(
         RewardManager.Storage.Self.address)
+
       instances.paymentManager = PaymentManager.Self.at(
         PaymentManager.Self.address)
       instances.paymentManagerStorage = PaymentManager.Storage.Self.at(
         PaymentManager.Storage.Self.address)
-      instances.registry = Registry.Self.at(
-        Registry.Self.address)
+
+      /*
+       * project controller
+       */
+      instances.projectController = ProjectController.Self.at(
+        ProjectController.Self.address)
+      instances.projectControllerStorage = ProjectController.Storage.Self.at(
+        ProjectController.Storage.Self.address)
+
+      /*
+       * Milestone Controller
+       */
+      instances.milestoneController = MilestoneController.Self.at(
+        MilestoneController.Self.address)
+      instances.milestoneControllerStorage =
+        MilestoneController.Storage.Self.at(MilestoneController.Storage.Self.address)
+      instances.milestoneControllerView =
+        MilestoneController.View.Self.at(MilestoneController.View.Self.address)
+
+      /*
+       * collectors and their storage
+       */
+      instances.etherCollector = EtherCollector.Self.at(
+        EtherCollector.Self.address)
+      instances.etherCollectorStorage = EtherCollector.Storage.Self.at(
+        EtherCollector.Storage.Self.address)
+
+      instances.tokenCollector = TokenCollector.Self.at(
+        TokenCollector.Self.address)
+      instances.tokenCollectorStorage = TokenCollector.Storage.Self.at(
+        TokenCollector.Storage.Self.address)
+
+      // token sale
+      instances.tokenSale = TokenSale.Self.at(TokenSale.Self.address)
+      instances.tokenSaleStorage = TokenSale.Storage.Self.at(TokenSale.Storage.Self.address)
+
+      // regulating rating
+      instances.regulatingRating = RegulatingRating.Self.at(
+        RegulatingRating.Self.address)
+      instances.regulatingRatingStorage = RegulatingRating.Storage.Self.at(
+        RegulatingRating.Storage.Self.address)
+
+      // Third party repo
+      instances.reputationSystem = ReputationSystem.Self.at(
+        ReputationSystem.Self.address)
+      instances.carbonVoteXCore = CarbonVoteXCore.at(
+        CarbonVoteXCore.address)
 
       // Configuration
       await Configuration.run(instances, accounts, artifacts)

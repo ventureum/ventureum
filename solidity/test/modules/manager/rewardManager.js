@@ -1,6 +1,17 @@
-import {should, Web3, TimeSetter, Error, MilestoneController} from '../../constants.js'
-import { expect, ProjectController, ReputationSystem } from '../../constants'
-const shared = require('../../shared.js')
+import {
+  should,
+  Web3,
+  TimeSetter,
+  Error,
+  expect,
+  ProjectController,
+  ReputationSystem ,
+  MilestoneController} from  "../../constants.js"
+
+const rootDir = "../../../"
+
+const shared = require(rootDir + 'test/shared.js')
+const getDurationConfig = require(rootDir + 'config/durationConfig.js').getDurationConfig
 
 const PROJECT_ONE = Web3.utils.keccak256('ProjectOne')
 const PROJECT_TWO = Web3.utils.keccak256('ProjectTwo')
@@ -34,6 +45,7 @@ const VOTES_IN_WEI_FOR_OBJ_TWO_AND_REGULATOR_TWO = 30
 const DELAY_LENGTH_IN_BLOCK_NUMBER = 0
 const POLL_LENGTH_IN_BLOCK_NUMBER = 7
 
+
 contract('RewardManagerTest', function (accounts) {
   const FOUNDER = accounts[1]
   const PURCHASER = accounts[2]
@@ -52,6 +64,8 @@ contract('RewardManagerTest', function (accounts) {
   let regulatingRating
   let reputationSystem
   let carbonVoteXCore
+
+  let durationConfig
 
   let setUpMilestone = async function(projectId) {
     await projectController.registerProject(
@@ -174,17 +188,18 @@ contract('RewardManagerTest', function (accounts) {
     carbonVoteXCore = context.carbonVoteXCore
     await vetXToken.approve(tokenCollector.address, TOTAL_SPEND_MONEY)
     await vetXToken.approve(rewardManager.address, TOTAL_SPEND_MONEY)
+
+    durationConfig = getDurationConfig()
   })
 
 
   it('should withdraw successfully', async function () {
     await setUpMilestone(PROJECT_ONE)
 
-    let currentTime = TimeSetter.latestTime()
-    const minStartPollTime = currentTime + TimeSetter.duration.days(1);
-    const maxStartPollTime = minStartPollTime + TimeSetter.OneWeek;
+    const startTime = TimeSetter.latestTime()
 
-    const startTime = currentTime;
+    const minStartPollTime = startTime + TimeSetter.duration.days(1)
+    const maxStartPollTime = startTime + TimeSetter.duration.days(2)
 
     await milestoneController.activate(
       PROJECT_ONE,
@@ -194,7 +209,7 @@ contract('RewardManagerTest', function (accounts) {
       maxStartPollTime,
       {from: FOUNDER}).should.be.fulfilled
 
-    await TimeSetter.increaseTimeTo(currentTime + TimeSetter.duration.days(2))
+    await TimeSetter.increaseTimeTo((minStartPollTime + maxStartPollTime) / 2)
 
     const avgPrice = await tokenSale.avgPrice.call(PROJECT_ONE);
 
@@ -205,6 +220,10 @@ contract('RewardManagerTest', function (accounts) {
       POLL_LENGTH_IN_BLOCK_NUMBER,
       avgPrice)
 
+    await TimeSetter.increaseTimeTo(
+      startTime +
+      durationConfig.ratingStageMinStartTimeFromBegin +
+      TimeSetter.duration.days(1))
     await milestoneController.startRatingStage(
       PROJECT_ONE,
       MILESTONE_ID_ONE,
@@ -313,46 +332,50 @@ contract('RewardManagerTest', function (accounts) {
     rewardsInfoAfterWithdraw[1].should.be.bignumber.equal(0)
   })
 
-  it('should fail to withdraw if an objective is not finalized',
-    async function () {
-      await setUpMilestone(PROJECT_TWO)
+  it('should fail to withdraw if an objective is not finalized', async function () {
+    await setUpMilestone(PROJECT_TWO)
 
-      let currentTime = TimeSetter.latestTime()
-      const minStartPollTime = currentTime + TimeSetter.duration.days(1);
-      const maxStartPollTime = minStartPollTime + TimeSetter.OneWeek;
+    let startTime = TimeSetter.latestTime()
+    const minStartPollTime = startTime + TimeSetter.duration.days(1);
+    const maxStartPollTime = startTime + TimeSetter.duration.days(2);
 
-      await milestoneController.activate(
-        PROJECT_TWO,
-        MILESTONE_ID_ONE,
-        WEI_LOCKED,
-        minStartPollTime,
-        maxStartPollTime,
-        {from: FOUNDER}).should.be.fulfilled
+    await milestoneController.activate(
+      PROJECT_TWO,
+      MILESTONE_ID_ONE,
+      WEI_LOCKED,
+      minStartPollTime,
+      maxStartPollTime,
+      {from: FOUNDER}).should.be.fulfilled
 
-      await TimeSetter.increaseTimeTo(currentTime + TimeSetter.duration.days(2))
+    await TimeSetter.increaseTimeTo((minStartPollTime + maxStartPollTime) / 2)
 
-      const avgPrice = await tokenSale.avgPrice.call(PROJECT_TWO);
+    const avgPrice = await tokenSale.avgPrice.call(PROJECT_TWO);
 
-      await setUpReputationSystemVote(
-        PROJECT_TWO,
-        MILESTONE_ID_ONE,
-        DELAY_LENGTH_IN_BLOCK_NUMBER,
-        POLL_LENGTH_IN_BLOCK_NUMBER,
-        avgPrice)
+    await setUpReputationSystemVote(
+      PROJECT_TWO,
+      MILESTONE_ID_ONE,
+      DELAY_LENGTH_IN_BLOCK_NUMBER,
+      POLL_LENGTH_IN_BLOCK_NUMBER,
+      avgPrice)
 
-      await milestoneController.startRatingStage(
-        PROJECT_TWO,
-        MILESTONE_ID_ONE,
-        {from: FOUNDER})
+    await TimeSetter.increaseTimeTo(
+      startTime +
+      durationConfig.ratingStageMinStartTimeFromBegin +
+      TimeSetter.duration.days(1))
 
-      await regulatingRating.bid(
-        PROJECT_TWO, MILESTONE_ID_ONE, OBJ_ONE, {from: REGULATOR_ONE})
-      await regulatingRating.bid(
-        PROJECT_TWO, MILESTONE_ID_ONE, OBJ_ONE, {from: REGULATOR_TWO})
-      await regulatingRating.bid(
-        PROJECT_TWO, MILESTONE_ID_ONE, OBJ_TWO, {from: REGULATOR_ONE})
-      await regulatingRating.bid(
-        PROJECT_TWO, MILESTONE_ID_ONE, OBJ_TWO, {from: REGULATOR_TWO})
+    await milestoneController.startRatingStage(
+      PROJECT_TWO,
+      MILESTONE_ID_ONE,
+      {from: FOUNDER})
+
+    await regulatingRating.bid(
+      PROJECT_TWO, MILESTONE_ID_ONE, OBJ_ONE, {from: REGULATOR_ONE})
+    await regulatingRating.bid(
+      PROJECT_TWO, MILESTONE_ID_ONE, OBJ_ONE, {from: REGULATOR_TWO})
+    await regulatingRating.bid(
+      PROJECT_TWO, MILESTONE_ID_ONE, OBJ_TWO, {from: REGULATOR_ONE})
+    await regulatingRating.bid(
+      PROJECT_TWO, MILESTONE_ID_ONE, OBJ_TWO, {from: REGULATOR_TWO})
 
     /*
      * test getRegulationRewardsInfo when not finalized
@@ -364,22 +387,20 @@ contract('RewardManagerTest', function (accounts) {
       {from: REGULATOR_ONE})
     rewardsInfoNotFinalized[0].should.be.equal(false)
 
-      await rewardManager.withdraw(
-        PROJECT_TWO,
-        MILESTONE_ID_ONE,
-        OBJ_TWO,
-        {from: REGULATOR_ONE}).should.be.rejectedWith(Error.EVMRevert)
+    await rewardManager.withdraw(
+      PROJECT_TWO,
+      MILESTONE_ID_ONE,
+      OBJ_TWO,
+      {from: REGULATOR_ONE}).should.be.rejectedWith(Error.EVMRevert)
   })
 
   it('should fail to withdraw if an regulator re-withdraws the same objective',
     async function () {
       await setUpMilestone(PROJECT_THREE)
 
-      let currentTime = TimeSetter.latestTime()
-      const minStartPollTime = currentTime + TimeSetter.duration.days(1);
-      const maxStartPollTime = minStartPollTime + TimeSetter.OneWeek;
-
-      const startTime = currentTime;
+      let startTime = TimeSetter.latestTime()
+      const minStartPollTime = startTime + TimeSetter.duration.days(1);
+      const maxStartPollTime = startTime + TimeSetter.duration.days(2);
 
       await milestoneController.activate(
         PROJECT_THREE,
@@ -389,7 +410,7 @@ contract('RewardManagerTest', function (accounts) {
         maxStartPollTime,
         {from: FOUNDER}).should.be.fulfilled
 
-      await TimeSetter.increaseTimeTo(currentTime + TimeSetter.duration.days(2))
+      await TimeSetter.increaseTimeTo((minStartPollTime + maxStartPollTime) / 2)
 
       const avgPrice = await tokenSale.avgPrice.call(PROJECT_THREE);
 
@@ -399,6 +420,11 @@ contract('RewardManagerTest', function (accounts) {
         DELAY_LENGTH_IN_BLOCK_NUMBER,
         POLL_LENGTH_IN_BLOCK_NUMBER,
         avgPrice)
+
+      await TimeSetter.increaseTimeTo(
+        startTime +
+        durationConfig.ratingStageMinStartTimeFromBegin +
+        TimeSetter.duration.days(1))
 
       await milestoneController.startRatingStage(
         PROJECT_THREE,

@@ -64,7 +64,6 @@ const getContracts = exports.getContracts = async (artifacts) => {
   Contracts.milestoneController = await MilestoneController.Self.deployed()
   Contracts.milestoneControllerStorage = await MilestoneController.Storage.Self.deployed()
   Contracts.milestoneControllerView = await MilestoneController.View.Self.deployed()
-
   Contracts.tokenCollector = await TokenCollector.Self.deployed()
   Contracts.tokenCollectorStorage = await TokenCollector.Storage.Self.deployed()
 

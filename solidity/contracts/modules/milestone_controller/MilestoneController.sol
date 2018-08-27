@@ -94,16 +94,16 @@ contract MilestoneController is Module {
             uint[] objMaxRegulationRewards
         }
     */
-    string constant START_TIME = "startTime";
-    string constant END_TIME = "endTime";
-    string constant WEI_LOCKED = "weiLocked";
-    string constant STATE = "state";
-    string constant OBJS = "objs";
-    string constant OBJ_TYPES = "objTypes";
-    string constant OBJ_MAX_REGULATION_REWARDS = "objMaxRegulationRewards";
-    string constant CUMULATIVE_MAX_REGULATION_REWARDS = "cumulativeMaxRegulationRewards";
-    string constant NUMBER_MILESTONES = "numberMilestones";
-    string constant MILESTONE_LENGTH = "milestoneLength";
+    bytes constant START_TIME = "startTime";
+    bytes constant END_TIME = "endTime";
+    bytes constant WEI_LOCKED = "weiLocked";
+    bytes constant STATE = "state";
+    bytes constant OBJS = "objs";
+    bytes constant OBJ_TYPES = "objTypes";
+    bytes constant OBJ_MAX_REGULATION_REWARDS = "objMaxRegulationRewards";
+    bytes constant CUMULATIVE_MAX_REGULATION_REWARDS = "cumulativeMaxRegulationRewards";
+    bytes constant NUMBER_MILESTONES = "numberMilestones";
+    bytes constant MILESTONE_LENGTH = "milestoneLength";
     uint constant GLOBAL_MILESTONE_ID = uint(-1);
     uint constant MAX_REGULATION_REWARD_PERCENTAGE = 10;
 

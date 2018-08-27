@@ -59,6 +59,7 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   // Milestone Controller
   const milestoneController = instances.milestoneController
   const milestoneControllerStorage = instances.milestoneControllerStorage
+  const milestoneControllerView = instances.milestoneControllerView
 
   // Ether Collector
   const etherCollector = instances.etherCollector
@@ -254,6 +255,9 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await contractAddressHandler.registerContract(
     MilestoneController.Storage.CI,
     milestoneControllerStorage.address)
+  await contractAddressHandler.registerContract(
+    MilestoneController.View.CI,
+    milestoneControllerView.address)
 
   // Ether Collector
   await contractAddressHandler.registerContract(
