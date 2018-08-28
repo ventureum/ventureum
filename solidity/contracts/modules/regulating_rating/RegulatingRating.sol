@@ -407,9 +407,7 @@ contract RegulatingRating is Module {
             MilestoneControllerView(contractAddressHandler.contracts(MILESTONE_CONTROLLER_VIEW_CI));
         uint objId = getObjId(namespace, milestoneId, obj);
 
-        // require milestone not finalized
-        (,uint milestoneState,,,) = milestoneControllerView.getMilestoneInfo(namespace, milestoneId);
-        require (milestoneState != uint(MilestoneController.MilestoneState.COMPLETION));
+        bool regulatorVoteStageExpire = milestoneControllerView.regulatorVoteStageExpire(namespace, milestoneId);
 
         // require this regulator(msg.sender) already bid this object
         require(isRegulatorBid(namespace, milestoneId, obj, msg.sender));
@@ -418,7 +416,7 @@ contract RegulatingRating is Module {
         uint objFinalized = regulatingRatingStorage.getUint(
             keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, FINALIZED)));
         bool isRVStage = milestoneControllerView.isRegulatorVoteStage(namespace, milestoneId);
-        require (objFinalized == TRUE || isRVStage);
+        require ((objFinalized == TRUE && !regulatorVoteStageExpire) || isRVStage);
 
         // require score greater or equal than 0 and less or equal than maxScore
         require (score <= maxScore);
@@ -591,7 +589,7 @@ contract RegulatingRating is Module {
     * @param objId objective id of a milestone of the project
     * @param regulatorAddr address of regulator
     */
-    function registerRegulator(
+    function registerRegulator (
         bytes32 namespace,
         uint milestoneId,
         uint objId,
