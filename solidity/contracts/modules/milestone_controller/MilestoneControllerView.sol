@@ -2,24 +2,13 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-import './MilestoneControllerStorage.sol';
 import './MilestoneController.sol';
+import './MilestoneControllerStorage.sol';
+import './MilestoneControllerConstants.sol';
 
 
-contract MilestoneControllerView {
+contract MilestoneControllerView is MilestoneControllerConstants {
     using SafeMath for uint;
-
-    bytes constant START_TIME = "startTime";
-    bytes constant END_TIME = "endTime";
-    bytes constant WEI_LOCKED = "weiLocked";
-    bytes constant STATE = "state";
-    bytes constant OBJS = "objs";
-    bytes constant OBJ_TYPES = "objTypes";
-    bytes constant OBJ_MAX_REGULATION_REWARDS = "objMaxRegulationRewards";
-    bytes constant CUMULATIVE_MAX_REGULATION_REWARDS = "CumulativeMaxRegulationRewards";
-    bytes constant NUMBER_MILESTONES = "numberMilestones";
-    bytes constant MILESTONE_LENGTH = "milestoneLength";
-    uint constant GLOBAL_MILESTONE_ID = uint(-1);
 
     MilestoneControllerStorage public milestoneControllerStore;
     MilestoneController public milestoneController;

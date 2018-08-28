@@ -42,10 +42,11 @@ contract ProjectController is Module {
 
     address constant ZERO_ADDRESS = address(0x0);
     bytes32 constant ZERO_BYTES32 = keccak256("-1");
-    string constant OWNER = "owner";
-    string constant TOKEN_ADDRESS = "tokenAddress";
-    string constant PROJECT_STATE = "projectState";
-    string constant NAMESPACE = "namespace";
+
+    bytes32 constant OWNER = keccak256("owner");
+    bytes32 constant TOKEN_ADDRESS = keccak256("tokenAddress");
+    bytes32 constant PROJECT_STATE = keccak256("projectState");
+    bytes32 constant NAMESPACE = keccak256("namespace");
 
     ProjectControllerStorage private projectControllerStore;
 

@@ -12,39 +12,41 @@ const ThirdPartyJsConfig = require(rootDir + 'config/thirdPartyJsConfig.js')
 const BigNumber = require('bignumber.js')
 const BN = ThirdPartyJsConfig.default().wweb3.utils.BN
 
+const keccak256 = ThirdPartyJsConfig.default().wweb3.utils.keccak256
+
 /*
  * Contract constant
  */
-const OWNER = 'owner'
-const TOKEN_ADDRESS = 'tokenAddress'
-const PROJECT_STATE = 'projectState'
-const NAMESPACE = 'namespace'
-const GLOBAL_MILESTONE_ID = new BN(-1)
-const STATE = 'state'
-const OBJS = 'objs'
-const OBJ_TYPES = 'objTypes'
-const OBJ_MAX_REGULATION_REWARDS = 'objMaxRegulationRewards'
-const CUMULATIVE_MAX_REGULATION_REWARDS = 'cumulativeMaxRegulationRewards'
-const NUMBER_MILESTONES = 'numberMilestones'
-const MILESTONE_LENGTH = 'milestoneLength'
-const PROJECT_TOTAL_REGULATOR_REWARDS = 'projectTotalRegulatorRewards'
-const RATE = "rate"
-const TOTAL_TOKEN_FOR_SALE = "totalTokenForSale"
-const TOTAL_TOKEN_SOLD = "totalTokenSold"
-const TOTAL_ETH_RECEIVED = "totalEthReceived"
-const FINALIZED = "finalized"
-const AVERAGE_PRICE = "averagePrice"
-const PROJECT_TOKEN_BALANCE = "projectTokenBalance"
-const PROJECT_ETHER_BALANCE = "projectEtherBalance"
+const OWNER = keccak256('owner')
+const TOKEN_ADDRESS = keccak256('tokenAddress')
+const PROJECT_STATE = keccak256('projectState')
+const NAMESPACE = keccak256('namespace')
+const STATE = keccak256('state')
+const OBJS = keccak256('objs')
+const OBJ_TYPES = keccak256('objTypes')
+const OBJ_MAX_REGULATION_REWARDS = keccak256('objMaxRegulationRewards')
+const CUMULATIVE_MAX_REGULATION_REWARDS = keccak256('cumulativeMaxRegulationRewards')
+const NUMBER_MILESTONES = keccak256('numberMilestones')
+const MILESTONE_LENGTH = keccak256('milestoneLength')
+const PROJECT_TOTAL_REGULATOR_REWARDS = keccak256('projectTotalRegulatorRewards')
+const RATE = keccak256("rate")
+const TOTAL_TOKEN_FOR_SALE = keccak256("totalTokenForSale")
+const TOTAL_TOKEN_SOLD = keccak256("totalTokenSold")
+const TOTAL_ETH_RECEIVED = keccak256("totalEthReceived")
+const FINALIZED = keccak256("finalized")
+const AVERAGE_PRICE = keccak256("averagePrice")
+const PROJECT_TOKEN_BALANCE = keccak256("projectTokenBalance")
+const PROJECT_ETHER_BALANCE = keccak256("projectEtherBalance")
+const START_TIME = keccak256("startTime")
+const END_TIME = keccak256("endTime")
+const WEI_LOCKED = keccak256("weiLocked")
+const MILESTONE_ETHER_WEILOCKED = keccak256('milestoneEtherWeilocked')
+const AVAILABLE_TIME = keccak256('availableTime')
+const MILESTONE_ETHER_REFUND_LOCKED = keccak256('milestoneEtherRefundLocked')
+
 const FALSE = 0
 const TRUE = 1
-const START_TIME = "startTime"
-const END_TIME = "endTime"
-const WEI_LOCKED = "weiLocked"
-const MILESTONE_ETHER_WEILOCKED = 'milestoneEtherWeilocked'
-const AVAILABLE_TIME = 'availableTime'
-const MILESTONE_ETHER_REFUND_LOCKED = 'milestoneEtherRefundLocked'
-
+const GLOBAL_MILESTONE_ID = new BN(-1)
 
 /*
  * Constant field
