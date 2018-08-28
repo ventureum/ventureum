@@ -105,6 +105,26 @@ contract MilestoneControllerView {
         );
     }
 
+    /**
+     * check if pass the RegulatorVote stage
+     *
+     * @param namespace namespace of a project
+     * @param milestoneId the id of milestone 
+     */
+    function regulatorVoteStageExpire (bytes32 namespace, uint256 milestoneId) 
+        public
+        view
+        returns (bool)
+    {
+        uint256 endTime = milestoneControllerStore.getUint(
+            keccak256(abi.encodePacked(namespace, milestoneId, END_TIME)));
+
+        uint stageEndTime = endTime.sub(
+            milestoneController.refundStageMinStartTimeFromEnd());
+
+        return (now <= stageEndTime);
+    }
+
 
     /**
     * Get the milestone obj info
