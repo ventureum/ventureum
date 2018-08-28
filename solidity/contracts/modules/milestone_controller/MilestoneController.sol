@@ -5,12 +5,13 @@ import "repsys/contracts/ReputationSystem.sol";
 
 import '../Module.sol';
 import './MilestoneControllerStorage.sol';
+import './MilestoneControllerConstants.sol';
 import '../project_controller/ProjectController.sol';
 import "../regulating_rating/RegulatingRating.sol";
 import "../token_sale/TokenSale.sol";
 
 
-contract MilestoneController is Module {
+contract MilestoneController is Module, MilestoneControllerConstants {
     using SafeMath for uint;
 
     // events
@@ -70,44 +71,6 @@ contract MilestoneController is Module {
         RP, // Refund Period
         COMPLETION   // Completion
     }
-
-    /*
-        Fields Names for struct MilestoneData
-
-        struct MilestoneData {
-            uint milesoneId;
-            uint startTime;
-            uint endTime;
-
-            //  the amount of wei locked in the milestone
-            uint weiLocked;
-
-            MilestoneState state;
-
-            // list of objectives' IPFS hash
-            bytes32[] objs;
-
-            // list of objectives' type
-            bytes32[] objTypes;
-
-            // list of objectives' maxReward
-            uint[] objMaxRegulationRewards
-        }
-    */
-    bytes constant START_TIME = "startTime";
-    bytes constant END_TIME = "endTime";
-    bytes constant WEI_LOCKED = "weiLocked";
-    bytes constant STATE = "state";
-    bytes constant OBJS = "objs";
-    bytes constant OBJ_TYPES = "objTypes";
-    bytes constant OBJ_MAX_REGULATION_REWARDS = "objMaxRegulationRewards";
-    bytes constant CUMULATIVE_MAX_REGULATION_REWARDS = "cumulativeMaxRegulationRewards";
-    bytes constant NUMBER_MILESTONES = "numberMilestones";
-    bytes constant MILESTONE_LENGTH = "milestoneLength";
-    uint constant GLOBAL_MILESTONE_ID = uint(-1);
-    uint constant MAX_REGULATION_REWARD_PERCENTAGE = 10;
-
-    address constant NULL = address(0x0);
 
     // CI
     bytes32 constant REPUTATION_SYSTEM_CI = keccak256("ReputationSystem");
@@ -378,8 +341,8 @@ contract MilestoneController is Module {
     {
         (bool existing,) = isExisting(namespace, milestoneId);
         require(existing);
-        (, bool finalized, ) = regulatingRating.getObjInfo(namespace, milestoneId, obj);
-        uint rewards = regulatingRating.getRegulationRewardsForRegulator(
+        (, bool finalized, ) = regulatingRating.regulatingRatingView().getObjInfo(namespace, milestoneId, obj);
+        uint rewards = regulatingRating.regulatingRatingView().getRegulationRewardsForRegulator(
             namespace,
             milestoneId,
             obj,

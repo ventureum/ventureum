@@ -4,13 +4,15 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "repsys/contracts/ReputationSystem.sol";
 
 import "./RegulatingRatingStorage.sol";
+import "./RegulatingRatingView.sol";
+import "./RegulatingRatingConstants.sol";
 import "../Module.sol";
 import "../project_controller/ProjectController.sol";
 import "../milestone_controller/MilestoneController.sol";
 import "../milestone_controller/MilestoneControllerView.sol";
 
 
-contract RegulatingRating is Module {
+contract RegulatingRating is Module, RegulatingRatingConstants {
     using SafeMath for uint;
 
     // events
@@ -73,42 +75,7 @@ contract RegulatingRating is Module {
 
     enum BidAction {IN, OUT}
 
-    /*
-        Fields Names for struct RegulatingRatingData
-
-        struct RegulatingRatingData {
-            uint milestoneId;
-            uint startTime;
-            uint endTime;
-
-            // list of objectives' IPFS hash
-            bytes32[] objs;
-            // list of objective type
-            bytes32[] objTypes;
-            // list of objectives' max regulation rewards
-            bytes32[] objMaxRegulationRewards;
-        }
-    */
-    bytes32 constant START_TIME = "startTime";
-    bytes32 constant END_TIME = "endTime";
-    bytes32 constant FINALIZED = "finalized";
-    bytes32 constant OBJ = "objective";
-    bytes32 constant OBJ_ID = "objectiveId";
-    bytes32 constant OBJ_TYPE = "objectiveType";
-    bytes32 constant OBJ_MAX_REGULATION_REWARD = "objectiveMaxRegulationReward";
-    bytes32 constant OBJ_REGULATION_REWARD = "objectiveRegulationReward";
-    bytes32 constant OBJ_TOTAL_REPUTATION_VOTES = "objectiveTotalReputationVotes";
-    bytes32 constant NUMBER_OBJECTIVES = "numberObjectives";
-    bytes32 constant REGULATOR_BID = "regulatorBid";
-    bytes32 constant REGULATOR_BID_SCORE = "regulatorBidScore";
-    bytes32 constant REGULATOR_ADDRESS_LIST = "regulatorAddressList";
-    uint constant GLOBAL_OBJ_ID = uint(-1);
-    uint constant TRUE = 1;
-    uint constant FALSE = 0;
-
-    bytes32 constant MILESTONE_CONTROLLER_VIEW_CI = keccak256("MilestoneControllerView");
-
-    RegulatingRatingStorage public regulatingRatingStorage;
+    RegulatingRatingView public regulatingRatingView;
     ReputationSystem public reputationSystem;
     ProjectController public projectController;
     uint public maxScore;
@@ -157,7 +124,7 @@ contract RegulatingRating is Module {
         require(startTime >= now && startTime < endTime);
 
         for (uint  i = 0; i < objs.length; i++) {
-            require(getObjId(namespace, milestoneId, objs[i]) == 0);
+            require(regulatingRatingView.getObjId(namespace, milestoneId, objs[i]) == 0);
 
             // obj id starts from 1 to remove confusion cased by the default value 0
             uint objId = i.add(1);
@@ -201,11 +168,11 @@ contract RegulatingRating is Module {
         );
         require(objLength > 0);
 
-        uint rewardPercentage = calRewardPercentage(namespace, milestoneId);
+        uint rewardPercentage = regulatingRatingView.calRewardPercentage(namespace, milestoneId);
 
         for (uint i = 0; i < objLength; i++) {
             uint objId = i.add(1);
-            if(isObjIdFinalized(namespace, milestoneId, objId)) {
+            if(regulatingRatingView.isObjIdFinalized(namespace, milestoneId, objId)) {
                 continue;
             }
             finalizeBidForObjId(namespace, milestoneId, pollId, objId, rewardPercentage);
@@ -228,9 +195,9 @@ contract RegulatingRating is Module {
         bytes32 pollId = keccak256(abi.encodePacked(namespace, milestoneId));
         require(reputationSystem.pollExpired(pollId));
 
-        uint objId = verifyObj(namespace, milestoneId, obj);
+        uint objId = regulatingRatingView.verifyObj(namespace, milestoneId, obj);
 
-        uint rewardPercentage = calRewardPercentage(namespace, milestoneId);
+        uint rewardPercentage = regulatingRatingView.calRewardPercentage(namespace, milestoneId);
         finalizeBidForObjId(namespace, milestoneId, pollId, objId, rewardPercentage);
 
         emit BidForObjFinalized(
@@ -250,7 +217,7 @@ contract RegulatingRating is Module {
     * @param obj an objective of a milestone of the project
     */
     function bid(bytes32 namespace, uint milestoneId, bytes32 obj) external {
-        uint objId = verifyObj(namespace, milestoneId, obj);
+        uint objId = regulatingRatingView.verifyObj(namespace, milestoneId, obj);
         uint registered = regulatingRatingStorage.getUint(
             keccak256(abi.encodePacked(namespace, milestoneId, objId, msg.sender, REGULATOR_BID))
         );
@@ -283,7 +250,7 @@ contract RegulatingRating is Module {
     * @param obj an objective of a milestone of the project
     */
     function backOutFromBid(bytes32 namespace, uint milestoneId, bytes32 obj) external {
-        uint objId = verifyObj(namespace, milestoneId, obj);
+        uint objId = regulatingRatingView.verifyObj(namespace, milestoneId, obj);
         uint registered = regulatingRatingStorage.getUint(
             keccak256(abi.encodePacked(namespace, milestoneId, objId, msg.sender, REGULATOR_BID))
         );
@@ -310,89 +277,6 @@ contract RegulatingRating is Module {
     }
 
     /**
-    * Get regulation rewards for an objective performed by a registered regulator
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param obj an objective in a milestone of the project
-    * @param _addr address of the regulator
-    */
-    function getRegulationRewardsForRegulator(
-        bytes32 namespace,
-        uint milestoneId,
-        bytes32 obj,
-        address _addr
-    )
-        external
-        view
-        returns (uint)
-    {
-        uint objId = getObjId(namespace, milestoneId, obj);
-        require(objId > 0);
-        uint registered = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, objId, _addr, REGULATOR_BID))
-        );
-        require(registered == TRUE);
-        return regulatingRatingStorage.getUint(keccak256(abi.encodePacked(
-                namespace, milestoneId, objId, _addr, OBJ_REGULATION_REWARD))
-        );
-    }
-
-    /**
-    * check if an address is a regulator
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param obj an objective in a milestone of the project
-    * @param _addr address of the regulator
-    */
-    function isRegulator(
-        bytes32 namespace, 
-        uint milestoneId, 
-        bytes32 obj, 
-        address _addr) 
-        external 
-        view 
-        returns(bool) 
-    {
-        uint objId = getObjId(namespace, milestoneId, obj);
-        uint registered = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, objId, _addr, REGULATOR_BID))
-        );
-        return registered == TRUE;
-    }
-
-    /**
-    * Return basic objective Info for an objective
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param obj objective of a milestone of the project
-    */
-    function getObjInfo(bytes32 namespace, uint milestoneId, bytes32 obj)
-        external
-        view
-        returns (uint, bool, bytes32)
-    {
-        uint objId = getObjId(namespace, milestoneId, obj);
-        require(objId > 0);
-
-        uint finalized = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, FINALIZED))
-        );
-
-        bytes32 objType = regulatingRatingStorage.getBytes32(
-            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_TYPE))
-        );
-
-        return (
-            objId,
-            finalized == TRUE,
-            objType
-        );
-    }
-
-    /**
     * Regulator can vote a obj when obj finalize or in RegulatorVoteStage
     *
     * @param namespace namespace of a project (projectHash)
@@ -405,12 +289,12 @@ contract RegulatingRating is Module {
     {
         MilestoneControllerView milestoneControllerView = 
             MilestoneControllerView(contractAddressHandler.contracts(MILESTONE_CONTROLLER_VIEW_CI));
-        uint objId = getObjId(namespace, milestoneId, obj);
+        uint objId = regulatingRatingView.getObjId(namespace, milestoneId, obj);
 
         bool regulatorVoteStageExpire = milestoneControllerView.regulatorVoteStageExpire(namespace, milestoneId);
 
         // require this regulator(msg.sender) already bid this object
-        require(isRegulatorBid(namespace, milestoneId, obj, msg.sender));
+        require(regulatingRatingView.isRegulatorBid(namespace, milestoneId, obj, msg.sender));
 
         // require this obj already finalized or in RegulatorVote stage
         uint objFinalized = regulatingRatingStorage.getUint(
@@ -428,129 +312,6 @@ contract RegulatingRating is Module {
 
         emit RegulatorVote(namespace, milestoneId, objId, msg.sender, score);
     }
-
-    /**
-    * Get the given regulator's voting weight and score
-    *
-    * @param namespace namespace of a project (projectHash)
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param obj objective of a milestone of the project
-    * @param regulator the address of regulator
-     */
-    function getRegulatorVoteInfo (bytes32 namespace, uint milestoneId, bytes32 obj, address regulator) 
-        public
-        view
-        returns (uint, uint)
-    {
-        uint objId = getObjId(namespace, milestoneId, obj);
-
-        uint score = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, objId, regulator, REGULATOR_BID_SCORE)));
-
-        bytes32 objType = regulatingRatingStorage.getBytes32(
-            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_TYPE))
-        );
-        bytes32 pollId = keccak256(abi.encodePacked(namespace, milestoneId));
-        uint weight = reputationSystem.getVotingResultForMember(
-            pollId,
-            regulator,
-            objType
-        );
-
-        return (weight, score);
-    }
-
-    /**
-    * Check whether RegulatingRating expires
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    */
-    function RegulatingRatingExpired(bytes32 namespace, uint milestoneId)
-        external
-        view
-        returns (bool)
-    {
-        (,,uint endTime) = getGlobalObjInfo(namespace, milestoneId);
-        return now > endTime;
-    }
-
-    /**
-    * Return objective regulation reward info for an objective
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param obj objective of a milestone of the project
-    */
-    function getObjRegulationInfo(bytes32 namespace, uint milestoneId, bytes32 obj)
-        external
-        view
-        returns (uint, uint, address[])
-    {
-        uint objId = getObjId(namespace, milestoneId, obj);
-        require(objId > 0);
-
-        uint objMaxRegulationReward = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_MAX_REGULATION_REWARD))
-        );
-
-        uint objTotalReputationVotes = getObjTotalReputationVotes(namespace, milestoneId, objId);
-
-        address[] memory regulatorAddressList = regulatingRatingStorage.getAddressArray(
-            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, REGULATOR_ADDRESS_LIST))
-        );
-        return (
-            objMaxRegulationReward,
-            objTotalReputationVotes,
-            regulatorAddressList
-        );
-    }
-
-    /**
-    * Return the boolean shows if the given regulator bid the given object
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param obj objective of a milestone of the project
-    * @param regulator the address for regulator
-    */
-    function isRegulatorBid(bytes32 namespace, uint milestoneId, bytes32 obj, address regulator) 
-        public
-        view
-        returns (bool)
-    {
-        uint objId = getObjId(namespace, milestoneId, obj);
-        uint registered = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, objId, regulator, REGULATOR_BID)));
-        return registered == TRUE;
-    }
-
-    /**
-    * Return global objective Info for an milestone
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    */
-    function getGlobalObjInfo(bytes32 namespace, uint milestoneId)
-        public
-        view
-        returns (uint, uint, uint)
-    {
-        uint startTime = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, GLOBAL_OBJ_ID, NULL, START_TIME))
-        );
-        require(startTime != 0);
-        uint endTime = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, GLOBAL_OBJ_ID, NULL, END_TIME))
-        );
-        uint objsNum = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, GLOBAL_OBJ_ID, NULL, NUMBER_OBJECTIVES))
-        );
-
-        return (objsNum, startTime, endTime);
-    }
-
-
 
     /**
     * Bind with Reputation System
@@ -750,7 +511,7 @@ contract RegulatingRating is Module {
     )
         internal
     {
-        uint objTotalReputationVotes = getObjTotalReputationVotes(namespace, milestoneId, objId);
+        uint objTotalReputationVotes = regulatingRatingView.getObjTotalReputationVotes(namespace, milestoneId, objId);
 
         bytes32 objType = regulatingRatingStorage.getBytes32(
             keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_TYPE))
@@ -811,7 +572,7 @@ contract RegulatingRating is Module {
         );
 
         for (uint i = 0; i < regulatorAddressList.length; i++) {
-            uint rewardPercentageForRegulator = getRewardPercentageForRegulator(
+            uint rewardPercentageForRegulator = regulatingRatingView.getRewardPercentageForRegulator(
                 namespace,
                 milestoneId,
                 pollId,
@@ -828,163 +589,5 @@ contract RegulatingRating is Module {
         }
 
         emit BidForObjIdFinalized(msg.sender, namespace, milestoneId, objId, regulatorAddressList);
-    }
-
-    /**
-    * Calculate current Reward Percentage in the rating process
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    */
-    function calRewardPercentage(bytes32 namespace, uint milestoneId)
-        public
-        view
-        returns (uint)
-    {
-        uint startTime = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, GLOBAL_OBJ_ID, NULL, START_TIME))
-        );
-        uint endTime = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, GLOBAL_OBJ_ID, NULL, END_TIME))
-        );
-        uint interval = endTime.sub(startTime);
-        if (now < endTime) {
-            endTime = now;
-        }
-        uint rewardPercentage = (endTime.sub(startTime)).mul(PERCENTAGE_BASE).div(interval);
-        return rewardPercentage;
-    }
-
-
-    /**
-    * Return objective id if an objective is verified
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param obj objective of a milestone of the project
-    */
-    function verifyObj(bytes32 namespace, uint milestoneId, bytes32 obj)
-        internal
-        view
-        returns (uint)
-    {
-        uint objId = getObjId(namespace, milestoneId, obj);
-        require(objId > 0);
-
-        uint startTime = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, GLOBAL_OBJ_ID, NULL, START_TIME))
-        );
-        uint endTime = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, GLOBAL_OBJ_ID, NULL, END_TIME))
-        );
-
-        require(now >= startTime && now <= endTime);
-
-        require(!isObjIdFinalized(namespace, milestoneId, objId));
-
-        return objId;
-    }
-
-    /**
-    * Return true if the objective in a milestone is finalized. If it not finalize and time
-    *    expires, force to finalize it.
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param obj objective of a milestone of the project
-    */
-    function isObjFinalized(bytes32 namespace, uint milestoneId, bytes32 obj)
-        public
-        view
-        returns (bool)
-    {
-        uint objId = getObjId(namespace, milestoneId, obj);
-        return isObjIdFinalized(namespace, milestoneId, objId);
-    }
-
-    /**
-    * Return true if the objective in a milestone is finalized. If it not finalize and time
-    *    expires, force to finalize it.
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param objId objective id of a milestone of the project
-    */
-    function isObjIdFinalized(bytes32 namespace, uint milestoneId, uint objId)
-        internal
-        view
-        returns (bool)
-    {
-        uint finalized = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, FINALIZED))
-        );
-        return finalized == TRUE;
-    }
-
-    /**
-    * Return objective id for an objective
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param obj objective of a milestone of the project
-    */
-    function getObjId(bytes32 namespace, uint milestoneId, bytes32 obj)
-        internal
-        view
-        returns (uint)
-    {
-        uint objId = regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, obj, NULL, OBJ_ID))
-        );
-        return objId;
-    }
-
-    /**
-    * Return Total Reputation Vote for an objective
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param objId objective id of a milestone of the project
-    */
-    function getObjTotalReputationVotes(bytes32 namespace, uint milestoneId, uint objId)
-        public
-        view
-        returns (uint)
-    {
-        return regulatingRatingStorage.getUint(
-            keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_TOTAL_REPUTATION_VOTES))
-        );
-    }
-
-    /**
-    * Return reward percentage for a regulator by the votes in Reputation System
-    *
-    * @param namespace namespace of a project
-    * @param milestoneId milestoneId of a milestone of the project
-    * @param pollId for the milestone
-    * @param objId objective id of an objective in a milestone of the project
-    * @param objType objective type of an objective in a milestone of the project
-    * @param _addr address of the regulator
-    */
-    function getRewardPercentageForRegulator(
-        bytes32 namespace,
-        uint milestoneId,
-        bytes32 pollId,
-        uint objId,
-        bytes32 objType,
-        address _addr
-    )
-        public
-        view
-        returns (uint)
-    {
-        uint objTotalReputationVotes = getObjTotalReputationVotes(namespace, milestoneId, objId);
-        uint regulatorVotes = reputationSystem.getVotingResultForMember(pollId, _addr, objType);
-
-        if (objTotalReputationVotes == 0) {
-            return 0;
-        }
-
-        return regulatorVotes.mul(PERCENTAGE_BASE).div(objTotalReputationVotes);
     }
 }

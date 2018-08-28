@@ -15,7 +15,7 @@ contract RewardManager is Manager {
 
     RewardManagerStorage private rewardManagerStore;
 
-    bytes32 constant public ALREADY_WITHDRAWN = "alreadyWithdrawn";
+    bytes32 constant public ALREADY_WITHDRAWN = keccak256("alreadyWithdrawn");
     uint constant public TRUE = 1;
     uint constant public FALSE = 0;
 

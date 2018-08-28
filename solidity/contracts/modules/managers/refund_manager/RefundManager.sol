@@ -27,8 +27,8 @@ contract RefundManager is Manager {
 
     bytes32 constant public REFUND_MANAGER_STORAGE_CI = keccak256("RefundManagerStorage");
 
-    string constant MILESTONE_ETHER_REFUND_LOCKED = "milestoneEtherRefundLocked";
-    string constant AVAILABLE_TIME = "availableTime";
+    bytes32 constant MILESTONE_ETHER_REFUND_LOCKED = keccak256("milestoneEtherRefundLocked");
+    bytes32 constant AVAILABLE_TIME = keccak256("availableTime");
 
     uint constant public MILESTONE_RP = 3;
 

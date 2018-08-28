@@ -41,13 +41,13 @@ contract TokenSale is Module {
 
     address constant NULL = address(0x0);
 
-    string constant RATE = "rate";
-    string constant TOKEN_ADDRESS  = "tokenAddress";
-    string constant TOTAL_TOKEN_FOR_SALE = "totalTokenForSale";
-    string constant TOTAL_TOKEN_SOLD = "totalTokenSold";
-    string constant TOTAL_ETH_RECEIVED = "totalEthReceived";
-    string constant FINALIZED = "finalized";
-    string constant AVERAGE_PRICE = "averagePrice";
+    bytes32 constant RATE = keccak256("rate");
+    bytes32 constant TOKEN_ADDRESS  = keccak256("tokenAddress");
+    bytes32 constant TOTAL_TOKEN_FOR_SALE = keccak256("totalTokenForSale");
+    bytes32 constant TOTAL_TOKEN_SOLD = keccak256("totalTokenSold");
+    bytes32 constant TOTAL_ETH_RECEIVED = keccak256("totalEthReceived");
+    bytes32 constant FINALIZED = keccak256("finalized");
+    bytes32 constant AVERAGE_PRICE = keccak256("averagePrice");
 
     uint256 constant FALSE = 0;
     uint256 constant TRUE = 1;
