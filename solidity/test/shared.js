@@ -122,6 +122,9 @@ const run = exports.run = async (accounts) => {
   )
   instances.regulatingRatingStorage = await RegulatingRating.Storage.Self.new(
     instances.kernel.address)
+  instances.regulatingRatingView = await RegulatingRating.View.Self.new(
+    instances.regulatingRating.address,
+    instances.regulatingRatingStorage.address)
 
   // CarbonVoteX
   instances.carbonVoteXCore = await CarbonVoteX.Core.new(accounts[0])

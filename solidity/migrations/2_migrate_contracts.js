@@ -205,6 +205,10 @@ module.exports = function (deployer, network, accounts) {
         Kernel.Self.address,
         RegulatingRating.MaxScore)
       await deployer.deploy(RegulatingRating.Storage.Self, Kernel.Self.address)
+      await deployer.deploy(
+        RegulatingRating.View.Self,
+        RegulatingRating.Self.address,
+        RegulatingRating.Storage.Self.address)
 
       // Deploy ether reward manager and storage
       await deployer.deploy(RewardManager.Self, Kernel.Self.address)

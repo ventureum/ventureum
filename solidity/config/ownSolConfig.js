@@ -258,6 +258,11 @@ export default function (artifacts) {
       'modules/regulating_rating/RegulatingRatingStorage'),
     CI: Web3.utils.keccak256('RegulatingRatingStorage')
   }
+  RegulatingRating.View = {
+    Self: artifacts.require(
+      'modules/regulating_rating/RegulatingRatingView'),
+    CI: Web3.utils.keccak256('RegulatingRatingView')
+  }
 
   /**
    * Contracts - mocks
