@@ -93,6 +93,13 @@ contract RegulatingRating is Module, RegulatingRatingConstants {
         maxScore = _maxScore;
     }
 
+    function setView (address regulatingRatingViewAddress)
+        external
+        onlyOwner
+    {
+        regulatingRatingView = RegulatingRatingView(regulatingRatingViewAddress);
+    }
+
     /**
     * Start rating process: called by MilestoneController
     *

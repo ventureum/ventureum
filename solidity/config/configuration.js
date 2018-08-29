@@ -76,6 +76,7 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   // Regulating Rating
   const regulatingRating = instances.regulatingRating
   const regulatingRatingStorage = instances.regulatingRatingStorage
+  const regulatingRatingView = instances.regulatingRatingView
 
   // Reward manager
   const rewardManager = instances.rewardManager
@@ -620,6 +621,9 @@ const run = exports.run = async (instances, accounts, artifacts) => {
   await regulatingRating.setReputationSystem(reputationSystem.address)
   await regulatingRating.setProjectController(projectController.address)
 
+  /* -------------------Regulating Rating set View -------------- */
+  await regulatingRating.setView(regulatingRatingView.address)
+
   /* ------------------- Token Sale set controllers-------------- */
   await tokenSale.setProjectController(projectController.address)
 
@@ -677,6 +681,7 @@ const run = exports.run = async (instances, accounts, artifacts) => {
     rewardManager,
     rewardManagerStorage,
     regulatingRating,
+    regulatingRatingView,
     regulatingRatingStorage,
     registry
   }
