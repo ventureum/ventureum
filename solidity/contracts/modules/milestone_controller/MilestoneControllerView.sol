@@ -111,7 +111,7 @@ contract MilestoneControllerView is MilestoneControllerConstants {
         uint stageEndTime = endTime.sub(
             milestoneController.refundStageMinStartTimeFromEnd());
 
-        return (now <= stageEndTime);
+        return (now > stageEndTime);
     }
 
 

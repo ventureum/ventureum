@@ -327,6 +327,8 @@ module.exports = function (deployer, network, accounts) {
         RegulatingRating.Self.address)
       instances.regulatingRatingStorage = RegulatingRating.Storage.Self.at(
         RegulatingRating.Storage.Self.address)
+      instances.regulatingRatingView = RegulatingRating.View.Self.at(
+        RegulatingRating.View.Self.address)
 
       // Third party repo
       instances.reputationSystem = ReputationSystem.Self.at(

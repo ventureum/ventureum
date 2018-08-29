@@ -125,6 +125,7 @@ contract("Integration Test", function (accounts) {
   let tokenCollector
   let tokenSale
   let regulatingRating
+  let regulatingRatingView
   let carbonVoteXCore
   let reputationSystem
   let etherCollector
@@ -147,6 +148,7 @@ contract("Integration Test", function (accounts) {
     milestoneController = await MilestoneController.Self.deployed()
     tokenSale = await TokenSale.Self.deployed()
     regulatingRating = await RegulatingRating.Self.deployed()
+    regulatingRatingView = await RegulatingRating.View.Self.deployed()
 
     // carbonvotex system
     carbonVoteXCore = await CarbonVoteX.Core.deployed()
@@ -542,7 +544,7 @@ contract("Integration Test", function (accounts) {
 
     // test getRegulationRewardForRegulator
     if (milestoneId != 1) {
-      regulatingRating.getRegulationRewardsForRegulator(
+      regulatingRatingView.getRegulationRewardsForRegulator(
         projectHash, milestoneId - 1,
         MILESTONE_OBJS[milestoneId - 2][0],
         REGULATOR1).should.be.fulfilled

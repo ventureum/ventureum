@@ -118,8 +118,7 @@ const run = exports.run = async (accounts) => {
   // Regulating Rating
   instances.regulatingRating = await RegulatingRating.Self.new(
     instances.kernel.address,
-    RegulatingRating.MaxScore
-  )
+    RegulatingRating.MaxScore)
   instances.regulatingRatingStorage = await RegulatingRating.Storage.Self.new(
     instances.kernel.address)
   instances.regulatingRatingView = await RegulatingRating.View.Self.new(

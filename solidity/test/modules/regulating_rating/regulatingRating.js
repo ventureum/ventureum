@@ -47,6 +47,7 @@ contract('RegulatingRatingTest', function (accounts) {
   let vetXToken
   let projectController
   let regulatingRating
+  let regulatingRatingView
   let reputationSystem
   let milestoneController
   let carbonVoteXCore
@@ -58,6 +59,7 @@ contract('RegulatingRatingTest', function (accounts) {
     vetXToken = context.vetXToken
     projectController = context.projectController
     regulatingRating = context.regulatingRating
+    regulatingRatingView = context.regulatingRatingView
     reputationSystem = context.reputationSystem
     milestoneController = context.milestoneController
     carbonVoteXCore = context.carbonVoteXCore
@@ -183,33 +185,33 @@ contract('RegulatingRatingTest', function (accounts) {
       OBJ_MAX_REGULATION_REWARDS,
       {from: ROOT})
 
-    const globalObjInfo = await regulatingRating.getGlobalObjInfo.call(
+    const globalObjInfo = await regulatingRatingView.getGlobalObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_ONE)
 
     globalObjInfo[0].should.be.bignumber.equal(OBJS.length)
     globalObjInfo[1].should.be.bignumber.equal(startTime)
     globalObjInfo[2].should.be.bignumber.equal(endTime)
 
-    const objInfoOne = await regulatingRating.getObjInfo.call(
+    const objInfoOne = await regulatingRatingView.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_ONE, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
     objInfoOne[1].should.be.equal(false)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
-    const objRegulationInfoOne = await regulatingRating
+    const objRegulationInfoOne = await regulatingRatingView
       .getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_ONE, OBJ_ONE)
     objRegulationInfoOne[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_ONE)
     objRegulationInfoOne[1].should.be.bignumber.equal(0)
     objRegulationInfoOne[2].length.should.be.equal(0)
 
-    const objInfoTwo = await regulatingRating.getObjInfo.call(
+    const objInfoTwo = await regulatingRatingView.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_ONE, OBJ_TWO)
     objInfoTwo[0].should.be.bignumber.equal(2)
     objInfoTwo[1].should.be.equal(false)
     objInfoTwo[2].should.be.equal(OBJ_TYPE_TWO)
 
-    const objRegulationInfoTwo = await regulatingRating
+    const objRegulationInfoTwo = await regulatingRatingView
       .getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_ONE, OBJ_TWO)
     objRegulationInfoTwo[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_TWO)
@@ -251,14 +253,13 @@ contract('RegulatingRatingTest', function (accounts) {
     await regulatingRating.bid(
       PROJECT_ONE, MILESTONE_ID_TWO, OBJ_ONE, {from: REGULATOR_ONE})
 
-    const objInfoOne = await regulatingRating.getObjInfo.call(
+    const objInfoOne = await regulatingRatingView.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_TWO, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
     objInfoOne[1].should.be.equal(false)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
-    const objRegulationInfoOne = await regulatingRating
-      .getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_TWO, OBJ_ONE)
+    const objRegulationInfoOne = await regulatingRatingView.getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_TWO, OBJ_ONE)
     objRegulationInfoOne[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_ONE)
     objRegulationInfoOne[1].should.be.bignumber.equal(
@@ -266,8 +267,7 @@ contract('RegulatingRatingTest', function (accounts) {
     expect(objRegulationInfoOne[2]).to.deep.equal(
       [REGULATOR_ONE]);
 
-    const regulatorOneRewardForObjOne = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorOneRewardForObjOne = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_ONE, MILESTONE_ID_TWO, OBJ_ONE, REGULATOR_ONE)
     regulatorOneRewardForObjOne.should.be.bignumber.equal(0)
   })
@@ -284,14 +284,13 @@ contract('RegulatingRatingTest', function (accounts) {
     await regulatingRating.bid(
       PROJECT_ONE, MILESTONE_ID_THREE, OBJ_TWO, {from: REGULATOR_ONE})
 
-    const objInfoOne = await regulatingRating.getObjInfo.call(
+    const objInfoOne = await regulatingRatingView.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_THREE, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
     objInfoOne[1].should.be.equal(false)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
-    const objRegulationInfoOne = await regulatingRating
-    .getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_THREE, OBJ_ONE)
+    const objRegulationInfoOne = await regulatingRatingView.getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_THREE, OBJ_ONE)
     objRegulationInfoOne[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_ONE)
     objRegulationInfoOne[1].should.be.bignumber.equal(
@@ -299,19 +298,17 @@ contract('RegulatingRatingTest', function (accounts) {
     expect(objRegulationInfoOne[2]).to.deep.equal(
       [REGULATOR_ONE]);
 
-    const regulatorOneRewardForObjOne = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorOneRewardForObjOne = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_ONE, MILESTONE_ID_THREE, OBJ_ONE, REGULATOR_ONE)
     regulatorOneRewardForObjOne.should.be.bignumber.equal(0)
 
-    const objInfoTwo = await regulatingRating.getObjInfo.call(
+    const objInfoTwo = await regulatingRatingView.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_THREE, OBJ_TWO)
     objInfoTwo[0].should.be.bignumber.equal(2)
     objInfoTwo[1].should.be.equal(false)
     objInfoTwo[2].should.be.equal(OBJ_TYPE_TWO)
 
-    const objRegulationInfoTwo = await regulatingRating
-      .getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_THREE, OBJ_TWO)
+    const objRegulationInfoTwo = await regulatingRatingView.getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_THREE, OBJ_TWO)
     objRegulationInfoTwo[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_TWO)
     objRegulationInfoTwo[1].should.be.bignumber.equal(
@@ -319,8 +316,7 @@ contract('RegulatingRatingTest', function (accounts) {
     expect(objRegulationInfoTwo[2]).to.deep.equal(
       [REGULATOR_ONE]);
 
-    const regulatorOneRewardForObjTwo = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorOneRewardForObjTwo = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_ONE, MILESTONE_ID_THREE, OBJ_TWO, REGULATOR_ONE)
     regulatorOneRewardForObjTwo.should.be.bignumber.equal(0)
   })
@@ -341,14 +337,13 @@ contract('RegulatingRatingTest', function (accounts) {
     await regulatingRating.bid(
       PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_TWO, {from: REGULATOR_TWO})
 
-    const objInfoOne = await regulatingRating.getObjInfo.call(
+    const objInfoOne = await regulatingRatingView.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
     objInfoOne[1].should.be.equal(false)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
-    const objRegulationInfoOne = await regulatingRating
-      .getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_ONE)
+    const objRegulationInfoOne = await regulatingRatingView.getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_ONE)
     objRegulationInfoOne[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_ONE)
     objRegulationInfoOne[1].should.be.bignumber.equal(
@@ -357,23 +352,20 @@ contract('RegulatingRatingTest', function (accounts) {
     expect(objRegulationInfoOne[2]).to.deep.equal(
       [REGULATOR_ONE, REGULATOR_TWO]);
 
-    const regulatorOneRewardForObjOne = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorOneRewardForObjOne = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_ONE, REGULATOR_ONE)
     regulatorOneRewardForObjOne.should.be.bignumber.equal(0)
-    const regulatorTwoRewardForObjOne = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorTwoRewardForObjOne = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_ONE, REGULATOR_TWO)
     regulatorTwoRewardForObjOne.should.be.bignumber.equal(0)
 
-    const objInfoTwo = await regulatingRating.getObjInfo.call(
+    const objInfoTwo = await regulatingRatingView.getObjInfo.call(
       PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_TWO)
     objInfoTwo[0].should.be.bignumber.equal(2)
     objInfoTwo[1].should.be.equal(false)
     objInfoTwo[2].should.be.equal(OBJ_TYPE_TWO)
 
-    const objRegulationInfoTwo = await regulatingRating
-      .getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_TWO)
+    const objRegulationInfoTwo = await regulatingRatingView.getObjRegulationInfo.call(PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_TWO)
     objRegulationInfoTwo[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_TWO)
     objRegulationInfoTwo[1].should.be.bignumber.equal(
@@ -382,12 +374,10 @@ contract('RegulatingRatingTest', function (accounts) {
     expect(objRegulationInfoTwo[2]).to.deep.equal(
       [REGULATOR_ONE, REGULATOR_TWO]);
 
-    const regulatorOneRewardForObjTwo = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorOneRewardForObjTwo = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_ONE, REGULATOR_ONE)
     regulatorOneRewardForObjTwo.should.be.bignumber.equal(0)
-    const regulatorTwoRewardForObjTwo = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorTwoRewardForObjTwo = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_ONE, MILESTONE_ID_FOUR, OBJ_ONE, REGULATOR_TWO)
     regulatorTwoRewardForObjTwo.should.be.bignumber.equal(0)
   })
@@ -414,14 +404,13 @@ contract('RegulatingRatingTest', function (accounts) {
     await regulatingRating.bid(
       PROJECT_TWO, MILESTONE_ID_TWO, OBJ_TWO, {from: REGULATOR_ONE})
 
-    const objInfoOne = await regulatingRating.getObjInfo.call(
+    const objInfoOne = await regulatingRatingView.getObjInfo.call(
       PROJECT_TWO, MILESTONE_ID_TWO, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
     objInfoOne[1].should.be.equal(false)
     objInfoOne[2].should.be.equal(OBJ_TYPE_ONE)
 
-    const objRegulationInfoOne = await regulatingRating
-      .getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_TWO, OBJ_ONE)
+    const objRegulationInfoOne = await regulatingRatingView.getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_TWO, OBJ_ONE)
     objRegulationInfoOne[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_ONE)
     objRegulationInfoOne[1].should.be.bignumber.equal(
@@ -429,24 +418,22 @@ contract('RegulatingRatingTest', function (accounts) {
     expect(objRegulationInfoOne[2]).to.deep.equal(
       [REGULATOR_ONE]);
 
-    const regulatorOneRewardForObjOne = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorOneRewardForObjOne = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_TWO, MILESTONE_ID_TWO, OBJ_ONE, REGULATOR_ONE)
     regulatorOneRewardForObjOne.should.be.bignumber.equal(0)
-    await regulatingRating.getRegulationRewardsForRegulator.call(
+    await regulatingRatingView.getRegulationRewardsForRegulator.call(
       PROJECT_TWO,
       MILESTONE_ID_TWO,
       OBJ_ONE,
       REGULATOR_TWO).should.be.rejectedWith(Error.EVMRevert)
 
-    const objInfoTwo = await regulatingRating.getObjInfo.call(
+    const objInfoTwo = await regulatingRatingView.getObjInfo.call(
       PROJECT_TWO, MILESTONE_ID_TWO, OBJ_TWO)
     objInfoTwo[0].should.be.bignumber.equal(2)
     objInfoTwo[1].should.be.equal(false)
     objInfoTwo[2].should.be.equal(OBJ_TYPE_TWO)
 
-    const objRegulationInfoTwo = await regulatingRating
-      .getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_TWO, OBJ_TWO)
+    const objRegulationInfoTwo = await regulatingRatingView.getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_TWO, OBJ_TWO)
     objRegulationInfoTwo[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_TWO)
     objRegulationInfoTwo[1].should.be.bignumber.equal(
@@ -455,12 +442,10 @@ contract('RegulatingRatingTest', function (accounts) {
     expect(objRegulationInfoTwo[2]).to.deep.equal(
       [REGULATOR_TWO, REGULATOR_ONE]);
 
-    const regulatorOneRewardForObjTwo = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorOneRewardForObjTwo = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_TWO, MILESTONE_ID_TWO, OBJ_TWO, REGULATOR_ONE)
     regulatorOneRewardForObjTwo.should.be.bignumber.equal(0)
-    const regulatorTwoRewardForObjTwo = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorTwoRewardForObjTwo = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_TWO, MILESTONE_ID_TWO, OBJ_TWO, REGULATOR_TWO)
     regulatorTwoRewardForObjTwo.should.be.bignumber.equal(0)
   })
@@ -484,7 +469,7 @@ contract('RegulatingRatingTest', function (accounts) {
       PROJECT_TWO, MILESTONE_ID_THREE, OBJ_ONE, {from: FOUNDER_TWO})
 
 
-    const objInfoOne = await regulatingRating.getObjInfo.call(
+    const objInfoOne = await regulatingRatingView.getObjInfo.call(
       PROJECT_TWO, MILESTONE_ID_THREE, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
     objInfoOne[1].should.be.equal(true)
@@ -494,8 +479,7 @@ contract('RegulatingRatingTest', function (accounts) {
       VOTES_IN_WEI_FOR_OBJ_ONE_AND_REGULATOR_ONE +
       VOTES_IN_WEI_FOR_OBJ_ONE_AND_REGULATOR_TWO
 
-    const objRegulationInfoOne = await regulatingRating
-      .getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_THREE, OBJ_ONE)
+    const objRegulationInfoOne = await regulatingRatingView.getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_THREE, OBJ_ONE)
     objRegulationInfoOne[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_ONE)
     objRegulationInfoOne[1].should.be.bignumber.equal(
@@ -503,8 +487,7 @@ contract('RegulatingRatingTest', function (accounts) {
     expect(objRegulationInfoOne[2]).to.deep.equal(
       [REGULATOR_ONE, REGULATOR_TWO]);
 
-    const regulatorOneRewardForObjOne = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorOneRewardForObjOne = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_TWO, MILESTONE_ID_THREE, OBJ_ONE, REGULATOR_ONE)
     const expectedRegulatorOneRewardForObjOne =
       (VOTES_IN_WEI_FOR_OBJ_ONE_AND_REGULATOR_ONE /
@@ -513,8 +496,7 @@ contract('RegulatingRatingTest', function (accounts) {
     regulatorOneRewardForObjOne.should.be.bignumber.equal(
       expectedRegulatorOneRewardForObjOne)
 
-    const regulatorTwoRewardForObjOne = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorTwoRewardForObjOne = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_TWO, MILESTONE_ID_THREE, OBJ_ONE, REGULATOR_TWO)
     const expectedRegulatorTwoRewardForObjOne =
       (VOTES_IN_WEI_FOR_OBJ_ONE_AND_REGULATOR_TWO /
@@ -543,7 +525,7 @@ contract('RegulatingRatingTest', function (accounts) {
         PROJECT_TWO, MILESTONE_ID_FOUR, {from: FOUNDER_TWO})
 
 
-      const objInfoOne = await regulatingRating.getObjInfo.call(
+      const objInfoOne = await regulatingRatingView.getObjInfo.call(
         PROJECT_TWO, MILESTONE_ID_FOUR, OBJ_ONE)
       objInfoOne[0].should.be.bignumber.equal(1)
       objInfoOne[1].should.be.equal(true)
@@ -553,8 +535,7 @@ contract('RegulatingRatingTest', function (accounts) {
         VOTES_IN_WEI_FOR_OBJ_ONE_AND_REGULATOR_ONE +
         VOTES_IN_WEI_FOR_OBJ_ONE_AND_REGULATOR_TWO
 
-      const objRegulationInfoOne = await regulatingRating
-      .getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_FOUR, OBJ_ONE)
+      const objRegulationInfoOne = await regulatingRatingView.getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_FOUR, OBJ_ONE)
       objRegulationInfoOne[0].should.be.bignumber.equal(
         OBJ_MAX_REGULATION_REWARD_ONE)
       objRegulationInfoOne[1].should.be.bignumber.equal(
@@ -562,8 +543,7 @@ contract('RegulatingRatingTest', function (accounts) {
       expect(objRegulationInfoOne[2]).to.deep.equal(
         [REGULATOR_ONE, REGULATOR_TWO]);
 
-      const regulatorOneRewardForObjOne = await regulatingRating
-        .getRegulationRewardsForRegulator.call(
+      const regulatorOneRewardForObjOne = await regulatingRatingView.getRegulationRewardsForRegulator.call(
           PROJECT_TWO, MILESTONE_ID_FOUR, OBJ_ONE, REGULATOR_ONE)
       const expectedRegulatorOneRewardForObjOne =
         (VOTES_IN_WEI_FOR_OBJ_ONE_AND_REGULATOR_ONE /
@@ -572,8 +552,7 @@ contract('RegulatingRatingTest', function (accounts) {
       regulatorOneRewardForObjOne.should.be.bignumber.equal(
         expectedRegulatorOneRewardForObjOne)
 
-      const regulatorTwoRewardForObjOne = await regulatingRating
-        .getRegulationRewardsForRegulator.call(
+      const regulatorTwoRewardForObjOne = await regulatingRatingView.getRegulationRewardsForRegulator.call(
           PROJECT_TWO, MILESTONE_ID_FOUR, OBJ_ONE, REGULATOR_TWO)
       const expectedRegulatorTwoRewardForObjOne =
         (VOTES_IN_WEI_FOR_OBJ_ONE_AND_REGULATOR_TWO /
@@ -612,7 +591,7 @@ contract('RegulatingRatingTest', function (accounts) {
       PROJECT_TWO, MILESTONE_ID_FIVE, {from: FOUNDER_TWO})
 
     // check OBJ_ONE
-    const objInfoOne = await regulatingRating.getObjInfo.call(
+    const objInfoOne = await regulatingRatingView.getObjInfo.call(
       PROJECT_TWO, MILESTONE_ID_FIVE, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
     objInfoOne[1].should.be.equal(true)
@@ -621,8 +600,7 @@ contract('RegulatingRatingTest', function (accounts) {
     const expectedObjOneTotalReputationVotes =
       VOTES_IN_WEI_FOR_OBJ_ONE_AND_REGULATOR_ONE
 
-    const objRegulationInfoOne = await regulatingRating
-      .getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_FIVE, OBJ_ONE)
+    const objRegulationInfoOne = await regulatingRatingView.getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_FIVE, OBJ_ONE)
     objRegulationInfoOne[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_ONE)
     objRegulationInfoOne[1].should.be.bignumber.equal(
@@ -630,8 +608,7 @@ contract('RegulatingRatingTest', function (accounts) {
     expect(objRegulationInfoOne[2]).to.deep.equal(
       [REGULATOR_ONE]);
 
-    const regulatorOneRewardForObjOne = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorOneRewardForObjOne = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_TWO, MILESTONE_ID_FIVE, OBJ_ONE, REGULATOR_ONE)
     const expectedRegulatorOneRewardForObjOne =
       (VOTES_IN_WEI_FOR_OBJ_ONE_AND_REGULATOR_ONE /
@@ -640,7 +617,7 @@ contract('RegulatingRatingTest', function (accounts) {
     regulatorOneRewardForObjOne.should.be.bignumber.equal(
       expectedRegulatorOneRewardForObjOne)
 
-    await regulatingRating.getRegulationRewardsForRegulator.call(
+    await regulatingRatingView.getRegulationRewardsForRegulator.call(
       PROJECT_TWO,
       MILESTONE_ID_FIVE,
       OBJ_ONE,
@@ -648,7 +625,7 @@ contract('RegulatingRatingTest', function (accounts) {
 
 
     // check OBJ_TWO
-    const objInfoTWO = await regulatingRating.getObjInfo.call(
+    const objInfoTWO = await regulatingRatingView.getObjInfo.call(
       PROJECT_TWO, MILESTONE_ID_FIVE, OBJ_TWO)
     objInfoTWO[0].should.be.bignumber.equal(2)
     objInfoTWO[1].should.be.equal(true)
@@ -658,8 +635,7 @@ contract('RegulatingRatingTest', function (accounts) {
       VOTES_IN_WEI_FOR_OBJ_TWO_AND_REGULATOR_ONE +
       VOTES_IN_WEI_FOR_OBJ_TWO_AND_REGULATOR_TWO
 
-    const objRegulationInfoTWo = await regulatingRating
-      .getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_FIVE, OBJ_TWO)
+    const objRegulationInfoTWo = await regulatingRatingView.getObjRegulationInfo.call(PROJECT_TWO, MILESTONE_ID_FIVE, OBJ_TWO)
     objRegulationInfoTWo[0].should.be.bignumber.equal(
       OBJ_MAX_REGULATION_REWARD_TWO)
     objRegulationInfoTWo[1].should.be.bignumber.equal(
@@ -667,8 +643,7 @@ contract('RegulatingRatingTest', function (accounts) {
     expect(objRegulationInfoTWo[2]).to.deep.equal(
       [REGULATOR_TWO, REGULATOR_ONE]);
 
-    const regulatorOneRewardForObjTwo = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorOneRewardForObjTwo = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_TWO, MILESTONE_ID_FIVE, OBJ_TWO, REGULATOR_ONE)
     const expectedRegulatorOneRewardForObjTwo =
       (VOTES_IN_WEI_FOR_OBJ_TWO_AND_REGULATOR_ONE /
@@ -677,8 +652,7 @@ contract('RegulatingRatingTest', function (accounts) {
     regulatorOneRewardForObjTwo.should.be.bignumber.equal(
       expectedRegulatorOneRewardForObjTwo)
 
-    const regulatorTwoRewardForObjTwo = await regulatingRating
-      .getRegulationRewardsForRegulator.call(
+    const regulatorTwoRewardForObjTwo = await regulatingRatingView.getRegulationRewardsForRegulator.call(
         PROJECT_TWO, MILESTONE_ID_FIVE, OBJ_TWO, REGULATOR_TWO)
     const expectedRegulatorTwoRewardForObjTwo =
       (VOTES_IN_WEI_FOR_OBJ_TWO_AND_REGULATOR_TWO /
@@ -711,7 +685,7 @@ contract('RegulatingRatingTest', function (accounts) {
       PROJECT_TWO, MILESTONE_ID_SIX, {from: FOUNDER_TWO})
 
     // check OBJ_ONE
-    const objInfoOne = await regulatingRating.getObjInfo.call(
+    const objInfoOne =await regulatingRatingView.getObjInfo.call(
       PROJECT_TWO, MILESTONE_ID_SIX, OBJ_ONE)
     objInfoOne[0].should.be.bignumber.equal(1)
     objInfoOne[1].should.be.equal(true)
