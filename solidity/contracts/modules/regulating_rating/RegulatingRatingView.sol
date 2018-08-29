@@ -13,16 +13,14 @@ contract RegulatingRatingView is RegulatingRatingConstants {
     using SafeMath for uint;
 
     RegulatingRating public regulatingRating;
-    ReputationSystem public reputationSystem;
 
     //address public NULL;
 
-    constructor (address regulatingRatingAddress, address regulatingRatingStorageAddress, address reputationSystemAddress)
+    constructor (address regulatingRatingAddress, address regulatingRatingStorageAddress)
         public 
     {
         regulatingRatingStorage = RegulatingRatingStorage(regulatingRatingStorageAddress);
         regulatingRating = RegulatingRating(regulatingRatingAddress);
-        reputationSystem = ReputationSystem(reputationSystemAddress);
 
         //NULL = regulatingRating.NULL();
     }
@@ -132,7 +130,7 @@ contract RegulatingRatingView is RegulatingRatingConstants {
             keccak256(abi.encodePacked(namespace, milestoneId, objId, NULL, OBJ_TYPE))
         );
         bytes32 pollId = keccak256(abi.encodePacked(namespace, milestoneId));
-        uint weight = reputationSystem.getVotingResultForMember(
+        uint weight = regulatingRating.reputationSystem().getVotingResultForMember(
             pollId,
             regulator,
             objType
@@ -382,7 +380,7 @@ contract RegulatingRatingView is RegulatingRatingConstants {
         returns (uint)
     {
         uint objTotalReputationVotes = getObjTotalReputationVotes(namespace, milestoneId, objId);
-        uint regulatorVotes = reputationSystem.getVotingResultForMember(pollId, _addr, objType);
+        uint regulatorVotes = regulatingRating.reputationSystem().getVotingResultForMember(pollId, _addr, objType);
 
         if (objTotalReputationVotes == 0) {
             return 0;
