@@ -54,49 +54,49 @@ contract Parameterizer {
     // CONSTRUCTOR
     // ------------
 
-  /**
-  @dev constructor
-  @param _tokenAddr        address of the token which parameterizes this system
-  @param _plcrAddr         address of a PLCR voting contract for the provided token
-  @param _minDeposit       minimum deposit for listing to be whitelisted  
-  @param _applyStageLen    period over which applicants wait to be whitelisted
-  @param _dispensationPct  percentage of losing party's deposit distributed to winning party
-  @param _commitStageLen  length of commit period for voting
-  @param _revealStageLen  length of reveal period for voting
-  @param _voteQuorum       type of majority out of 100 necessary for vote success
-  */
-    constructor( 
-        address _tokenAddr,
-        address _plcrAddr,
-        uint _minDeposit,
-        uint _applyStageLen,
-        uint _commitStageLen,
-        uint _revealStageLen,
-        uint _dispensationPct,
-        uint _voteQuorum
-    )
-        public 
-    {
-        token = VetXToken(_tokenAddr);
-        voting = PLCRVoting(_plcrAddr);
+    /**
+    @dev constructor
+    @param _tokenAddr        address of the token which parameterizes this system
+    @param _plcrAddr         address of a PLCR voting contract for the provided token
+    @param _minDeposit       minimum deposit for listing to be whitelisted  
+    @param _applyStageLen    period over which applicants wait to be whitelisted
+    @param _dispensationPct  percentage of losing party's deposit distributed to winning party
+    @param _commitStageLen  length of commit period for voting
+    @param _revealStageLen  length of reveal period for voting
+    @param _voteQuorum       type of majority out of 100 necessary for vote success
+    */
+      constructor( 
+          address _tokenAddr,
+          address _plcrAddr,
+          uint _minDeposit,
+          uint _applyStageLen,
+          uint _commitStageLen,
+          uint _revealStageLen,
+          uint _dispensationPct,
+          uint _voteQuorum
+      )
+          public 
+      {
+          token = VetXToken(_tokenAddr);
+          voting = PLCRVoting(_plcrAddr);
 
-        set("minDeposit", _minDeposit);
-        set("applyStageLen", _applyStageLen);
-        set("commitStageLen", _commitStageLen);
-        set("revealStageLen", _revealStageLen);
-        set("dispensationPct", _dispensationPct);
-        set("voteQuorum", _voteQuorum);
-    }
+          set("minDeposit", _minDeposit);
+          set("applyStageLen", _applyStageLen);
+          set("commitStageLen", _commitStageLen);
+          set("revealStageLen", _revealStageLen);
+          set("dispensationPct", _dispensationPct);
+          set("voteQuorum", _voteQuorum);
+      }
 
-  // -----------------------
-  // TOKEN HOLDER INTERFACE
-  // -----------------------
+    // -----------------------
+    // TOKEN HOLDER INTERFACE
+    // -----------------------
 
-  /**
-  @notice propose a reparamaterization of the key _name's value to _value.
-  @param _name the name of the proposed param to be set
-  @param _value the proposed value to set the param to be set
-  */
+    /**
+    @notice propose a reparamaterization of the key _name's value to _value.
+    @param _name the name of the proposed param to be set
+    @param _value the proposed value to set the param to be set
+    */
     function proposeReparameterization(string _name, uint _value) public returns (bytes32) {
         uint deposit = get("minDeposit");
         bytes32 propID = keccak256(abi.encodePacked(_name, _value));

@@ -7,6 +7,10 @@ import "../Module.sol";
 import "./TokenCollectorStorage.sol";
 
 
+/**
+* TokenCollector is the Token Bank for ventureum. 
+* This contract store and record all project token: source usage and balance
+*/
 contract TokenCollector is Module {
     using SafeMath for uint;
 

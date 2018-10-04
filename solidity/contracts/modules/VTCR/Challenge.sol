@@ -15,7 +15,7 @@ library Challenge {
     struct Data {
         uint rewardPool;        // (remaining) Pool of tokens distributed amongst winning voters
         PLCRVoting voting;      // Address of a PLCRVoting contract
-        VetXToken token;    // Address of an ERC20 token contract
+        VetXToken token;        // Address of an ERC20 token contract
         uint challengeId;       // An ID corresponding to a pollID in the PLCR contract
         address challenger;     // Owner of Challenge
         bool resolved;          // Indication of if challenge is resolved

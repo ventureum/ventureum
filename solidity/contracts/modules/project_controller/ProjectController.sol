@@ -88,38 +88,6 @@ contract ProjectController is Module {
         emit ProjectRegistered(msg.sender, namespace, owner, tokenAddress);
     }
 
-    /* TODO(InVincible2016): Overload registerProject when test framework suppport overloading
-    /**
-    * Register a project
-    *
-    * @param namespace namespace of a project
-    * @param owner the owner address for the project
-    *
-    function registerProject(bytes32 namespace, address owner)
-        external
-        connected
-    {
-        bool existing;
-        (existing,) = isExisting(namespace);
-        require(!existing);
-
-        projectControllerStore.setAddress(
-            keccak256(abi.encodePacked(namespace, OWNER)),
-            owner
-        );
-        projectControllerStore.setUint(
-            keccak256(abi.encodePacked(namespace, PROJECT_STATE)),
-            uint256(ProjectState.AppSubmitted)
-        );
-        projectControllerStore.setBytes32(
-            keccak256(abi.encodePacked(owner, NAMESPACE)), 
-            namespace
-        );
-
-        emit ProjectRegistered(msg.sender, namespace, owner, ZERO_ADDRESS);
-    }
-    */
-
     /**
     * Unregister a project
     *

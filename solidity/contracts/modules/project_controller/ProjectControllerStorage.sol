@@ -7,5 +7,4 @@ contract ProjectControllerStorage is Storage {
     constructor (address kernelAddr) Storage(kernelAddr) public {
         CI = keccak256("ProjectControllerStorage");
     }
-
 }

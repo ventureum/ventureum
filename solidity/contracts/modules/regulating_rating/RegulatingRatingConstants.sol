@@ -4,6 +4,7 @@ import "./RegulatingRatingStorage.sol";
 
 
 contract RegulatingRatingConstants {
+    // the shared constants
     bytes32 constant START_TIME = keccak256("startTime");
     bytes32 constant END_TIME = keccak256("endTime");
     bytes32 constant FINALIZED = keccak256("finalized");
@@ -26,5 +27,6 @@ contract RegulatingRatingConstants {
 
     address constant NULL = address(0x0);
 
+    // the shared field
     RegulatingRatingStorage public regulatingRatingStorage;
 }

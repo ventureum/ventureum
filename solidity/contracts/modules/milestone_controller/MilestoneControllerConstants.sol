@@ -1,6 +1,9 @@
 pragma solidity ^0.4.24;
 
 
+/**
+* This contract contain all shared constants that will be used for MilestoneController.
+*/
 contract MilestoneControllerConstants {
 
     bytes32 constant START_TIME = keccak256("startTime");
@@ -13,7 +16,6 @@ contract MilestoneControllerConstants {
     bytes32 constant CUMULATIVE_MAX_REGULATION_REWARDS = keccak256("cumulativeMaxRegulationRewards");
     bytes32 constant NUMBER_MILESTONES = keccak256("numberMilestones");
     bytes32 constant MILESTONE_LENGTH = keccak256("milestoneLength");
-    //bytes32 constant MILESTONE_LENGTH = "milestoneLength";
 
     uint constant GLOBAL_MILESTONE_ID = uint(-1);
     uint constant MAX_REGULATION_REWARD_PERCENTAGE = 10;

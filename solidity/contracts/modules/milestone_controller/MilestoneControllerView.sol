@@ -7,6 +7,10 @@ import './MilestoneControllerStorage.sol';
 import './MilestoneControllerConstants.sol';
 
 
+/**
+* All function in this contract is view function(read only)
+* For front end or other contract to read data from chain(storage).
+*/
 contract MilestoneControllerView is MilestoneControllerConstants {
     using SafeMath for uint;
 
@@ -35,13 +39,14 @@ contract MilestoneControllerView is MilestoneControllerConstants {
 
     /**
     * Get the milestone info
-    *  [milestone length
+    * @param namespace namespace of a project
+    * @param milestoneId the id of milestone 
+    * @return [
+    *   milestone length
     *   milestone state
     *   milestone start time
     *   milestone end time
     *   milestone wei locked]
-    * @param namespace namespace of a project
-    * @param milestoneId the id of milestone 
     */
     function getMilestoneInfo(bytes32 namespace, uint256 milestoneId) 
         public
@@ -71,6 +76,7 @@ contract MilestoneControllerView is MilestoneControllerConstants {
      *
      * @param namespace namespace of a project
      * @param milestoneId the id of milestone 
+     * @return true if in regulator vote stage, false otherwise.
      */
     function isRegulatorVoteStage(bytes32 namespace, uint256 milestoneId) 
         public
@@ -99,6 +105,7 @@ contract MilestoneControllerView is MilestoneControllerConstants {
      *
      * @param namespace namespace of a project
      * @param milestoneId the id of milestone 
+     * @return true if in regulator vote expire, false otherwise.
      */
     function regulatorVoteStageExpire (bytes32 namespace, uint256 milestoneId) 
         public
@@ -117,14 +124,15 @@ contract MilestoneControllerView is MilestoneControllerConstants {
 
     /**
     * Get the milestone obj info
-    *  [milestone objs
-    *   milestone objTypes
-    *   milestone objMaxRegulationRewards]
     *
     * Note: this function is separated from the getMilestoneInfo, cause of stack too deep 
     *
     * @param namespace namespace of a project
     * @param milestoneId the id of milestone 
+    * @return [
+    *   milestone objs
+    *   milestone objTypes
+    *   milestone objMaxRegulationRewards]
     */
     function getMilestoneObjInfo(bytes32 namespace, uint256 milestoneId) 
         public

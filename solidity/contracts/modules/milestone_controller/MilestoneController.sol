@@ -11,6 +11,16 @@ import "../regulating_rating/RegulatingRating.sol";
 import "../token_sale/TokenSale.sol";
 
 
+/**
+* Milesotne Controller provide all logic functions for milestone stage.
+*
+* Because the limit gas spend of migrate contract, we split contract to four parts:
+*    MilestoneController: the core part for milestone controller. Contains all logic functions.
+*    MilestoneControllerStorage: the storage part for milestone controller.
+*    MilestoneControllerView: the view part for milestone controller. All functions in this 
+*       contract is read only(view keywords). This contract is used to view and read data.
+*    MilestoneControllerConstant: the constant part, contains all shared constants. (reduce gas spend)
+*/
 contract MilestoneController is Module, MilestoneControllerConstants {
     using SafeMath for uint;
 
@@ -94,6 +104,13 @@ contract MilestoneController is Module, MilestoneControllerConstants {
         _;
     }
 
+    /**
+    * @param kernelAddr : the address of kernal
+    * @param _minMilestoneLength : the minimum length of milestone (normally 60 days)
+    * @param _ratingStageMaxStartTimeFromEnd : max start time of rating stage from milestone end
+    * @param _ratingStageMinStartTimeFromBegin : min start time of rating stage from milestone begin
+    * @param _refundStageMinStartTimeFromEnd : min start time of refund stage from milestone end
+    */
     constructor (
         address kernelAddr, 
         uint _minMilestoneLength,

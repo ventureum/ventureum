@@ -12,6 +12,16 @@ import "../milestone_controller/MilestoneController.sol";
 import "../milestone_controller/MilestoneControllerView.sol";
 
 
+/**
+* RegulatingRating provide all logic functions for rating by proxy.
+*
+* Because the limit gas spend of migrate contract, we split contract to four parts:
+*    RegulatingRating: the core part. Contains all logic functions.
+*    RegulatingRatingStorage: the storage part for RegulatingRating.
+*    RegulatingRatingView: the view part for RegulatingRating. All functions in this 
+*       contract is read only(view keywords). This contract is used to view and read data.
+*    RegulatingRatingConstant: the constant part, contains all shared constants. (reduce gas spend)
+*/
 contract RegulatingRating is Module, RegulatingRatingConstants {
     using SafeMath for uint;
 
@@ -86,6 +96,10 @@ contract RegulatingRating is Module, RegulatingRatingConstants {
         _;
     }
 
+    /**
+    * @param kernelAddr : the address of kernel
+    * @param _maxScore : the mas score that regulator can rate (normally is 5)
+    */
     constructor (address kernelAddr, uint _maxScore) Module(kernelAddr) public {
         require(_maxScore > 0);
 
@@ -93,6 +107,11 @@ contract RegulatingRating is Module, RegulatingRatingConstants {
         maxScore = _maxScore;
     }
 
+    /**
+    * Set the view contract address.
+    *
+    * @param regulatingRatingViewAddress : the address for RegulatingRatingView
+    */
     function setView (address regulatingRatingViewAddress)
         external
         onlyOwner
