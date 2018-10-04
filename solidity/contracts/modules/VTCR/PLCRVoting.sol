@@ -450,8 +450,22 @@ contract PLCRVoting is Ownable {
         return keccak256(abi.encodePacked(_user, _pollId));
     }
 
-    /*
-     * Following function are backdoor functions which used for demo only.
+    // ----------------
+    // Following function(s) are backdoor functions which used for demo only.
+    // All backdoor functions are `onlyOwner`. 
+    // Those functions for us to change/add data, used to create a demo project more conveniently and quickly
+    // ----------------
+
+    /**
+      Add(start) a challenge poll with given poll information.
+      `_commitEndDate` and `_revealEndDate` can be in pass (the time stamp can be less than now), 
+      which means we can create a challenge poll in any period directly.
+
+      @param _voteQuorum : number of votes required for a proposal to pass
+      @param _commitEndDate : expiration date of commit period for poll
+      @param _revealEndDate : expiration date of reveal period for poll
+      @param _votesFor : tally of votes supporting proposal
+      @param _votesAgainst : tally of votes countering proposal
      */
     function backDoorStartPoll(
         uint _voteQuorum,

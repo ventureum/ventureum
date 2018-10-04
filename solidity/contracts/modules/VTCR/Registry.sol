@@ -440,10 +440,23 @@ contract Registry is Module {
         emit _WithdrawByVentureumTeam(msg.sender, _amount);
     }
 
-    /*
-     * Following functions are backdoor functions which used for demo only.
-     * contract owner have right to write/change any data to simulate.
-     */
+    // ----------------
+    // Following function(s) are backdoor functions which used for demo only.
+    // All backdoor functions are `onlyOwner`. 
+    // Those functions for us to change/add data, used to create a demo project more conveniently and quickly
+    // ----------------
+
+    /**
+    * backdoor setting used to set all basic information for a projct
+
+    * @param availableFund : the amount of fund can be withdrawn by Ventureum team 
+    * @param applicationExpiry : expiration date of apply stage
+    * @param whitelisted : a boolean shows the project is whitelisted or not
+    * @param owner : the owner of this project.
+    * @param unstakedDeposit : number of unlocked tokens with potential risk if challenged
+    * @param challengeId : identifier of canonical challenge
+    * @param projectName : the name of this project
+    */
     function backDoorSetting(
         uint availableFund,
         uint applicationExpiry, 
@@ -469,16 +482,36 @@ contract Registry is Module {
         listing.projectName = projectName;
     }
 
+    /**
+    * Create a new project with the given project name.
+    * insert this project hash to project hash list
+
+    * @param projectName : the name of this project
+    */
     function backDoorInsert(string projectName) external onlyOwner {
         bytes32 projectHash = keccak256(bytes(projectName));
         projectHashList.insert(BYTES_ZERO, projectHash, projectHashList.getNext(BYTES_ZERO));
     }
 
+    /**
+    * Remove an exist project 
+    * remove the project hash from project hash list
+
+    * @param projectName : the name of this project
+    */
     function backDoorRemove(string projectName) external onlyOwner {
         bytes32 projectHash = keccak256(bytes(projectName));
         projectHashList.remove(projectHash);
     }
 
+    /**
+    * the given project will be challenged by the given challenger.
+    * 
+    * @param projectName : the name of this project
+    * @param challenger : the address of the challenger
+    * @param deposit : number of deposit already stored
+    * @param pollId : the poll id already exist for a challenge poll.
+    */
     function backDoorChallenge(
         string projectName, 
         address challenger, 

@@ -4,6 +4,16 @@ import "../Module.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
+/**
+* Storage provide functions for read and write data in `uint`, `bytes32`, `uint[]` and `bytes32[]`
+* The purpose for this contract is to separate the logic and store, 
+* when we want update logic contract in future, 
+* the data will still in storage contract, no need to transfer them.
+*
+* Note:
+*   Storage module must be used with Kingston system. 
+*   Every specified storage should inherit this contract.
+*/
 contract Storage is Module {
     using SafeMath for uint;
 
