@@ -1,0 +1,36 @@
+{
+  "name": "v2_proto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "scripts": {
+    "buildListener": "rimraf dist/ && ./node_modules/.bin/babel ./scripts/listener.js --out-dir dist/ --ignore ./package.json,./npm-debug.log --copy-files",
+    "startListener": "npm run buildListener && node dist/listener.js",
+    "arena": "node scripts/router.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "bull": "^3.4.8",
+    "bull-arena": "^2.5.0",
+    "express": "^4.16.4",
+    "js-sha3": "^0.8.0",
+    "loom-js": "^1.29.0",
+    "loom-truffle-provider": "^0.8.0",
+    "openzeppelin-solidity": "^2.0.0",
+    "shelljs": "^0.8.2",
+    "web3": "^1.0.0-beta.36"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "babel-eslint": "^10.0.1",
+    "rimraf": "^2.6.2"
+  },
+  "standard": {
+    "parser": "babel-eslint"
+  }
+}
