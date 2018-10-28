@@ -6,7 +6,13 @@ contract RepSys {
 
     using SafeMath for uint;
 
+    event RegisterUser(bytes16 uuid, address publicKey, bytes4 userType, uint reputation, string meta);
+    event UpdateDelegation(bytes32 projectId, address principal, address proxy, uint pos, uint neg);
+    event WriteVotes(bytes32 projectId, address user, uint val);
+    event Delegate(bytes32 projectId, address principal, address proxy, uint votesInPercent);
+
     struct Profile {
+        bytes16 uuid;
         bytes4 userType;
         uint reputation;
     }
@@ -36,7 +42,7 @@ contract RepSys {
         _;
     }
 
-    constructor () public {
+    constructor() public {
         owner = msg.sender;
     }
 
@@ -45,16 +51,22 @@ contract RepSys {
     }
 
     /**
-     * Register/unregister a user
+     * Register/unregister a special user
      * @param user address of a user
      * @param userType type of a user, set to 0 to unregister the user
      * @param reputation init value of reputation
      */
-    function registerUser(address user, bytes4 userType, uint reputation) external onlyOwner {
+    function registerUser(bytes16 uuid, address user, bytes4 userType, uint reputation, string meta) external onlyOwner {
         Profile storage p = profile[user];
 
+        // has not been registered
+        require(p.userType == bytes4(0x0));
+
+        p.uuid = uuid;
         p.userType = userType;
         p.reputation = reputation;
+
+        emit RegisterUser(uuid, user, userType, reputation, meta);
     }
 
     function getProfile(address user) public view returns (bytes4, uint) {
@@ -75,6 +87,8 @@ contract RepSys {
         Delegation storage d = delegation[projectId][proxy];
 
         d.receivedVotes = d.receivedVotes.add(pos).sub(neg);
+
+        emit UpdateDelegation(projectId, principal, proxy, pos, neg);
     }
 
     function writeVotes(bytes32 projectId, address user, uint val) external onlyOwner registered(user) {
@@ -102,6 +116,8 @@ contract RepSys {
                 pos.mul(d.votesPctCasted[proxy]).div(100),
                 neg.mul(d.votesPctCasted[proxy]).div(100));
         }
+
+        emit WriteVotes(projectId, user, val);
     }
 
     function delegate(bytes32 projectId, address proxy, uint pct) external {
@@ -139,5 +155,7 @@ contract RepSys {
         }
 
         d.votesPctCasted[proxy] = pct;
+
+        emit Delegate(projectId, msg.sender, proxy, pct);
     }
 }
