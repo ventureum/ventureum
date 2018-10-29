@@ -25,12 +25,14 @@ module.exports = async function (callback) {
   var userProjectFounder = accounts[2]
   var user = accounts[3]
   var user1 = accounts[4]
+  var userKOL1 = accounts[5]
 
   const typeKOL = "0xf4af7c06"
   const typeProjectFounder = "0x5707a2a6"
   const typeUser = "0x2db9fd3d"
 
   const userKOLId = "0xb69a0b3febe9555482b80f7cc4057e72"
+  const userKOL1Id = "0xb69a0b3febe9555482b80f7cc4057e73"
   const userProjectFounderId = "0x381be76e0ae9afae7acb0e9598175ede"
   const userId = "0xcb61ad33d3763aed2bc16c0f57ff251a"
   const user1Id = "0xa1c2b8080ed4b6f56211e0295659ef87"
@@ -64,23 +66,35 @@ module.exports = async function (callback) {
   }
 
   await repSys.registerUser(userKOLId, userKOL, typeKOL, 1000, JSON.stringify(userKOLMeta))
+  await repSys.registerUser(userKOL1Id, userKOL1, typeKOL, 2000, JSON.stringify(userKOLMeta))
   await repSys.registerUser(userId, user, typeUser, 0, JSON.stringify(userProjectFounderMeta))
   await repSys.registerUser(user1Id, user1, typeUser, 0, JSON.stringify(userMeta))
   await repSys.registerUser(userProjectFounderId, userProjectFounder, typeProjectFounder, 0, JSON.stringify(user1Meta))
+
+  console.log('user')
+  let rv = await repSys.getValidatorCount.call()
+  console.log(rv)
 
   await milestone.registerProject(project, "project content", { from: userProjectFounder })
 
   await repSys.writeVotes(project, user, 500)
   await repSys.delegate(project, userKOL, 20, { from: user })
+  await repSys.delegate(project, userKOL1, 40, { from: user })
   await repSys.writeVotes(project, user, 1000)
   
   await milestone.addMilestone(project, "milestone #1", { from: userProjectFounder })
   await milestone.addObj(project, 1, "obj #1", { from: userProjectFounder })
   await milestone.addObj(project, 1, "obj #2", { from: userProjectFounder })
+  console.log('before done')
+  await milestone.finalizeValidators(project, 1, 2)
+  console.log('done')
+  rv = await repSys.validators.call(0)
+  console.log(rv)
+
   await milestone.activateMilestone(project, 1, { from: userProjectFounder })
   await milestone.finalizeMilestone(project, 1, { from: userProjectFounder })
   await milestone.rateObj(project, 1, 1, 50, "rating for obj #1", { from: userKOL })
   await milestone.rateObj(project, 1, 2, 38, "rating for obj #1", { from: userKOL })
-
+  
   callback()
 }
