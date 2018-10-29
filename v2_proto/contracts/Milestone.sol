@@ -16,6 +16,7 @@ contract Milestone {
     event AddObj(bytes32 projectId, uint milestoneId, uint objId, string content);
     event RemoveObj(bytes32 projectId, uint milestoneId, uint objId);
     event RateObj(address proxy, bytes32 projectId, uint milestoneId, uint objId, uint rating, uint weight, string comment);
+    event FinalizeValidators(bytes32 projectId, uint milestoneId, address[] proxies);
 
     struct Voter {
         uint rating;
@@ -38,6 +39,7 @@ contract Milestone {
         uint endTime;
         bool finalized;
         Obj[] objs;
+        address[] validators;
     }
 
     struct Project {
@@ -203,6 +205,23 @@ contract Milestone {
     }
 
     // dpos stuff
+    function finalizeValidators(bytes32 projectId, uint milestoneId, uint limit) external onlyOwner {
+        Project storage p = projects[projectId];
+
+        // require(1 <= milestoneId && milestoneId < p.milestones.length, "Invalid milestone id");
+        MilestoneData storage m = projects[projectId].milestones[milestoneId];
+        address[] memory proxies = RepSys(repSysAddr).getTopValidators(projectId);
+
+        // require(proxies.length > limit, "Insufficient number of proxies");
+
+        // mark top 5 validators by reputation
+        for(uint i = 0; i < limit; i++) {
+            m.validators.push(proxies[i]);
+        }
+
+        emit FinalizeValidators(projectId, milestoneId, m.validators);
+    }
+
     function rateObj(bytes32 projectId, uint milestoneId, uint objId, uint rating, string comment) external onlyValidator {
         Project storage p = projects[projectId];
         MilestoneData storage m = p.milestones[milestoneId];
