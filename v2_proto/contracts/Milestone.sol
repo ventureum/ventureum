@@ -214,12 +214,29 @@ contract Milestone {
 
         // require(proxies.length > limit, "Insufficient number of proxies");
 
+        // clear validators
+        delete m.validators;
+
         // mark top 5 validators by reputation
         for(uint i = 0; i < limit; i++) {
             m.validators.push(proxies[i]);
         }
 
         emit FinalizeValidators(projectId, milestoneId, m.validators);
+    }
+
+    function isDesignatedValidator(bytes32 projectId, uint milestoneId, address proxy) internal {
+        Project storage p = projects[projectId];
+        MilestoneData storage m = p.milestones[milestoneId];
+
+        // check if msg sender is the designated validator
+        bool found = false;
+        for (uint i = 0; i < m.validators.length; i++) {
+            if (m.validators[i] == msg.sender) {
+                found = true;
+            }
+        }
+        require(found, "Must be a designated validator");
     }
 
     function rateObj(bytes32 projectId, uint milestoneId, uint objId, uint rating, string comment) external onlyValidator {
@@ -232,6 +249,8 @@ contract Milestone {
         // must have been finalized
         /* solium-disable-next-line */
         require(now >= m.endTime, "Obj must have been finalized");
+
+        isDesignatedValidator(projectId, milestoneId, msg.sender);
 
         Obj storage o = m.objs[objId];
         Voter storage v = o.voters[msg.sender];

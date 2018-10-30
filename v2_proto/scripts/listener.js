@@ -120,6 +120,8 @@ class EventHandler {
     this.q.process('AddObj', this.addObjEvent)
     this.q.process('RemoveObj', this.removeObjEvent)
     this.q.process('RateObj', this.rateObjEvent)
+    this.q.process('FinalizeValidators', this.finalizeValidatorsEvent)
+    this.q.process('UnregisterUser', this.unregisterUserEvent)
   }
 
   responseErrorCheck = (responseData) => {
@@ -344,6 +346,22 @@ class EventHandler {
     let responseComment = await axios.post(feedEndpoint + '/feed-post', request)
     this.responseErrorCheck(requestComment.data)
     return JSON.stringify({ rate: response.data, comment: responseComment.data })
+  }
+
+  unregisterUserEvent = async (job) => {
+    let { publicKey } = job.data
+    let uuid = await this.getId(publicKey)
+    let request = {
+      actor: uuid
+    }
+    let response = await axios.post(feedEndpoint + '/deactivate-actor', request)
+    this.responseErrorCheck(response.data)
+    return JSON.stringify(response.data)
+  }
+
+  finalizeValidatorsEvent = async (job) => {
+    let { projectId, milestoneId, proxies } = job.data
+    console.log(projectId, milestoneId, proxies)
   }
 
   eventListener = async (e) => {

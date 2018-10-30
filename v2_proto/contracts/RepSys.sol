@@ -107,7 +107,7 @@ contract RepSys {
                 validators.length--;
             }
         } else {
-            require (msg.sender == user);
+            require (msg.sender == user || msg.sender == owner);
         }
 
         delete p.userType;
