@@ -160,7 +160,7 @@ class EventHandler {
   }
 
   updateDelegationEvent = async (job) => {
-    let { projectId, proxy, pos, neg } = job.data
+    let { projectId, principal, proxy, pos, neg } = job.data // eslint-disable-line
 
     let uuid = await this.getId(proxy)
 
@@ -319,33 +319,38 @@ class EventHandler {
   }
 
   rateObjEvent = async (job) => {
-    let { proxy, projectId, milestoneId, objId, rating, weight, comment } = job.data
+    let { proxy, projectId, milestoneId, ratings, weight, comment } = job.data
 
     let proxyUuid = await this.getId(proxy)
 
-    let request = {
-      projectId: projectId,
-      milestoneId: Number(milestoneId),
-      objectiveId: Number(objId),
-      voter: proxyUuid,
-      rating: Number(rating),
-      weight: Number(weight)
+    let responseList = []
+    for (let i = 0; i < ratings.length; i = i + 2) {
+      let request = {
+        projectId: projectId,
+        milestoneId: Number(milestoneId),
+        objectiveId: Number(ratings[i]),
+        voter: proxyUuid,
+        rating: Number(ratings[i + 1]),
+        weight: Number(weight)
+      }
+      let response = await axios.post(tcrEndpoint + '/rating-vote', request)
+      this.responseErrorCheck(response.data)
+      responseList.push(response.data)
     }
-    let response = await axios.post(tcrEndpoint + '/rating-vote', request)
-    this.responseErrorCheck(response.data)
 
-    let commentBoardId = 'obj-comment-' + projectId + '-' + milestoneId + '-' + objId
+    let commentBoardId = 'obj-comment-' + projectId + '-' + milestoneId
     // publish comment as a post
     let requestComment = {
       actor: proxyUuid,
       boardId: '0x' + sha3(commentBoardId),
+      parentHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
       postHash: '0x' + sha3(commentBoardId + '-' + proxyUuid),
       typeHash: '0x2fca5a5e',
-      content: comment
+      content: JSON.parse(comment)
     }
-    let responseComment = await axios.post(feedEndpoint + '/feed-post', request)
-    this.responseErrorCheck(requestComment.data)
-    return JSON.stringify({ rate: response.data, comment: responseComment.data })
+    let responseComment = await axios.post(feedEndpoint + '/feed-post', requestComment)
+    this.responseErrorCheck(responseComment.data)
+    return JSON.stringify({ rate: responseList, comment: responseComment.data })
   }
 
   unregisterUserEvent = async (job) => {
