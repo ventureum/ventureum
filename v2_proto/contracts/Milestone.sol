@@ -15,13 +15,12 @@ contract Milestone {
     event FinalizeMilestone(bytes32 projectId, uint milestoneId, uint endTime);
     event AddObj(bytes32 projectId, uint milestoneId, uint objId, string content);
     event RemoveObj(bytes32 projectId, uint milestoneId, uint objId);
-    event RateObj(address proxy, bytes32 projectId, uint milestoneId, uint objId, uint rating, uint weight, string comment);
+    event RateObj(address proxy, bytes32 projectId, uint milestoneId, uint[] ratings, uint weight, string comment);
     event FinalizeValidators(bytes32 projectId, uint milestoneId, address[] proxies);
 
     struct Voter {
         uint rating;
         uint weight;
-        string comment;
     }
 
     struct Obj {
@@ -239,34 +238,33 @@ contract Milestone {
         require(found, "Must be a designated validator");
     }
 
-    function rateObj(bytes32 projectId, uint milestoneId, uint objId, uint rating, string comment) external onlyValidator {
+    function rateObj(bytes32 projectId, uint milestoneId, uint[] ratings, string comment) external onlyValidator {
         Project storage p = projects[projectId];
         MilestoneData storage m = p.milestones[milestoneId];
-
         require(1 <= milestoneId && milestoneId < p.milestones.length, "Invalid milestone id");
-        require(1 <= objId && objId < m.objs.length, "Invalid obj id");
 
         // must have been finalized
         /* solium-disable-next-line */
-        require(now >= m.endTime, "Obj must have been finalized");
-
+        require(now >= m.endTime, "Milestone must have been finalized");
         isDesignatedValidator(projectId, milestoneId, msg.sender);
-
-        Obj storage o = m.objs[objId];
-        Voter storage v = o.voters[msg.sender];
-
-        // can only vote once
-        require(v.rating == 0, "Can only vote once");
 
         uint weight = RepSys(repSysAddr).getWeight(msg.sender);
 
-        o.totalRating = o.totalRating.add(weight.mul(rating));
-        o.totalWeight = o.totalWeight.add(weight);
+        for(uint i = 0; i < ratings.length; i+=2) {
+            require(1 <= ratings[i] && ratings[i] < m.objs.length, "Invalid obj id");
 
-        v.rating = rating;
-        v.weight = weight;
-        v.comment = comment;
+            Obj storage o = m.objs[ratings[i]];
 
-        emit RateObj(msg.sender, projectId, milestoneId, objId, rating, weight, comment);
+            // can only vote once
+            require(o.voters[msg.sender].rating == 0, "Can only vote once");
+
+            o.totalRating = o.totalRating.add(weight.mul(ratings[i+1]));
+            o.totalWeight = o.totalWeight.add(weight);
+
+            o.voters[msg.sender].rating = ratings[i];
+            o.voters[msg.sender].weight = weight;
+        }
+
+        emit RateObj(msg.sender, projectId, milestoneId, ratings, weight, comment);
     }
 }

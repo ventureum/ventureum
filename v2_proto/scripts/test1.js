@@ -26,6 +26,7 @@ module.exports = async function (callback) {
   var user = accounts[3]
   var user1 = accounts[4]
   var userKOL1 = accounts[5]
+  var user2 = accounts[6]
 
   const typeKOL = "0xf4af7c06"
   const typeProjectFounder = "0x5707a2a6"
@@ -36,6 +37,7 @@ module.exports = async function (callback) {
   const userProjectFounderId = "0x381be76e0ae9afae7acb0e9598175ede"
   const userId = "0xcb61ad33d3763aed2bc16c0f57ff251a"
   const user1Id = "0xa1c2b8080ed4b6f56211e0295659ef87"
+  const user2Id = "0xa1c2b8080ed4b6f56211e0295659ef88"
 
   const userKOLMeta = {
     username: 'kol_username',
@@ -69,6 +71,8 @@ module.exports = async function (callback) {
   await repSys.registerUser(userKOL1Id, userKOL1, typeKOL, 2000, JSON.stringify(userKOLMeta))
   await repSys.registerUser(userId, user, typeUser, 0, JSON.stringify(userProjectFounderMeta))
   await repSys.registerUser(user1Id, user1, typeUser, 0, JSON.stringify(userMeta))
+  await repSys.registerUser(user2Id, user2, typeUser, 0, JSON.stringify(userMeta))
+  await repSys.unregisterUser(user2)
   await repSys.registerUser(userProjectFounderId, userProjectFounder, typeProjectFounder, 0, JSON.stringify(user1Meta))
 
   console.log('user')
@@ -93,8 +97,13 @@ module.exports = async function (callback) {
 
   await milestone.activateMilestone(project, 1, { from: userProjectFounder })
   await milestone.finalizeMilestone(project, 1, { from: userProjectFounder })
-  await milestone.rateObj(project, 1, 1, 50, "rating for obj #1", { from: userKOL })
-  await milestone.rateObj(project, 1, 2, 38, "rating for obj #1", { from: userKOL })
+  await milestone.rateObj(project, 1, [1, 50, 2, 38], JSON.stringify({
+    title: '',
+    text: 'comment for the milestone',
+    subtitle: '',
+    image: '',
+    meta: ''
+  }), { from: userKOL })
   
   callback()
 }
