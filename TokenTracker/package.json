@@ -1,0 +1,35 @@
+{
+  "name": "tokentracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "addMockProjects.js",
+  "scripts": {
+    "build": "rimraf dist/ && ./node_modules/.bin/babel ./src/tokenTracker.js --out-dir dist/ --ignore ./package.json,./npm-debug.log --copy-files",
+    "start": "npm run build && node dist/tokenTracker.js",
+    "buildAddUserData": "rimraf dist/ && ./node_modules/.bin/babel ./src/addTrackedWallet.js --out-dir dist/ --ignore ./package.json,./npm-debug.log --copy-files",
+    "addUserData": "npm run buildAddUserData && node dist/addTrackedWallet.js",
+    "buildAddMockProjects": "rimraf dist/ && ./node_modules/.bin/babel ./src/addMockProjects.js --out-dir dist/ --ignore ./package.json,./npm-debug.log --copy-files",
+    "addMockProjects": "npm run buildAddMockProjects && node dist/addMockProjects.js",
+    "install": "[ -e node_modules/web3/build/Release/web3.node   ] || docker run --rm -v $PWD:/data -w /data node:8 npm install web3@1.0.0-beta.34"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^10.0.1",
+    "rimraf": "^2.6.2"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "bull": "^3.4.8",
+    "js-sha3": "^0.8.0",
+    "knex": "^0.15.2",
+    "pg": "^7.6.0",
+    "uuid-parse": "^1.0.0",
+    "web3": "^1.0.0-beta.34"
+  }
+}
