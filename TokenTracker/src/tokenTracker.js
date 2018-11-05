@@ -79,7 +79,6 @@ class TokenTracker {
 
   _getUserRecords = async () => {
     const actorRecords = await this.knex.select().table('actor_profile_records')
-    console.log('actorRecords', actorRecords)
     this.knex.destroy()
     this.userRecords = actorRecords.filter(
       actor => actor.actor_type === 'USER' && actor.actor_profile_status === 'ACTIVATED'
@@ -190,12 +189,12 @@ exports.handler = async (event, context, callback) => {
 
   try {
     await t.startUpdate()
-    return callback(null, { // return something for webhook, so it doesn't try to send same stuff again
+    return callback(null, {
       statusCode: 200,
       body: ''
     })
   } catch (e) {
-    return callback(e, { // return something for webhook, so it doesn't try to send same stuff again
+    return callback(e, {
       statusCode: 500,
       body: ''
     })
