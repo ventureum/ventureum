@@ -9,6 +9,7 @@ import Queue from 'bull'
 import axios from 'axios'
 import moment from 'moment'
 const sha3 = require('js-sha3').sha3_256
+const uuidParse = require('uuid-parse')
 
 require('events').EventEmitter.prototype._maxListeners = 100
 
@@ -139,6 +140,13 @@ class EventHandler {
     return response.data.actor
   }
 
+  toStandardUUID = (id) => {
+    // convert bytes16 id to standard 128-bit UUID
+    const hashBytes = Buffer.from(id.substring(2), 'hex')
+    const uuid = uuidParse.unparse(hashBytes)
+    return uuid
+  }
+
   // individual event handlers
   // RepSys event handlers
   registerUserEvent = async (job) => {
@@ -146,7 +154,7 @@ class EventHandler {
     meta = JSON.parse(meta)
 
     let request = {
-      actor: uuid,
+      actor: this.toStandardUUID(uuid),
       userType: userTypeMapping[userType],
       photoUrl: meta.photoUrl,
       telegramId: meta.telegramId,
