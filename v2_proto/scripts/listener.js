@@ -73,6 +73,18 @@ class Contract {
 
     this.repSysInstance.events.allEvents().on('data', this.onEvent)
     this.milestoneInstance.events.allEvents().on('data', this.onEvent)
+
+    // current loom-js does not catch multiple events fired from a single function call
+    // add Delegate event listener separately
+    // see issue #439 for details
+    this.repSysInstance.events.Delegate({},
+      (error, event) => {
+        if (!error) {
+          this.onEvent(event)
+        } else {
+          throw error
+        }
+      })
   }
 
   async addEventListener (fn) {
@@ -229,7 +241,7 @@ class EventHandler {
       ]
     }
 
-    let response = await axios.post(tcrEndpoint + '/adjust_proxy_votes', request)
+    let response = await axios.post(tcrEndpoint + '/add-proxy-voting-for-principal', request)
     this.responseErrorCheck(response.data)
     return JSON.stringify(response.data)
   }
