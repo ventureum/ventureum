@@ -73,6 +73,18 @@ class Contract {
 
     this.repSysInstance.events.allEvents().on('data', this.onEvent)
     this.milestoneInstance.events.allEvents().on('data', this.onEvent)
+
+    // current loom-js does not catch multiple events fired from a single function call
+    // add Delegate event listener separately
+    // see issue #439 for details
+    this.repSysInstance.events.Delegate({},
+      (error, event) => {
+        if (!error) {
+          this.onEvent(event)
+        } else {
+          throw error
+        }
+      })
   }
 
   async addEventListener (fn) {
@@ -98,7 +110,6 @@ class EventHandler {
 
     this.q.on('completed', function (job, result) {
       console.log(`Job ${job.id} (${job.name}) completed! Result: ${result}`)
-      job.remove()
     })
 
     this.q.on('failed', function (job, err) {
@@ -159,12 +170,25 @@ class EventHandler {
       photoUrl: meta.photoUrl,
       telegramId: meta.telegramId,
       phoneNumber: meta.phoneNumber,
+      username: meta.username,
       publicKey: publicKey
     }
 
     let response = await axios.post(feedEndpoint + '/profile', request)
     this.responseErrorCheck(response.data)
-    return JSON.stringify(response.data)
+
+    // next, add user to proxy list if userType is kol
+    let requestAddProxy = null
+    let responseAddProxy = null
+    if (userTypeMapping[userType] === 'KOL') {
+      requestAddProxy = {
+        proxy: this.toStandardUUID(uuid)
+      }
+      responseAddProxy = await axios.post(tcrEndpoint + '/add-proxy', requestAddProxy)
+      this.responseErrorCheck(responseAddProxy.data)
+    }
+
+    return JSON.stringify({ register: response.data, addProxy: responseAddProxy ? responseAddProxy.data : null })
   }
 
   updateDelegationEvent = async (job) => {
@@ -217,7 +241,7 @@ class EventHandler {
       ]
     }
 
-    let response = await axios.post(tcrEndpoint + '/adjust_proxy_votes', request)
+    let response = await axios.post(tcrEndpoint + '/add-proxy-voting-for-principal', request)
     this.responseErrorCheck(response.data)
     return JSON.stringify(response.data)
   }
@@ -374,7 +398,19 @@ class EventHandler {
 
   finalizeValidatorsEvent = async (job) => {
     let { projectId, milestoneId, proxies } = job.data
-    console.log(projectId, milestoneId, proxies)
+    let proxyUuidList = []
+    for (let p of proxies) {
+      proxyUuidList.push(await this.getId(p))
+    }
+    let request = {
+      projectId: projectId,
+      milestoneId: Number(milestoneId),
+      validators: proxyUuidList
+    }
+    console.log(request)
+    let response = await axios.post(tcrEndpoint + '/finalize-validators', request)
+    this.responseErrorCheck(response.data)
+    return JSON.stringify(response.data)
   }
 
   eventListener = async (e) => {
