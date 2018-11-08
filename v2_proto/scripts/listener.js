@@ -158,6 +158,7 @@ class EventHandler {
       photoUrl: meta.photoUrl,
       telegramId: meta.telegramId,
       phoneNumber: meta.phoneNumber,
+      username: meta.username,
       publicKey: publicKey
     }
 
