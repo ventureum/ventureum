@@ -164,7 +164,19 @@ class EventHandler {
 
     let response = await axios.post(feedEndpoint + '/profile', request)
     this.responseErrorCheck(response.data)
-    return JSON.stringify(response.data)
+
+    // next, add user to proxy list if userType is kol
+    let requestAddProxy = null
+    let responseAddProxy = null
+    if (userTypeMapping[userType] === 'KOL') {
+      requestAddProxy = {
+        proxy: this.toStandardUUID(uuid)
+      }
+      responseAddProxy = await axios.post(tcrEndpoint + '/add-proxy', requestAddProxy)
+      this.responseErrorCheck(responseAddProxy.data)
+    }
+
+    return JSON.stringify({ register: response.data, addProxy: responseAddProxy ? responseAddProxy.data : null })
   }
 
   updateDelegationEvent = async (job) => {
