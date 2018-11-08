@@ -98,7 +98,6 @@ class EventHandler {
 
     this.q.on('completed', function (job, result) {
       console.log(`Job ${job.id} (${job.name}) completed! Result: ${result}`)
-      job.remove()
     })
 
     this.q.on('failed', function (job, err) {
@@ -374,7 +373,19 @@ class EventHandler {
 
   finalizeValidatorsEvent = async (job) => {
     let { projectId, milestoneId, proxies } = job.data
-    console.log(projectId, milestoneId, proxies)
+    let proxyUuidList = []
+    for (let p of proxies) {
+      proxyUuidList.push(await this.getId(p))
+    }
+    let request = {
+      projectId: projectId,
+      milestoneId: Number(milestoneId),
+      validators: proxyUuidList
+    }
+    console.log(request)
+    let response = await axios.post(tcrEndpoint + '/finalize-validators', request)
+    this.responseErrorCheck(response.data)
+    return JSON.stringify(response.data)
   }
 
   eventListener = async (e) => {
