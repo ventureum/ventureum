@@ -220,7 +220,7 @@ class EventHandler {
     let principalUuid = await this.getId(principal)
     let proxyUuid = await Promise.all(proxies.map((p) => this.getId(p)))
     let proxyVotingList = []
-    for (let i = 0; i < proxyVotingList.length; i++) {
+    for (let i = 0; i < proxies.length; i++) {
       proxyVotingList.push({
         proxy: proxyUuid[i],
         blockTimestamp: moment().unix(),
