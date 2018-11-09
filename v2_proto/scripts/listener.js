@@ -73,18 +73,6 @@ class Contract {
 
     this.repSysInstance.events.allEvents().on('data', this.onEvent)
     this.milestoneInstance.events.allEvents().on('data', this.onEvent)
-
-    // current loom-js does not catch multiple events fired from a single function call
-    // add Delegate event listener separately
-    // see issue #439 for details
-    this.repSysInstance.events.Delegate({},
-      (error, event) => {
-        if (!error) {
-          this.onEvent(event)
-        } else {
-          throw error
-        }
-      })
   }
 
   async addEventListener (fn) {
@@ -118,7 +106,6 @@ class EventHandler {
 
     // RepSys events
     this.q.process('RegisterUser', this.registerUserEvent)
-    this.q.process('UpdateDelegation', this.updateDelegationEvent)
     this.q.process('WriteVotes', this.writeVotesEvent)
     this.q.process('Delegate', this.delegateEvent)
 
@@ -191,24 +178,8 @@ class EventHandler {
     return JSON.stringify({ register: response.data, addProxy: responseAddProxy ? responseAddProxy.data : null })
   }
 
-  updateDelegationEvent = async (job) => {
-    let { projectId, principal, proxy, pos, neg } = job.data // eslint-disable-line
-
-    let uuid = await this.getId(proxy)
-
-    let request = {
-      actor: uuid,
-      projectId: projectId,
-      receivedDelegateVotes: Number(pos) - Number(neg)
-    }
-
-    let response = await axios.post(tcrEndpoint + '/update-received-delegate-votes', request)
-    this.responseErrorCheck(response.data)
-    return JSON.stringify(response.data)
-  }
-
   writeVotesEvent = async (job) => {
-    let { projectId, user, val } = job.data
+    let { projectId, user, val, proxies, votesDiff } = job.data
 
     let uuid = await this.getId(user)
 
@@ -220,30 +191,70 @@ class EventHandler {
 
     let response = await axios.post(tcrEndpoint + '/update-available-delegate-votes', request)
     this.responseErrorCheck(response.data)
-    return JSON.stringify(response.data)
+
+    let proxyUuid = await Promise.all(proxies.map((p) => this.getId(p)))
+
+    // now update availableReceivedVotes for proxies
+    let updateDelegationRequests = []
+
+    for (let i = 0; i < proxies.length; i++) {
+      updateDelegationRequests.push({
+        actor: proxyUuid[i],
+        projectId: projectId,
+        receivedDelegateVotesDelta: Number(votesDiff[i])
+      })
+    }
+
+    let updateDelegationResponses = await Promise.all(updateDelegationRequests.map((request) => {
+      return axios.post(tcrEndpoint + '/update-received-delegate-votes', request).then((response) => {
+        this.responseErrorCheck(response.data)
+        return response.data
+      })
+    }))
+    return JSON.stringify({ writeVotes: response.data, updateDelegation: updateDelegationResponses })
   }
 
   delegateEvent = async (job) => {
-    let { projectId, principal, proxy, votesInPercent } = job.data
+    let { projectId, principal, proxies, votesInPercent, votesDiff } = job.data
 
     let principalUuid = await this.getId(principal)
-    let proxyUuid = await this.getId(proxy)
-
+    let proxyUuid = await Promise.all(proxies.map((p) => this.getId(p)))
+    let proxyVotingList = []
+    for (let i = 0; i < proxyVotingList.length; i++) {
+      proxyVotingList.push({
+        proxy: proxyUuid[i],
+        blockTimestamp: moment().unix(),
+        votesInPercent: Number(votesInPercent[i])
+      })
+    }
     let request = {
       actor: principalUuid,
       projectId: projectId,
-      proxyVotingList: [
-        {
-          proxy: proxyUuid,
-          blockTimestamp: moment().unix(),
-          votesInPercent: Number(votesInPercent)
-        }
-      ]
+      proxyVotingList: proxyVotingList
     }
 
     let response = await axios.post(tcrEndpoint + '/add-proxy-voting-for-principal', request)
     this.responseErrorCheck(response.data)
-    return JSON.stringify(response.data)
+
+    // now update availableReceivedVotes for proxies
+    let updateDelegationRequests = []
+
+    for (let i = 0; i < proxies.length; i++) {
+      updateDelegationRequests.push({
+        actor: proxyUuid[i],
+        projectId: projectId,
+        receivedDelegateVotesDelta: Number(votesDiff[i])
+      })
+    }
+
+    let updateDelegationResponses = await Promise.all(updateDelegationRequests.map((request) => {
+      return axios.post(tcrEndpoint + '/update-received-delegate-votes', request).then((response) => {
+        this.responseErrorCheck(response.data)
+        return response.data
+      })
+    }))
+
+    return JSON.stringify({ delegate: response.data, updateDelegation: updateDelegationResponses })
   }
 
   // Milestone event handlers
