@@ -13,6 +13,84 @@ web3.eth.getAccountsPromise = function () {
   })
 }
 
+const projectContent = {
+  projectName: 'Blockcloud',
+  logo: 'https://icobench.com/images/icos/icons/datablockchain.jpg',
+  wideLogo: 'https://icodrops.com/wp-content/uploads/2018/06/Haja-banner.jpg',
+  shortDescription: 'A Blockchain-based Advanced TCP/IP Architecture Providing Constant Connectivity for Dynamic Networks',
+  video: 'https://www.youtube.com/watch?v=64kQLRZeE_E',
+  description: 'While BigData has traditionally been available only to big companies, Blockcloud.io lowers the barrier for entry and expands our potential client base to include small, medium and large businesses around the globe as well as ICOs seeking data for their new ventures.',
+  corporationInfo: {
+    location: {
+      country: 'CA',
+      city: 'Toronto'
+    },
+    team: {
+      teamSize: 6,
+      members: [
+        {
+          name: 'Raul Romero',
+          title: 'CEO',
+          link: 'https://www.google.com'
+        }, {
+          name: 'Zi Wen Zhang',
+          title: 'CTO',
+          link: 'https://www.google.com'
+        }, {
+          name: 'Lawrence Duerson',
+          title: 'COO',
+          link: 'https://www.google.com'
+        }, {
+          name: 'Raul Romero',
+          title: 'CEO',
+          link: 'https://www.google.com'
+        }, {
+          name: 'Zi Wen Zhang',
+          title: 'CTO',
+          link: 'https://www.google.com'
+        }, {
+          name: 'Lawrence Duerson',
+          title: 'COO',
+          link: 'https://www.google.com'
+        }
+      ]
+    }
+  },
+  category: 'Artificial Intelligence',
+  website: 'https://www.google.com',
+  whitepaper: 'https://www.google.com',
+  token: {
+    symbol: 'BLOC',
+    price: '10',
+    platform: 'Ethereum',
+    accept: ['ETH', 'BTC'],
+    KYC: true,
+    cantParticipate: ['CN', 'US']
+  },
+  socialLinks: [
+    {
+      type: 'telegram',
+      link: 'https://www.google.com'
+    }, {
+      type: 'github',
+      link: 'https://www.google.com'
+    }, {
+      type: 'reddit',
+      link: 'https://www.google.com'
+    }, {
+      type: 'twitter',
+      link: 'https://www.google.com'
+    }, {
+      type: 'facebook',
+      link: 'https://www.google.com'
+    }, {
+      type: 'slack',
+      link: 'https://www.google.com'
+    }
+  ]
+}
+
+
 module.exports = async function (callback) {
   var accounts = await web3.eth.getAccountsPromise()
   var repSys = await RepSys.deployed()
@@ -46,57 +124,85 @@ module.exports = async function (callback) {
     phoneNumber: '+15198971683'
   }
 
+  const userKOL1Meta = {
+    username: 'kol1_username',
+    photoUrl: 'https://randomuser.me/api/portraits/men/64.jpg',
+    telegramId: '-10023340203',
+    phoneNumber: '+15198971683'
+  }
+
   const userProjectFounderMeta = {
-    username: 'kol_username',
+    username: 'pf_username',
     photoUrl: 'https://randomuser.me/api/portraits/men/64.jpg',
     telegramId: '-10023340203',
     phoneNumber: '+15198971683'
   }
 
   const userMeta = {
-    username: 'kol_username',
+    username: 'user_username',
     photoUrl: 'https://randomuser.me/api/portraits/men/64.jpg',
     telegramId: '-10023340203',
     phoneNumber: '+15198971683'
   }
 
   const user1Meta = {
-    username: 'kol_username',
+    username: 'user1_username',
     photoUrl: 'https://randomuser.me/api/portraits/men/64.jpg',
     telegramId: '-10023340203',
     phoneNumber: '+15198971683'
   }
 
+  const user2Meta = {
+    username: 'user2_username',
+    photoUrl: 'https://randomuser.me/api/portraits/men/64.jpg',
+    telegramId: '-10023340203',
+    phoneNumber: '+15198971683'
+  }
+
+  const milestone1Content = {
+    title: 'milestone #1',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed posuere nulla, at bibendum mauris. Nunc aliquam augue quis aliquam porttitor. Ut auctor nunc sit amet dui sodales hendrerit. Sed pulvinar purus at egestas interdum. In et tellus ut dolor lobortis pulvinar. Vivamus lectus ligula, pretium in sapien nec, laoreet pellentesque ligula.',
+    expectedStartTime: 1541617885,
+    expectedEndTime: 1541717885
+  }
+
+  const milestone1Obj1Content = {
+    title: 'obj #1',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed posuere nulla, at bibendum mauris. Nunc aliquam augue quis aliquam porttitor. Ut auctor nunc sit amet dui sodales hendrerit. Sed pulvinar purus at egestas interdum. In et tellus ut dolor lobortis pulvinar. Vivamus lectus ligula, pretium in sapien nec, laoreet pellentesque ligula.'
+  }
+
+  const milestone1Obj2Content = {
+    title: 'obj #2',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed posuere nulla, at bibendum mauris. Nunc aliquam augue quis aliquam porttitor. Ut auctor nunc sit amet dui sodales hendrerit. Sed pulvinar purus at egestas interdum. In et tellus ut dolor lobortis pulvinar. Vivamus lectus ligula, pretium in sapien nec, laoreet pellentesque ligula.'
+  }
+
   await repSys.registerUser(userKOLId, userKOL, typeKOL, 1000, JSON.stringify(userKOLMeta))
-  await repSys.registerUser(userKOL1Id, userKOL1, typeKOL, 2000, JSON.stringify(userKOLMeta))
-  await repSys.registerUser(userId, user, typeUser, 0, JSON.stringify(userProjectFounderMeta))
-  await repSys.registerUser(user1Id, user1, typeUser, 0, JSON.stringify(userMeta))
-  await repSys.registerUser(user2Id, user2, typeUser, 0, JSON.stringify(userMeta))
+  await repSys.registerUser(userKOL1Id, userKOL1, typeKOL, 2000, JSON.stringify(userKOL1Meta))
+  await repSys.registerUser(userId, user, typeUser, 0, JSON.stringify(userMeta))
+  await repSys.registerUser(user1Id, user1, typeUser, 0, JSON.stringify(user1Meta))
+  await repSys.registerUser(user2Id, user2, typeUser, 0, JSON.stringify(user2Meta))
   await repSys.unregisterUser(user2)
-  await repSys.registerUser(userProjectFounderId, userProjectFounder, typeProjectFounder, 0, JSON.stringify(user1Meta))
+  await repSys.registerUser(userProjectFounderId, userProjectFounder, typeProjectFounder, 0, JSON.stringify(userProjectFounderMeta))
 
-  console.log('user')
-  let rv = await repSys.getValidatorCount.call()
-  console.log(rv)
-
-  await milestone.registerProject(project, "project content", { from: userProjectFounder })
+  // register a sample project
+  await milestone.registerProject(project, JSON.stringify(projectContent), { from: userProjectFounder })
 
   await repSys.writeVotes(project, user, 500)
-  await repSys.delegate(project, userKOL, 20, { from: user })
-  await repSys.delegate(project, userKOL1, 40, { from: user })
-  await repSys.writeVotes(project, user, 1000)
-  
-  await milestone.addMilestone(project, "milestone #1", { from: userProjectFounder })
-  await milestone.addObj(project, 1, "obj #1", { from: userProjectFounder })
-  await milestone.addObj(project, 1, "obj #2", { from: userProjectFounder })
-  console.log('before done')
-  await milestone.finalizeValidators(project, 1, 2)
-  console.log('done')
-  rv = await repSys.validators.call(0)
-  console.log(rv)
+  let rv = await repSys.delegate(project, [userKOL, userKOL1], [20, 40], { from: user })
 
+  rv = await repSys.getProxyList.call(project, user)
+
+  rv = await repSys.writeVotes(project, user, 1000)
+  
+  await milestone.addMilestone(project, JSON.stringify(milestone1Content), { from: userProjectFounder })
+  await milestone.addObj(project, 1, JSON.stringify(milestone1Obj1Content), { from: userProjectFounder })
+  await milestone.addObj(project, 1, JSON.stringify(milestone1Obj2Content), { from: userProjectFounder })
+
+  // pick top two validators
+  await milestone.finalizeValidators(project, 1, 2)
   await milestone.activateMilestone(project, 1, { from: userProjectFounder })
   await milestone.finalizeMilestone(project, 1, { from: userProjectFounder })
+  
   await milestone.rateObj(project, 1, [1, 50, 2, 38], JSON.stringify({
     title: '',
     text: 'comment for the milestone',
@@ -104,6 +210,5 @@ module.exports = async function (callback) {
     image: '',
     meta: ''
   }), { from: userKOL })
-  
   callback()
 }

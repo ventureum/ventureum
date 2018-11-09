@@ -9,8 +9,8 @@ contract RepSys {
     event RegisterUser(bytes16 uuid, address publicKey, bytes4 userType, uint reputation, string meta);
     event UnregisterUser(address publicKey);
     event UpdateDelegation(bytes32 projectId, address principal, address proxy, uint pos, uint neg);
-    event WriteVotes(bytes32 projectId, address user, uint val);
-    event Delegate(bytes32 projectId, address principal, address proxy, uint votesInPercent);
+    event WriteVotes(bytes32 projectId, address user, uint val, address[] proxies, int[] votesDiff);
+    event Delegate(bytes32 projectId, address principal, address[] proxies, uint[] votesInPercent, int[] votesDiff);
 
     struct Profile {
         bytes16 uuid;
@@ -64,10 +64,12 @@ contract RepSys {
 
         if (userType != bytes4(keccak256("USER"))) {
             // special user can only be added by admin
+
             require(msg.sender == owner);
+
             //validators.push(user);
-            if (userType == bytes4(keccak256("KOL"))) {
-                // add to global validator list
+            if (userType == bytes4(keccak256("KOL")) && p.userType != bytes4(keccak256("KOL"))) {
+                // add to global validator list if not added
                 validators.push(user);
             }
             p.uuid = uuid;
@@ -129,12 +131,12 @@ contract RepSys {
         return (d.votes, d.receivedVotes, d.usedVotesPct);
     }
 
-    function updateDelegation(bytes32 projectId, address principal, address proxy, uint pos, uint neg) internal {
+    function updateDelegation(bytes32 projectId, address principal, address proxy, uint pos, uint neg) internal returns (int) {
         Delegation storage d = delegation[projectId][proxy];
 
         d.receivedVotes = d.receivedVotes.add(pos).sub(neg);
 
-        emit UpdateDelegation(projectId, principal, proxy, pos, neg);
+        return ((int)(pos) - (int)(neg));
     }
 
     function writeVotes(bytes32 projectId, address user, uint val) external onlyOwner registered(user) {
@@ -152,10 +154,13 @@ contract RepSys {
         // update votes
         d.votes = val;
 
-        for(uint i = 0; i < d.proxyList.length; i++) {
+        address[] memory proxies = new address[](d.proxyList.length);
+        int[] memory votesDiff = new int[](d.proxyList.length);
+
+        for (uint i = 0; i < d.proxyList.length; i++) {
             address proxy = d.proxyList[i];
-            // update votes for principals
-            updateDelegation(
+            proxies[i] = proxy;
+            votesDiff[i] = updateDelegation(
                              projectId,
                              user,
                              proxy,
@@ -163,11 +168,10 @@ contract RepSys {
                              neg.mul(d.votesPctCasted[proxy]).div(100));
         }
 
-        emit WriteVotes(projectId, user, val);
+        emit WriteVotes(projectId, user, val, proxies, votesDiff);
     }
 
-    function delegate(bytes32 projectId, address proxy, uint pct) external {
-        require(0 <= pct && pct <= 100, "Invalid percentage");
+    function _delegateProxyListHelper(bytes32 projectId, address proxy, uint pct) internal {
         Delegation storage d = delegation[projectId][msg.sender];
 
         if (d.votesPctCasted[proxy] == 0 && pct > 0) {
@@ -187,22 +191,45 @@ contract RepSys {
             d.proxyList[target] = d.proxyList[d.proxyList.length - 1];
             d.proxyList.length--;
         }
+    }
+
+    function _delegateHelper(bytes32 projectId, address proxy, uint pct) internal returns (int) {
+        require(0 <= pct && pct <= 100, "Invalid percentage");
+        Delegation storage d = delegation[projectId][msg.sender];
+
+        // update proxy list
+        _delegateProxyListHelper(projectId, proxy, pct);
+
+        int diff;
 
         if (pct >= d.votesPctCasted[proxy]) {
             require (d.usedVotesPct.add(pct.sub(d.votesPctCasted[proxy])) <= 100, "Cannot exceed 100%");
             d.usedVotesPct = d.usedVotesPct.add(pct.sub(d.votesPctCasted[proxy]));
 
             // update proxy's votes
-            updateDelegation(projectId, msg.sender, proxy, calVotes(d.votes, pct.sub(d.votesPctCasted[proxy])), 0);
+            diff = updateDelegation(projectId, msg.sender, proxy, calVotes(d.votes, pct.sub(d.votesPctCasted[proxy])), 0);
         } else {
             // require is not required since we have safemath
             d.usedVotesPct = d.usedVotesPct.sub(d.votesPctCasted[proxy].sub(pct));
-            updateDelegation(projectId, msg.sender, proxy, 0, calVotes(d.votes, d.votesPctCasted[proxy].sub(pct)));
+            diff = updateDelegation(projectId, msg.sender, proxy, 0, calVotes(d.votes, d.votesPctCasted[proxy].sub(pct)));
         }
 
         d.votesPctCasted[proxy] = pct;
+        return diff;
+    }
 
-        emit Delegate(projectId, msg.sender, proxy, pct);
+    function delegate(bytes32 projectId, address[] proxy, uint[] pct) external {
+        int[] memory votesDiff = new int[](proxy.length);
+
+        for (uint i = 0; i < proxy.length; i++) {
+            votesDiff[i] = _delegateHelper(projectId, proxy[i], pct[i]);
+        }
+
+        emit Delegate(projectId, msg.sender, proxy, pct, votesDiff);
+    }
+
+    function getProxyList(bytes32 projectId, address principal) external returns (address[]) {
+        return delegation[projectId][principal].proxyList;
     }
 
     // sort proxies by reputation
