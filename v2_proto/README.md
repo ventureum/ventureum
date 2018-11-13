@@ -21,13 +21,17 @@ truffle migrate --reset --network loom
 ```
 cp -r ./build/contracts/ ../../Opportunity/src
 ```
+## Start Redis-server
 
+
+```
+bash ./redis.sh
+```
 ## Start Listener
 
 
 ```
 npm run startListener
-
 ```
 
 Always restart listener after migration since the listener only retrieves build files once.
