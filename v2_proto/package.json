@@ -32,6 +32,18 @@
     "rimraf": "^2.6.2"
   },
   "standard": {
-    "parser": "babel-eslint"
+    "parser": "babel-eslint",
+    "globals": [
+      "it",
+      "contract",
+      "before",
+      "beforeEach",
+      "after",
+      "afterEach",
+      "assert",
+      "artifacts",
+      "web3",
+      "describe"
+    ]
   }
 }
