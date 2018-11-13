@@ -418,7 +418,7 @@ class EventHandler {
       milestoneId: Number(milestoneId),
       validators: proxyUuidList
     }
-    console.log(request)
+
     let response = await axios.post(tcrEndpoint + '/finalize-validators', request)
     this.responseErrorCheck(response.data)
     return JSON.stringify(response.data)

@@ -1,5 +1,5 @@
-var RepSys = artifacts.require("RepSys")
-var Milestone = artifacts.require("Milestone")
+var RepSys = artifacts.require('RepSys')
+var Milestone = artifacts.require('Milestone')
 web3.eth.getAccountsPromise = function () {
   return new Promise(function (resolve, reject) {
     web3.eth.getAccounts(function (e, accounts) {
@@ -90,15 +90,13 @@ const projectContent = {
   ]
 }
 
-
 module.exports = async function (callback) {
   var accounts = await web3.eth.getAccountsPromise()
   var repSys = await RepSys.deployed()
   var milestone = await Milestone.deployed()
 
-  const project = "0x34b0720df51fc665a1a1c2c161c0d5ed75191f138329f83051ad7208fc0a06a2"
+  const project = '0x34b0720df51fc665a1a1c2c161c0d5ed75191f138329f83051ad7208fc0a06a2'
 
-  var root = accounts[0]
   var userKOL = accounts[1]
   var userProjectFounder = accounts[2]
   var user = accounts[3]
@@ -106,16 +104,16 @@ module.exports = async function (callback) {
   var userKOL1 = accounts[5]
   var user2 = accounts[6]
 
-  const typeKOL = "0xf4af7c06"
-  const typeProjectFounder = "0x5707a2a6"
-  const typeUser = "0x2db9fd3d"
+  const typeKOL = '0xf4af7c06'
+  const typeProjectFounder = '0x5707a2a6'
+  const typeUser = '0x2db9fd3d'
 
-  const userKOLId = "0xb69a0b3febe9555482b80f7cc4057e72"
-  const userKOL1Id = "0xb69a0b3febe9555482b80f7cc4057e73"
-  const userProjectFounderId = "0x381be76e0ae9afae7acb0e9598175ede"
-  const userId = "0xcb61ad33d3763aed2bc16c0f57ff251a"
-  const user1Id = "0xa1c2b8080ed4b6f56211e0295659ef87"
-  const user2Id = "0xa1c2b8080ed4b6f56211e0295659ef88"
+  const userKOLId = '0xb69a0b3febe9555482b80f7cc4057e72'
+  const userKOL1Id = '0xb69a0b3febe9555482b80f7cc4057e73'
+  const userProjectFounderId = '0x381be76e0ae9afae7acb0e9598175ede'
+  const userId = '0xcb61ad33d3763aed2bc16c0f57ff251a'
+  const user1Id = '0xa1c2b8080ed4b6f56211e0295659ef87'
+  const user2Id = '0xa1c2b8080ed4b6f56211e0295659ef88'
 
   const userKOLMeta = {
     username: 'kol_username',
@@ -188,27 +186,15 @@ module.exports = async function (callback) {
   await milestone.registerProject(project, JSON.stringify(projectContent), { from: userProjectFounder })
 
   await repSys.writeVotes(project, user, 500)
-  let rv = await repSys.delegate(project, [userKOL, userKOL1], [20, 40], { from: user })
+  await repSys.delegate(project, [userKOL, userKOL1], [20, 40], { from: user })
 
-  rv = await repSys.getProxyList.call(project, user)
+  await repSys.writeVotes(project, user, 1000)
 
-  rv = await repSys.writeVotes(project, user, 1000)
-  
   await milestone.addMilestone(project, JSON.stringify(milestone1Content), { from: userProjectFounder })
   await milestone.addObj(project, 1, JSON.stringify(milestone1Obj1Content), { from: userProjectFounder })
   await milestone.addObj(project, 1, JSON.stringify(milestone1Obj2Content), { from: userProjectFounder })
 
-  // pick top two validators
-  await milestone.finalizeValidators(project, 1, 2)
   await milestone.activateMilestone(project, 1, { from: userProjectFounder })
   await milestone.finalizeMilestone(project, 1, { from: userProjectFounder })
-  
-  await milestone.rateObj(project, 1, [1, 50, 2, 38], JSON.stringify({
-    title: '',
-    text: 'comment for the milestone',
-    subtitle: '',
-    image: '',
-    meta: ''
-  }), { from: userKOL })
   callback()
 }
