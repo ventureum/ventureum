@@ -191,7 +191,15 @@ module.exports = async function (callback) {
   await repSys.writeVotes(project, user, 1000)
 
   await milestone.addMilestone(project, JSON.stringify(milestone1Content), { from: userProjectFounder })
+
+  // for testing modification function only
+  // await milestone.modifyMilestone(project, 1, JSON.stringify(milestone1Content), { from: userProjectFounder })
+
   await milestone.addObj(project, 1, JSON.stringify(milestone1Obj1Content), { from: userProjectFounder })
+
+  // for testing modification function only
+  // await milestone.modifyObj(project, 1, 1, JSON.stringify(milestone1Obj1Content), { from: userProjectFounder })
+
   await milestone.addObj(project, 1, JSON.stringify(milestone1Obj2Content), { from: userProjectFounder })
 
   await milestone.activateMilestone(project, 1, { from: userProjectFounder })

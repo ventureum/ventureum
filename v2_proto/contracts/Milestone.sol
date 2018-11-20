@@ -122,6 +122,16 @@ contract Milestone {
         emit AddMilestone(projectId, p.milestones.length - 1, content);
     }
 
+    function modifyMilestone(bytes32 projectId, uint milestoneId, string content) external onlyProjectOwner(projectId) {
+        Project storage p = projects[projectId];
+        require(1 <= milestoneId && milestoneId < p.milestones.length, "Invalid milestone id");
+
+        MilestoneData storage m = p.milestones[milestoneId];
+        m.content = content;
+
+        emit AddMilestone(projectId, milestoneId, content);
+    }
+
     function removeMilestone(bytes32 projectId, uint milestoneId) external onlyProjectOwner(projectId) {
         Project storage p = projects[projectId];
         require(1 <= milestoneId && milestoneId < p.milestones.length, "Invalid milestone id");
@@ -177,6 +187,18 @@ contract Milestone {
         o.content = content;
 
         emit AddObj(projectId, milestoneId, m.objs.length - 1, content);
+    }
+
+    function modifyObj(bytes32 projectId, uint milestoneId, uint objId, string content) external onlyProjectOwner(projectId) {
+        Project storage p = projects[projectId];
+        require(1 <= milestoneId && milestoneId < p.milestones.length, "Invalid milestone id");
+
+        MilestoneData storage m = p.milestones[milestoneId];
+        require(1 <= objId && objId < m.objs.length, "Invalid obj id");
+
+        m.objs[objId].content = content;
+
+        emit AddObj(projectId, milestoneId, objId, content);
     }
 
     function removeObj(bytes32 projectId, uint milestoneId, uint objId) external onlyProjectOwner(projectId) {

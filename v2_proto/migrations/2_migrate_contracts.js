@@ -1,5 +1,8 @@
-var Migrations = artifacts.require("./Migrations.sol");
+var RepSys = artifacts.require("./RepSys.sol")
+var Milestone = artifacts.require("./Milestone.sol")
 
 module.exports = function(deployer) {
-  deployer.deploy(Migrations);
+  deployer.deploy(RepSys).then(function () {
+    return deployer.deploy(Milestone, RepSys.address)
+  })
 };
