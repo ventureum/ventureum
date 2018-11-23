@@ -16,6 +16,10 @@ require('events').EventEmitter.prototype._maxListeners = 100
 const tcrEndpoint = 'https://mfmybdhoea.execute-api.ca-central-1.amazonaws.com/exp'
 const feedEndpoint = 'https://7g1vjuevub.execute-api.ca-central-1.amazonaws.com/exp'
 
+// fill in access token here
+axios.defaults.headers.post['Authorization'] = ''
+axios.defaults.headers.post['Content-Type'] = 'application/json'
+
 const userTypeMapping = {
   '0xf4af7c06': 'KOL',
   '0x5707a2a6': 'PF',
