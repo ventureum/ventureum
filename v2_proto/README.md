@@ -4,7 +4,7 @@
 
 Follow the official doc: https://loomx.io/developers/docs/en/basic-install-all.html
 
-## Set up environment
+## Set up environment in Docker
 
 ```
 . .dock.sh
@@ -28,13 +28,13 @@ truffle migrate --reset --network loom
 cp -r ./build/contracts/ ../../Opportunity/src
 ```
 ## Start Redis-server
-
+Go to `./ventureum/v2_proto`
 
 ```
 bash ./redis.sh
 ```
 ## Start Listener
-
+Go to `./ventureum/v2_proto`
 
 ```
 npm run startListener
