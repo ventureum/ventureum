@@ -5,7 +5,7 @@
 Follow the official doc: https://loomx.io/developers/docs/en/basic-install-all.html
 
 ## Install dependencies
-under `./ventureum`
+under `./ventureum/v2_proto`
 
 ```
 npm install
