@@ -4,22 +4,25 @@
 
 Follow the official doc: https://loomx.io/developers/docs/en/basic-install-all.html
 
-## Install dependencies
-under `./ventureum/v2_proto`
+## Set up environment
 
+```
+. .dock.sh
+```
+Go to `./ventureum/v2_proto`
+
+### Install dependencies
 ```
 npm install
 ```
 
-## Compile and migrate contracts to Loom
-under `./ventureum/v2_proto`
+### Compile and migrate contracts to Loom
 
 ```
 truffle migrate --reset --network loom
 ```
 
-## Copy build files to Frontend (e.g. Opportunity/src)
-under `./ventureum/v2_proto`
+### Copy build files to Frontend (e.g. Opportunity/src)
 
 ```
 cp -r ./build/contracts/ ../../Opportunity/src
