@@ -5,12 +5,14 @@
 Follow the official doc: https://loomx.io/developers/docs/en/basic-install-all.html
 
 ## Install dependencies
+under `./ventureum`
 
 ```
 npm install
 ```
 
 ## Compile and migrate contracts to Loom
+under `./ventureum/v2_proto`
 
 ```
 truffle migrate --reset --network loom
