@@ -19,6 +19,7 @@ truffle migrate --reset --network loom
 ```
 
 ## Copy build files to Frontend (e.g. Opportunity/src)
+under `./ventureum/v2_proto`
 
 ```
 cp -r ./build/contracts/ ../../Opportunity/src
