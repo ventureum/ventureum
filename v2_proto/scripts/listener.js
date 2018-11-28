@@ -330,9 +330,11 @@ class EventHandler {
   registerProjectEvent = async (job) => {
     let { projectId, admin, content } = job.data
 
+    let uuid = await this.getId(admin)
+
     let request = {
       projectId: projectId,
-      admin: admin,
+      admin: uuid,
       content: content,
       blockTimestamp: moment().unix()
     }
