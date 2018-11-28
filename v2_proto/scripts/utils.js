@@ -3,7 +3,7 @@ const Web3 = require('web3')
 
 module.exports = {
   toHexArray: function (byteArray) {
-    return Array.prototype.map.call(byteArray, function(byte) {
+    return Array.prototype.map.call(byteArray, function (byte) {
       return '0x' + ('0' + (byte & 0xFF).toString(16)).slice(-2)
     })
   },
@@ -54,6 +54,35 @@ module.exports = {
       objContent = objContent.concat(_objContent)
     }
     return { objMetaCompact: objMetaCompact, objContent: objContent }
+  },
+  decodeObjData: function (objMetaCompact, objContent) {
+    let commands = []
+    let ids = []
+    let contents = []
+    let objContentLen = []
+    for (let i = 0; i < objMetaCompact.length; i++) {
+      let _command = objMetaCompact[i] % 10
+      let _id = (Math.floor(objMetaCompact[i] / 10)) % 1000
+      let _objContentLen = Math.floor(objMetaCompact[i] / 10000)
+
+      commands.push(_command)
+      ids.push(_id)
+      objContentLen.push(_objContentLen)
+    }
+
+    let startIdx = 0
+    const decoder = new TextDecoder()
+    for (let i = 0; i < objContentLen.length; i++) {
+      let _len = objContentLen[i]
+      let contentBytes = []
+      for (let j = 0; j < _len; j++) {
+        contentBytes.push(objContent[startIdx + j])
+      }
+      let decoded = decoder.decode(new Uint8Array(contentBytes))
+      contents.push(decoded)
+      startIdx += _len
+    }
+    return { commands: commands, ids: ids, contents: contents, objContentLen: objContentLen }
   },
   decodeObjContent: function (encodedContent) {
     const decoder = new TextDecoder()

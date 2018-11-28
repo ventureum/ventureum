@@ -10,6 +10,7 @@ import axios from 'axios'
 import moment from 'moment'
 const sha3 = require('js-sha3').sha3_256
 const uuidParse = require('uuid-parse')
+const Utils = require('../scripts/utils')
 
 require('events').EventEmitter.prototype._maxListeners = 100
 
@@ -147,6 +148,63 @@ class EventHandler {
     const hashBytes = Buffer.from(id.substring(2), 'hex')
     const uuid = uuidParse.unparse(hashBytes)
     return uuid
+  }
+
+  handleObjChanges = async (projectId, milestoneId, objMetaCompact, objContent) => {
+    // first decode obj data
+    let data = Utils.decodeObjData(objMetaCompact, objContent)
+
+    let requestListAdd = []
+    let requestListDelete = []
+
+    for (let i = 0; i < data.commands.length; i++) {
+      let _command = data.commands[i]
+      let _id = data.ids[i]
+      let _content = data.contents[i]
+
+      if (_command === 0 || _command === 1) {
+        // add or modifiy
+        requestListAdd.push({
+          projectId: projectId,
+          milestoneId: Number(milestoneId),
+          objectiveId: _id,
+          content: _content,
+          blockTimestamp: moment().unix()
+        })
+      } else if (_command === 2) {
+        // delete
+        requestListDelete.push({
+          projectId: projectId,
+          milestoneId: Number(milestoneId),
+          objectiveId: _id,
+          blockTimestamp: moment().unix()
+        })
+      } else {
+        throw new Error('Invalid command')
+      }
+    }
+
+    let responseAdd = null
+    let responseDelete = null
+
+    if (requestListAdd.length > 0) {
+      responseAdd = await axios.post(tcrEndpoint + '/batch-objectives', {
+        requestList: requestListAdd
+      })
+      this.responseErrorCheck(responseAdd.data)
+    }
+
+    if (requestListDelete.length > 0) {
+      responseDelete = await axios.post(tcrEndpoint + '/delete-batch-objectives', {
+        requestList: requestListDelete
+      })
+      this.responseErrorCheck(responseDelete.data)
+    }
+
+    return {
+      responseAdd: responseAdd ? responseAdd.data : null,
+      responseDelete: responseDelete ? responseDelete.data : null
+    }
   }
 
   // individual event handlers
@@ -298,18 +356,19 @@ class EventHandler {
 
   addMilestoneEvent = async (job) => {
     let { projectId, milestoneId, content, objMetaCompact, objContent } = job.data
-    console.log(projectId, milestoneId, content, objMetaCompact, objContent)
 
-    // TODO
-    // let request = {
-    //   projectID: projectId,
-    //   milestoneId: Number(milestoneId),
-    //   content: content,
-    //   blockTimestamp: moment().unix()
-    // }
-    // let response = await axios.post(tcrEndpoint + '/add-milestone', request)
-    // this.responseErrorCheck(response.data)
-    // return JSON.stringify(response.data)
+    // first add a new milestone
+    let request = {
+      projectID: projectId,
+      milestoneId: Number(milestoneId),
+      content: content,
+      blockTimestamp: moment().unix()
+    }
+    let response = await axios.post(tcrEndpoint + '/add-milestone', request)
+    this.responseErrorCheck(response.data)
+
+    let objChangeResponse = await this.handleObjChanges(projectId, milestoneId, objMetaCompact, objContent)
+    return JSON.stringify({ addMilestone: response.data, objChange: objChangeResponse })
   }
 
   removeMilestoneEvent = async (job) => {
