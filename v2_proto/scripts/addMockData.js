@@ -1,5 +1,7 @@
 var RepSys = artifacts.require('RepSys')
 var Milestone = artifacts.require('Milestone')
+const Utils = require('./utils')
+
 web3.eth.getAccountsPromise = function () {
   return new Promise(function (resolve, reject) {
     web3.eth.getAccounts(function (e, accounts) {
@@ -190,17 +192,9 @@ module.exports = async function (callback) {
 
   await repSys.writeVotes(project, user, 1000)
 
-  await milestone.addMilestone(project, JSON.stringify(milestone1Content), { from: userProjectFounder })
+  let objData = Utils.encodeObjData([0, 0], [1, 2], [JSON.stringify(milestone1Obj1Content), JSON.stringify(milestone1Obj2Content)])
 
-  // for testing modification function only
-  // await milestone.modifyMilestone(project, 1, JSON.stringify(milestone1Content), { from: userProjectFounder })
-
-  await milestone.addObj(project, 1, JSON.stringify(milestone1Obj1Content), { from: userProjectFounder })
-
-  // for testing modification function only
-  // await milestone.modifyObj(project, 1, 1, JSON.stringify(milestone1Obj1Content), { from: userProjectFounder })
-
-  await milestone.addObj(project, 1, JSON.stringify(milestone1Obj2Content), { from: userProjectFounder })
+  await milestone.addMilestone(project, JSON.stringify(milestone1Content), objData.objMetaCompact, objData.objContent, { from: userProjectFounder })
 
   await milestone.activateMilestone(project, 1, { from: userProjectFounder })
   await milestone.finalizeMilestone(project, 1, { from: userProjectFounder })

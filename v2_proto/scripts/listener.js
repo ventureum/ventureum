@@ -297,16 +297,19 @@ class EventHandler {
   }
 
   addMilestoneEvent = async (job) => {
-    let { projectId, milestoneId, content } = job.data
-    let request = {
-      projectID: projectId,
-      milestoneId: Number(milestoneId),
-      content: content,
-      blockTimestamp: moment().unix()
-    }
-    let response = await axios.post(tcrEndpoint + '/add-milestone', request)
-    this.responseErrorCheck(response.data)
-    return JSON.stringify(response.data)
+    let { projectId, milestoneId, content, objMetaCompact, objContent } = job.data
+    console.log(projectId, milestoneId, content, objMetaCompact, objContent)
+
+    // TODO
+    // let request = {
+    //   projectID: projectId,
+    //   milestoneId: Number(milestoneId),
+    //   content: content,
+    //   blockTimestamp: moment().unix()
+    // }
+    // let response = await axios.post(tcrEndpoint + '/add-milestone', request)
+    // this.responseErrorCheck(response.data)
+    // return JSON.stringify(response.data)
   }
 
   removeMilestoneEvent = async (job) => {
