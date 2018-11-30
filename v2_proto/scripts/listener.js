@@ -14,11 +14,20 @@ const Utils = require('../scripts/utils')
 
 require('events').EventEmitter.prototype._maxListeners = 100
 
-const tcrEndpoint = 'https://mfmybdhoea.execute-api.ca-central-1.amazonaws.com/exp'
-const feedEndpoint = 'https://7g1vjuevub.execute-api.ca-central-1.amazonaws.com/exp'
+// default endpoints for testing
+var tcrEndpoint = 'https://mfmybdhoea.execute-api.ca-central-1.amazonaws.com/exp'
+var feedEndpoint = 'https://7g1vjuevub.execute-api.ca-central-1.amazonaws.com/exp'
+
+if (process.env.TCR_ENDPOINT) {
+  tcrEndpoint = process.env.TCR_ENDPOINT
+}
+
+if (process.env.FEED_ENDPOINT) {
+  feedEndpoint = process.env.FEED_ENDPOINT
+}
 
 // fill in access token here
-axios.defaults.headers.post['Authorization'] = ''
+axios.defaults.headers.post['Authorization'] = process.env.ACCESS_TOKEN
 axios.defaults.headers.post['Content-Type'] = 'application/json'
 
 const userTypeMapping = {
