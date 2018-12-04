@@ -28,5 +28,11 @@
     "symbol":"ZIL",
     "address": "0x05f4a42e251f2d52b8ed15e9fedaacfcef1fad27",
     "decimals": 12
+  },
+  {
+    "name": "VetX",
+    "symbol":"VTX",
+    "address": "0xf24f035fc051fcb0e257a0d91b1b4708e94e3273",
+    "decimals": 18
   }
 ]
