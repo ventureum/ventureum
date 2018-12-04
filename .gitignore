@@ -6,3 +6,4 @@ aws/app/node_modules/
 aws/app/package-lock.json
 aws/app.zip
 aws/config.json
+v2_proto/.env

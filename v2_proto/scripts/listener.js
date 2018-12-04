@@ -11,20 +11,12 @@ import moment from 'moment'
 const sha3 = require('js-sha3').sha3_256
 const uuidParse = require('uuid-parse')
 const Utils = require('../scripts/utils')
-
+require('dotenv').config()
 require('events').EventEmitter.prototype._maxListeners = 100
 
 // default endpoints for testing
-var tcrEndpoint = 'https://mfmybdhoea.execute-api.ca-central-1.amazonaws.com/exp'
-var feedEndpoint = 'https://7g1vjuevub.execute-api.ca-central-1.amazonaws.com/exp'
-
-if (process.env.TCR_ENDPOINT) {
-  tcrEndpoint = process.env.TCR_ENDPOINT
-}
-
-if (process.env.FEED_ENDPOINT) {
-  feedEndpoint = process.env.FEED_ENDPOINT
-}
+const tcrEndpoint = `${process.env.TCR_ENDPOINT}/${process.env.TCR_STAGE}`
+const feedEndpoint = `${process.env.FEED_ENDPOINT}/${process.env.FEED_STAGE}`
 
 // fill in access token here
 axios.defaults.headers.post['Authorization'] = process.env.ACCESS_TOKEN
