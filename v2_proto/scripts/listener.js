@@ -3,8 +3,6 @@ import {
 } from 'loom-js'
 
 import Web3 from 'web3'
-import RepSys from '../build/contracts/RepSys.json'
-import Milestone from '../build/contracts/Milestone.json'
 import Queue from 'bull'
 import axios from 'axios'
 import moment from 'moment'
@@ -21,6 +19,9 @@ const feedEndpoint = `${process.env.FEED_ENDPOINT}/${process.env.FEED_STAGE}`
 // fill in access token here
 axios.defaults.headers.post['Authorization'] = process.env.ACCESS_TOKEN
 axios.defaults.headers.post['Content-Type'] = 'application/json'
+
+var RepSys = null
+var Milestone = null
 
 const userTypeMapping = {
   '0xf4af7c06': 'KOL',
@@ -506,6 +507,20 @@ class EventHandler {
 }
 
 async function main () {
+  if (process.env.CONTRACT_ARTIFACTS_URL) {
+    // use contract artifacts from remote url instead of local files
+    console.log(`Loading contract artifacts from ${process.env.CONTRACT_ARTIFACTS_URL} ...`)
+    let responseRepSys = await axios.get(process.env.CONTRACT_ARTIFACTS_URL + '/RepSys.json')
+    RepSys = responseRepSys.data
+    let responseMilestone = await axios.get(process.env.CONTRACT_ARTIFACTS_URL + '/Milestone.json')
+    Milestone = responseMilestone.data
+    console.log('Remote contract artifacts loaded!')
+  } else {
+    console.log('Loading contract artifacts from local ...')
+    RepSys = require('../build/contracts/RepSys.json')
+    Milestone = require('../build/contracts/Milestone.json')
+    console.log('Local contract artifacts loaded!')
+  }
   var eventHandler = new EventHandler()
   eventHandler.start()
   var c = new Contract()
