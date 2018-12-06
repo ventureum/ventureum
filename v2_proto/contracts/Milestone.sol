@@ -61,8 +61,7 @@ contract Milestone {
     }
 
     modifier onlyProjectOwner(bytes32 projectId) {
-        // temporaily disabled, for testing only
-        // require(projects[projectId].admin == msg.sender, "Must be project owner");
+        require(projects[projectId].admin == msg.sender, "Must be project owner");
         _;
     }
 
@@ -100,6 +99,16 @@ contract Milestone {
 
         // put a dummy milestone at index 0
         p.milestones.length++;
+
+        emit RegisterProject(projectId, p.admin, content);
+    }
+
+    function modifyProject(bytes32 projectId, address admin, string content) external onlyProjectFounder {
+        Project storage p = projects[projectId];
+        require(p.admin != address(0x0), "Project does not exist");
+        require(admin != address(0x0), "Invalid admin address");
+        p.admin = admin;
+        p.content = content;
 
         emit RegisterProject(projectId, p.admin, content);
     }
