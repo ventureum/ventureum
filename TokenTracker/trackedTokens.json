@@ -1,32 +1,8 @@
 [
   {
-    "name": "VeChain",
-    "symbol": "VEN",
-    "address": "0xd850942ef8811f2a866692a623011bde52a462c1",
+    "name": "VetX",
+    "symbol":"VTX",
+    "address": "0xf24f035fc051fcb0e257a0d91b1b4708e94e3273",
     "decimals": 18
-  },
-  {
-    "name": "OmiseGO",
-    "symbol": "OMG",
-    "address": "0xd26114cd6EE289AccF82350c8d8487fedB8A0C07",
-    "decimals": 18
-  },
-  {
-    "name": "Maker",
-    "symbol": "MKR",
-    "address": "0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2",
-    "decimals": 18
-  },
-  {
-    "name": "ZRX",
-    "symbol": "ZRX",
-    "address": "0xe41d2489571d322189246dafa5ebde1f4699f498",
-    "decimals": 18
-  },
-  {
-    "name": "Zilliqa",
-    "symbol":"ZIL",
-    "address": "0x05f4a42e251f2d52b8ed15e9fedaacfcef1fad27",
-    "decimals": 12
   }
 ]

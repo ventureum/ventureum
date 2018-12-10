@@ -1,5 +1,6 @@
 #!/bin/bash
 rm TokenTracker.zip
+sh fetchContract.sh
 npm run install
 npm run build
 zip -r TokenTracker.zip ./
