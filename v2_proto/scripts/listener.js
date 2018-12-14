@@ -222,7 +222,8 @@ class EventHandler {
       telegramId: meta.telegramId,
       phoneNumber: meta.phoneNumber,
       username: meta.username,
-      publicKey: publicKey
+      publicKey: publicKey,
+      profileContent: meta.profileContent
     }
 
     let response = await axios.post(feedEndpoint + '/profile', request)
