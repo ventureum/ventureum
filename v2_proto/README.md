@@ -4,31 +4,37 @@
 
 Follow the official doc: https://loomx.io/developers/docs/en/basic-install-all.html
 
-## Install dependencies
+## Set up environment in Docker
 
+```
+. .dock.sh
+```
+Go to `./ventureum/v2_proto`
+
+### Install dependencies
 ```
 npm install
 ```
 
-## Compile and migrate contracts to Loom
+### Compile and migrate contracts to Loom
 
 ```
 truffle migrate --reset --network loom
 ```
 
-## Copy build files to Frontend (e.g. Opportunity/src)
+### Copy build files to Frontend (e.g. Opportunity/src)
 
 ```
 cp -r ./build/contracts/ ../../Opportunity/src
 ```
 ## Start Redis-server
-
+Go to `./ventureum/v2_proto`
 
 ```
 bash ./redis.sh
 ```
 ## Start Listener
-
+Go to `./ventureum/v2_proto`
 
 ```
 npm run startListener
