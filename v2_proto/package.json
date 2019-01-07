@@ -5,7 +5,9 @@
   "main": "truffle-config.js",
   "scripts": {
     "buildListener": "rimraf dist/ && ./node_modules/.bin/babel ./scripts/listener.js --out-dir dist/ --ignore ./package.json,./npm-debug.log --copy-files",
+    "buildUploadProjectData": "rimraf dist/ && ./node_modules/.bin/babel ./scripts/uploadProjectData.js ./scripts/utils.js --out-dir dist/ --ignore ./package.json,./npm-debug.log --copy-files",
     "startListener": "npm run buildListener && node dist/listener.js",
+    "uploadProjectData": "npm run buildUploadProjectData && node dist/uploadProjectData.js",
     "arena": "node scripts/router.js"
   },
   "author": "",
@@ -22,6 +24,7 @@
     "js-sha3": "^0.8.0",
     "loom-js": "^1.30.2",
     "loom-truffle-provider": "^0.8.0",
+    "moment": "^2.23.0",
     "openzeppelin-solidity": "^2.0.0",
     "shelljs": "^0.8.2",
     "uuid-parse": "^1.0.0",
