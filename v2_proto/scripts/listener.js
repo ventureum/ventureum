@@ -452,7 +452,8 @@ class EventHandler {
         objectiveId: Number(ratings[i]),
         voter: proxyUuid,
         rating: Number(ratings[i + 1]),
-        weight: Number(weight)
+        weight: Number(weight),
+        blockTimestamp: moment().unix() // Loom event does not container blockTimestamp, use listnener's current time instead.
       }
       let response = await axios.post(tcrEndpoint + '/rating-vote', request)
       this.responseErrorCheck(response.data)
