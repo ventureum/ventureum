@@ -121,14 +121,18 @@ module.exports = async function (callback) {
     username: 'kol_username',
     photoUrl: 'https://randomuser.me/api/portraits/men/64.jpg',
     telegramId: '-10023340203',
-    phoneNumber: '+15198971683'
+    phoneNumber: '+15198971683',
+    'profileContent': '{"shortDescription":"Award-Winning Author | Angel Investor | STO and ICO Advisor | UN Consultant | INSEAD MBA | Advisor Polymath, BitBlock Capital, Fiat Capital Fund | Par","description":"Aly Madhavji (Beijing), Award-Winning Author | Angel Investor | STO and ICO Advisor | UN Consultant | INSEAD MBA | Advisor Polymath, BitBlock Capital, Fiat Capital Fund | Par - having ISS of 34.8 - Aly Madhavji (穆亚霖) is the Managing Partner at the Blockchain Founders Fund, Senior Investment Advisor to BitBlock Capital and Fiat Capital Fund, and a Co-Founder and the Former CEO of Global DCX (rebranded to Alluma), an innovative technology company launching secure digital currency exchanges across emerging markets. He is also an avid investor in early stage companies, digital currencies, and Initial Coin Offerings (ICOs). He has served on various token advisory boards including Polymath, Hurify, Cryptyk and traditional advisory roles including the University of Toronto’s Governing Council. He currently consults organizations such as the United Nations (UN) on FinTech and Blockchain solutions to help alleviate poverty, support business ecosystems, financial inclusion, and improve society at large. He is an internationally acclaimed author, publishing three books, including the award-winning book titled, “Your Guide to Succeed in University”, as part of the Succeed Series. He has lived and worked across 4 continents (North/South America, Europe, and Asia) with PwC, PayPal, Microsoft, Bloomberg, and INSEAD. He also holds the Chartered Professional Accountant, Chartered Accountant, Certified Management Accountant, and Chartered Investment Manager designations. Aly holds a Masters of Global Affairs as a Schwarzman Scholar from Tsinghua University, a Masters in Business Administration from INSEAD (Singapore and France), and a Bachelor of Commerce with Distinction from the University of Toronto.","name":"Aly Madhavji","successScore":34.8}'
+
   }
 
   const userKOL1Meta = {
     username: 'kol1_username',
     photoUrl: 'https://randomuser.me/api/portraits/men/64.jpg',
     telegramId: '-10023340203',
-    phoneNumber: '+15198971683'
+    phoneNumber: '+15198971683',
+    'profileContent': '{"shortDescription":"Award-Winning Author | Angel Investor | STO and ICO Advisor | UN Consultant | INSEAD MBA | Advisor Polymath, BitBlock Capital, Fiat Capital Fund | Par","description":"Aly Madhavji (Beijing), Award-Winning Author | Angel Investor | STO and ICO Advisor | UN Consultant | INSEAD MBA | Advisor Polymath, BitBlock Capital, Fiat Capital Fund | Par - having ISS of 34.8 - Aly Madhavji (穆亚霖) is the Managing Partner at the Blockchain Founders Fund, Senior Investment Advisor to BitBlock Capital and Fiat Capital Fund, and a Co-Founder and the Former CEO of Global DCX (rebranded to Alluma), an innovative technology company launching secure digital currency exchanges across emerging markets. He is also an avid investor in early stage companies, digital currencies, and Initial Coin Offerings (ICOs). He has served on various token advisory boards including Polymath, Hurify, Cryptyk and traditional advisory roles including the University of Toronto’s Governing Council. He currently consults organizations such as the United Nations (UN) on FinTech and Blockchain solutions to help alleviate poverty, support business ecosystems, financial inclusion, and improve society at large. He is an internationally acclaimed author, publishing three books, including the award-winning book titled, “Your Guide to Succeed in University”, as part of the Succeed Series. He has lived and worked across 4 continents (North/South America, Europe, and Asia) with PwC, PayPal, Microsoft, Bloomberg, and INSEAD. He also holds the Chartered Professional Accountant, Chartered Accountant, Certified Management Accountant, and Chartered Investment Manager designations. Aly holds a Masters of Global Affairs as a Schwarzman Scholar from Tsinghua University, a Masters in Business Administration from INSEAD (Singapore and France), and a Bachelor of Commerce with Distinction from the University of Toronto.","name":"Aly Madhavji","successScore":34.8}'
+
   }
 
   const userProjectFounderMeta = {
@@ -198,5 +202,10 @@ module.exports = async function (callback) {
 
   await milestone.activateMilestone(project, 1, { from: userProjectFounder })
   await milestone.finalizeMilestone(project, 1, { from: userProjectFounder })
+  await milestone.finalizeValidators(project, 1, 2)
+
+  const objComment = JSON.stringify({})
+  await milestone.rateObj(project, 1, [1, 5], objComment, { from: userKOL })
+
   callback()
 }

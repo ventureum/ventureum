@@ -58,10 +58,11 @@ module.exports = async function (callback) {
     console.log('Registering users on chain ...')
     const bar = new _cliProgress.Bar({}, _cliProgress.Presets.shades_classic)
     bar.start(validators.length, 0)
-
+    let privateKeyDict = {}
     for (let i = 0; i < validators.length; i++) {
       let v = validators[i]
       let { privateKey, address } = generatePrivateKey()
+      privateKeyDict[v.actor] = privateKey
       privateKey = Web3.utils.bytesToHex(privateKey)
       await repSys.registerUser(v.actor, address, typeKOL, 1000, JSON.stringify(v))
       bar.update(i + 1)
@@ -78,7 +79,7 @@ module.exports = async function (callback) {
 
     for (let i = 0; i < validators.length; i++) {
       let v = validators[i]
-      let { privateKey } = generatePrivateKey()
+      let privateKey = privateKeyDict[v.actor]
       privateKey = Web3.utils.bytesToHex(privateKey)
       await apiFeed.post('/set-actor-private-key',
         { actor: toStandardUUID(v.actor),
