@@ -201,7 +201,7 @@ module.exports = async function (callback) {
   await milestone.addMilestone(project, JSON.stringify(milestone1Content), objData.objMetaCompact, objData.objContent, { from: userProjectFounder })
 
   await milestone.activateMilestone(project, 1, { from: userProjectFounder })
-  await milestone.finalizeMilestone(project, 1, { from: userProjectFounder })
+  await milestone.finalizeMilestone(project, 1, 0, { from: userProjectFounder })
   await milestone.finalizeValidators(project, 1, 2)
 
   const objComment = JSON.stringify({})

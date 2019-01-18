@@ -127,7 +127,7 @@ class UploadProjectData {
           let objData = Utils.encodeObjData([0], [1], [JSON.stringify(objectContent)])
           await this.milestoneInstance.methods.addMilestone(projectID, JSON.stringify(milestoneContent), objData.objMetaCompact, objData.objContent).send({ from: projectPFMap[projectID] })
           await this.milestoneInstance.methods.activateMilestone(projectID, 1).send({ from: projectPFMap[projectID] })
-          await this.milestoneInstance.methods.finalizeMilestone(projectID, 1).send({ from: projectPFMap[projectID] })
+          await this.milestoneInstance.methods.finalizeMilestone(projectID, 1, 0).send({ from: projectPFMap[projectID] })
           progress += 1
           bar.update(progress)
         }
