@@ -216,7 +216,7 @@ contract Milestone {
         emit RemoveMilestone(projectId, milestoneId);
     }
 
-    function activateMilestone(bytes32 projectId, uint milestoneId) external onlyProjectOwner(projectId) {
+    function activateMilestone(bytes32 projectId, uint milestoneId, uint startTime) external onlyProjectOwner(projectId) {
         Project storage p = projects[projectId];
         require(1 <= milestoneId && milestoneId < p.milestones.length, "Invalid milestone id");
 
@@ -226,8 +226,11 @@ contract Milestone {
 
         MilestoneData storage m = p.milestones[milestoneId];
 
-        /* solium-disable-next-line */
-        m.startTime = now;
+        require(
+            (startTime >= 0) && (m.endTime == 0),
+            "Must be equal or larger than 0"
+        );
+        m.startTime = startTime == 0 ? now : startTime;
 
         emit ActivateMilestone(projectId, milestoneId, m.startTime);
     }
