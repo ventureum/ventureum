@@ -354,7 +354,16 @@ contract Milestone {
             Obj storage o = m.objs[ratings[i]];
 
             // can only vote once
-            require(o.voters[msg.sender].rating == 0, "Can only vote once");
+            // require(o.voters[msg.sender].rating == 0, "Can only vote once");
+
+            if (o.voters[msg.sender].weight != 0) {
+                // has previously voted, clear last voted data
+                o.totalRating.sub(o.voters[msg.sender].weight.mul(o.voters[msg.sender].rating));
+                o.totalWeight = o.totalWeight.sub(o.voters[msg.sender].weight);
+
+                o.voters[msg.sender].rating = 0;
+                o.voters[msg.sender].weight = 0;
+            }
 
             o.totalRating = o.totalRating.add(weight.mul(ratings[i+1]));
             o.totalWeight = o.totalWeight.add(weight);
