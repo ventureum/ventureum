@@ -3,11 +3,12 @@ import Web3 from 'web3'
 import projectData from '../cleanedProjectData.json'
 import milestoneData from '../cleanedMilestoneData.json'
 import ratingData from '../cleanedRatingData.json'
-import {shake128} from 'js-sha3'
+import { shake128 } from 'js-sha3'
 import Utils from './utils'
 import delay from 'delay'
 import axios from 'axios'
 import _cliProgress from 'cli-progress'
+
 const LoomTruffleProvider = require('loom-truffle-provider')
 const path = require('path')
 const { readFileSync } = require('fs')
@@ -76,7 +77,7 @@ class UploadProjectData {
       const typeProjectFounder = '0x5707a2a6'
       const typeUser = '0x2db9fd3d'
       const richUserMeta = {
-        username: 'user_username',
+        username: 'richUser',
         photoUrl: 'https://randomuser.me/api/portraits/men/64.jpg',
         telegramId: '-4444123132',
         phoneNumber: '+15198971683'
@@ -93,17 +94,17 @@ class UploadProjectData {
       for (let i = 0; i < projectData.projects.length; i++) {
         const project = projectData.projects[i]
         const tempProjectFounderMeta = {
-          username: `pf_username${i}`,
-          photoUrl: 'https://randomuser.me/api/portraits/men/64.jpg',
+          username: `pf_${project.projectName}`,
+          photoUrl: 'https://icobench.com/images/icos/icons/investx.jpg',
           telegramId: `-10023340203${i}`,
           phoneNumber: '+15198971683'
         }
         const projectFounderId = '0x' + shake128(String(tempProjectFounderMeta.telegramId), 128)
-        await this.repSysInstance.methods.registerUser(projectFounderId, accounts[i + 10], typeProjectFounder, 0, JSON.stringify(tempProjectFounderMeta)).send({from: rootUser})
+        await this.repSysInstance.methods.registerUser(projectFounderId, accounts[i + 10], typeProjectFounder, 0, JSON.stringify(tempProjectFounderMeta)).send({ from: rootUser })
         await delay(1000)
 
         const projectId = Web3.utils.sha3(project.projectName)
-        await this.milestoneInstance.methods.registerProject(projectId, JSON.stringify(project)).send({from: accounts[i + 10]})
+        await this.milestoneInstance.methods.registerProject(projectId, JSON.stringify(project)).send({ from: accounts[i + 10] })
         projectPFMap[projectId] = accounts[i + 10]
         bar.update(i + 1)
       }
@@ -126,8 +127,8 @@ class UploadProjectData {
           const objectContent = milestoneData.objective
           let objData = Utils.encodeObjData([0], [1], [JSON.stringify(objectContent)])
           await this.milestoneInstance.methods.addMilestone(projectID, JSON.stringify(milestoneContent), objData.objMetaCompact, objData.objContent).send({ from: projectPFMap[projectID] })
-          await this.milestoneInstance.methods.activateMilestone(projectID, 1, 0).send({ from: projectPFMap[projectID] })
-          await this.milestoneInstance.methods.finalizeMilestone(projectID, 1, 0).send({ from: projectPFMap[projectID] })
+          await this.milestoneInstance.methods.activateMilestone(projectID, j + 1, milestoneContent.expectedStartTime).send({ from: projectPFMap[projectID] })
+          await this.milestoneInstance.methods.finalizeMilestone(projectID, j + 1, milestoneContent.expectedEndTime).send({ from: projectPFMap[projectID] })
           progress += 1
           bar.update(progress)
         }
@@ -155,6 +156,8 @@ class UploadProjectData {
         let kolRatingList = []
         let kolCommentList = []
         let kolPrivateKeyList = []
+        let milestoneIdList = []
+        let milestoneRatingCount = {}
         for (let j = 0; j < project.ratings.length; j++) {
           const ratingRecord = project.ratings[j]
           if (privateKeyDictionary[ratingRecord.actor] === undefined) {
@@ -177,27 +180,39 @@ class UploadProjectData {
               console.log(rv.data.message)
             }
           }
+          milestoneIdList.push(ratingRecord.milestoneId)
           kolAddressList.push(privateKeyDictionary[ratingRecord.actor].address)
           kolPrivateKeyList.push(privateKeyDictionary[ratingRecord.actor].privateKey)
           kolRatingList.push(ratingRecord.rating)
           kolCommentList.push(ratingRecord.comment)
+          milestoneRatingCount[ratingRecord.milestoneId] = typeof milestoneRatingCount[ratingRecord.milestoneId] !== 'number' ? 1 : milestoneRatingCount[ratingRecord.milestoneId] + 1
         }
+        let finalizedMilestones = {}
         if (kolAddressList.length !== 0) {
           const pcts = Array(project.ratings.length).fill(Math.floor((10000 / totalTokens) * 100))
           await this.repSysInstance.methods.delegate(projectID, kolAddressList, pcts).send({ from: richUser })
-          await this.milestoneInstance.methods.finalizeValidators(projectID, 1, kolAddressList.length).send({from: rootUser})
+          for (let x = 0; x < milestoneIdList.length; x++) {
+            if (finalizedMilestones[milestoneIdList[x]] !== true) {
+              await this.milestoneInstance.methods.finalizeValidators(projectID, milestoneIdList[x], kolAddressList.length).send({ from: rootUser })
+              finalizedMilestones[milestoneIdList[x]] = true
+            }
+          }
           // rate Ms
           for (let x = 0; x < kolAddressList.length; x++) {
             const base64PrivateKey = CryptoUtils.Uint8ArrayToB64(new Uint8Array(Web3.utils.hexToBytes(kolPrivateKeyList[x])))
 
             const tempWeb3 = new Web3(new LoomTruffleProvider(chainId, writeUrl, readUrl, base64PrivateKey))
             const tempMilestoneInstance = new tempWeb3.eth.Contract(Milestone.abi, Milestone.networks[NETWORK_ID].address)
-            try {
-              await tempMilestoneInstance.methods.rateObj(projectID, 1, [1, kolRatingList[x]], JSON.stringify(kolCommentList[x])).send({ from: kolAddressList[x] })
-            } catch (e) {
-            // Give up if voted
-              console.log(e)
-              continue
+            // some comments has no rating score.
+            if (kolRatingList[x]) {
+              try {
+                await tempMilestoneInstance.methods.rateObj(projectID, milestoneIdList[x], [1, kolRatingList[x]], JSON.stringify(kolCommentList[x])).send({ from: kolAddressList[x] })
+              } catch (e) {
+                // Print the error and input
+                console.log(project.projectName, projectID, milestoneIdList[x], kolRatingList[x], JSON.stringify(kolCommentList[x]))
+                console.log(e)
+                continue
+              }
             }
           }
         }

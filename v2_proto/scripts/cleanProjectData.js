@@ -51,6 +51,17 @@ function getUUID (rawUUID) {
   return id
 }
 
+function findCommentMilestoneId (commentTimeStamp, milestoneTimes) {
+  let id = 0
+  while (id < milestoneTimes.length) {
+    if (commentTimeStamp <= new Date(milestoneTimes[id])) {
+      break
+    }
+    id += 1
+  }
+  return id >= 1 ? id : 1
+}
+
 function main () {
   const parser = parse({ delimiter: ',', columns: true, cast: true }, function (err, data) {
     if (err) throw new Error(err)
@@ -134,15 +145,15 @@ function main () {
 
     // Milestone data
     let cleanMilestoneData = data.map(project => {
-      const msDateArray = str2arr(project.Tab_MS_2_Condition)
+      const msDateArray = parseMilestoneInfo(project.Tab_MS_2_Condition_2)
       const msProductionArray = parseMilestoneInfo(project.Tab_MS_3_Product)
       const msTitle = parseMilestoneInfo(project.Tab_MS_2_Condition)
-      const projectMs = msProductionArray.map((ms, i) => {
+
+      let projectMs = msProductionArray.map((ms, i) => {
         const msContent = {
           title: msTitle[i],
           description: ms,
-          expectedStartTime: msDateArray[i],
-          expectedEndTime: msDateArray[i]
+          expectedEndTime: moment(new Date(msDateArray[i])).unix() + 1
         }
         const msObj = {
           title: msTitle[i],
@@ -151,6 +162,21 @@ function main () {
         return {
           milestone: msContent,
           objective: msObj
+        }
+      })
+
+      projectMs.sort((ms1, ms2) => {
+        return ms1.milestone.expectedEndTime - ms2.milestone.expectedEndTime
+      })
+
+      projectMs = projectMs.map((ms, i) => {
+        return {
+          ...ms,
+          milestone: {
+            ...ms.milestone,
+            milestoneId: i + 1,
+            expectedStartTime: i === 0 ? ms.milestone.expectedEndTime - 1 : projectMs[i - 1].milestone.expectedEndTime - 1
+          }
         }
       })
 
@@ -172,6 +198,12 @@ function main () {
       const projectName = project.TL_1_Name.trim()
       const kolNames = str2arr(project.Tab_Ratings_1_Name)
       const comments = parseMilestoneInfo(project.Tab_Ratings_2_1_Comments)
+      let msDateArray = parseMilestoneInfo(project.Tab_MS_2_Condition_2)
+
+      msDateArray.sort((d1, d2) => {
+        return moment(new Date(d1)).unix() - moment(new Date(d2)).unix()
+      })
+
       const timeStamps = parseMilestoneInfo(project.Tab_Ratings_2_Title).map(item => {
         let index = item.indexOf('Modified on')
         let time
@@ -191,10 +223,11 @@ function main () {
           actor: dictionary[kol],
           rating: averageRatings[i],
           comment: {
-            title: 'comment',
+            title: `Comment to '${projectName}'`,
             text: comments[i]
           },
-          timestamp: new Date(timeStamps[i])
+          timestamp: moment(new Date(timeStamps[i])).unix(),
+          milestoneId: findCommentMilestoneId(new Date(timeStamps[i]), msDateArray)
         }
       })
       actorRatings = actorRatings.filter(item => {
